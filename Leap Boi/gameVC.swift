@@ -1,5 +1,5 @@
 //
-//  GameViewController.swift
+//  gameVC.swift
 //  Leap Boi
 //
 //  Created by Robert Desjardins on 2018-02-26.
@@ -10,8 +10,8 @@ import UIKit
 import SpriteKit
 import GameplayKit
 
-class GameViewController: UIViewController {
-
+class gameVC: UIViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let scene = GameScene(size: view.bounds.size)
@@ -22,14 +22,15 @@ class GameViewController: UIViewController {
         scene.scaleMode = .resizeFill
         skView.presentScene(scene)
     }
-
-
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Release any cached data, images, etc that aren't in use.
     }
-
+    
     override var prefersStatusBarHidden: Bool {
         return true
     }
 }
+
