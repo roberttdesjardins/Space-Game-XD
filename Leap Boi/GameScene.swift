@@ -7,19 +7,18 @@
 //  Icon made by Becris from www.flaticon.com
 
 //TODO:
-// Give health points to enemies
 // Make different weapons which do different damage
 // Make a game over screen
-// Make a start screen
 // Make an explosion when things die
 // Make a score based on time alive and amount killed
 // Set fire rate of different weapons
-// Make asteroids
 // Make aliens shoot
 // add background with stars
 // add nice lanchscreen storyboard
 // add different levels based on planets
 // keep track of score (high scores)
+// Make aliens more "randomly"
+// give health to player
 
 
 import SpriteKit
@@ -62,7 +61,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let kPlayerName = "player"
     let kAlienName = "alien"
+    let kAsteroidName = "asteroid"
     let kProjectileName = "projectile"
+    let kScoreHudName = "scoreHud"
+    let kHealthHudName = "healthHud"
     
     let motionManager = CMMotionManager()
     
@@ -71,6 +73,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupScreen()
         setupPlayer()
         setUpAliens()
+        setUpAsteroid()
+        setupHud()
         motionManager.startAccelerometerUpdates()
     }
     
@@ -92,6 +96,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 SKAction.wait(forDuration: Double(random(min: CGFloat(0.1), max: CGFloat(0.4))))
                 ])
         ))
+    }
+    
+    func setUpAsteroid() {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addAstroid),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(6))))
+                ])
+        ))
+    }
+    
+    func setupHud() {
+        let scoreLabel = SKLabelNode(fontNamed: "Avenir")
+        scoreLabel.name = kScoreHudName
+        scoreLabel.fontSize = 15
+        scoreLabel.fontColor = SKColor.white
+        scoreLabel.text = String(format: "Score: %04u", 0)
+        scoreLabel.position = CGPoint(
+            x: scoreLabel.frame.size.width/2,
+            y: size.height - scoreLabel.frame.size.height
+        )
+        addChild(scoreLabel)
+        
+        let healthLabel = SKLabelNode(fontNamed: "Avenir")
+        healthLabel.name = kHealthHudName
+        healthLabel.fontSize = 15
+        healthLabel.fontColor = SKColor.green
+        healthLabel.text = String(format: "Health: %.1f%%", 100.0)
+        healthLabel.position = CGPoint(
+            x: healthLabel.frame.size.width/2,
+            y: size.height - (20 + healthLabel.frame.size.height/2)
+        )
+        addChild(healthLabel)
     }
     
     // Creates the player.
@@ -122,6 +159,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
         alien.size = CGSize(width: 40, height: 40)
+        alien.userData = NSMutableDictionary()
+        setAlienHealth(alien: alien)
         
         alien.physicsBody = SKPhysicsBody(circleOfRadius: alien.size.width/3)
         alien.physicsBody?.isDynamic = false
@@ -137,6 +176,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         alien.run(SKAction.sequence([actionMove, actionMoveDone]))
         
+    }
+    
+    func addAstroid() {
+        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        asteroid.name = kAsteroidName
+        asteroid.size = CGSize(width: 80, height: 80)
+        asteroid.userData = NSMutableDictionary()
+        setAstroidHealth(astroid: asteroid)
+        
+        asteroid.physicsBody = SKPhysicsBody(circleOfRadius: asteroid.size.width/2)
+        asteroid.physicsBody?.isDynamic = false
+        asteroid.physicsBody!.contactTestBitMask = asteroid.physicsBody!.collisionBitMask
+        
+        let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
+        asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
+        addChild(asteroid)
+        
+        let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
+        
+        let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: -asteroid.size.height/2), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
@@ -188,12 +249,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func collisionBetween(ob1: SKNode, ob2: SKNode){
-        if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == "asteroid")
+        if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == kAsteroidName)
         {
             ob1.removeFromParent()
         }
         if ob1.name == kAlienName && ob2.name == kProjectileName {
-            ob1.removeFromParent()
+            subtractHealth(sprite: ob1, damage: 1)
+            ob2.removeFromParent()
+        }
+        
+        if ob1.name == kAsteroidName && ob2.name == kProjectileName {
+            subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
         }
     }
@@ -211,6 +277,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kAlienName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kAlienName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kAsteroidName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kAsteroidName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         

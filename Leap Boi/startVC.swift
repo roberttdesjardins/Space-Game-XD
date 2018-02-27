@@ -14,10 +14,7 @@ class startVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-
-    }
-    @IBAction func startBtnPressed(_ sender: Any) {
+        view.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
     }
     
 
