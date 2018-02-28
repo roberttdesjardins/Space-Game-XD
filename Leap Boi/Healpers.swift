@@ -35,3 +35,13 @@ func gameOver(view: UIView) {
     scene.scaleMode = .resizeFill
     skView.presentScene(scene)
 }
+
+func startSceneLoad(view: UIView) {
+    let scene = StartScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.showsFPS = false
+    skView.showsNodeCount = false
+    skView.presentScene(scene)
+}

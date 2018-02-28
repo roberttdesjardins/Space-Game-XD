@@ -12,7 +12,6 @@
 // Make an explosion when things die
 // Make a score based on time alive and amount killed
 // Set fire rate of different weapons
-// Make aliens shoot
 // add background with stars
 // add nice lanchscreen storyboard
 // add different levels based on planets
@@ -21,7 +20,8 @@
 // inapp purchases?
 // Make aliens move "randomly"
 // give health to player
-// Make a restart button on game over scene
+// Improve hitboxes: http://stefansdevplayground.blogspot.ca/2014/11/how-to-implement-space-shooter-with_27.html
+// add pause button
 
 
 import SpriteKit
@@ -64,8 +64,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let kPlayerName = "player"
     let kAlienName = "alien"
+    let kAlienLaserName = "alienlaser"
     let kAsteroidName = "asteroid"
-    let kProjectileName = "projectile"
+    let kLaserName = "laser"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     
@@ -134,7 +135,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(healthLabel)
     }
     
-    // Creates the player.
     func makePlayer() -> SKNode {
         let player = SKSpriteNode(imageNamed: "spaceship")
         player.size = CGSize(width: 35, height: 35)
@@ -157,7 +157,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
@@ -178,7 +177,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMove = SKAction.move(to: CGPoint(x: actualX, y: -alien.size.height/2), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
         alien.run(SKAction.sequence([actionMove, actionMoveDone]))
-        
+        setUpAlienLaser(alien: alien)
     }
     
     func addAstroid() {
@@ -203,18 +202,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
+    func addAlienLaser(alien: SKSpriteNode) {
+        let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 16))
+        alienLaser.name = kAlienLaserName
+        
+        alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
+        alienLaser.physicsBody?.isDynamic = false
+        alienLaser.physicsBody!.contactTestBitMask = alienLaser.physicsBody!.collisionBitMask
+        alienLaser.physicsBody?.usesPreciseCollisionDetection = true
+        
+        let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
+        alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
+        let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x, y: alienLaser.position.y - 1000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        alienLaser.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(alienLaser)
+    }
+    
+    func setUpAlienLaser(alien: SKSpriteNode) {
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(4))))
+        let run = SKAction.run {
+            self.addAlienLaser(alien: alien)
+        }
+        alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
+    }
+    
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if let data = motionManager.accelerometerData {
                 if data.acceleration.x > 0.001 {
-                    print("Acceleration: \(data.acceleration.x)")
+                    //print("Acceleration: \(data.acceleration.x)")
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
-                    player.physicsBody?.velocity.dx = CGFloat(75 * ((data.acceleration.x * 10) * (data.acceleration.x * 1.5)))
+                    player.physicsBody?.velocity.dx = CGFloat(100 * ((data.acceleration.x * 10) * (data.acceleration.x * 1.25)))
                 }
                 if data.acceleration.x < -0.001 {
-                    print("Acceleration: \(data.acceleration.x)")
+                    //print("Acceleration: \(data.acceleration.x)")
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
-                    player.physicsBody?.velocity.dx = CGFloat(75 * ((data.acceleration.x * 10) * (data.acceleration.x * -1.5)))
+                    player.physicsBody?.velocity.dx = CGFloat(100 * ((data.acceleration.x * 10) * (data.acceleration.x * -1.25)))
                 }
             }
         }
@@ -229,40 +253,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         let touchLocation = touch.location(in: self)
-        let projectile = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
+        let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            projectile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + projectile.size.height/2)
+            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2)
         }
-        projectile.name = kProjectileName
-        projectile.physicsBody = SKPhysicsBody(rectangleOf: projectile.size)
-        projectile.physicsBody?.isDynamic = true
-        projectile.physicsBody!.contactTestBitMask = projectile.physicsBody!.collisionBitMask
-        projectile.physicsBody?.usesPreciseCollisionDetection = true
+        laser.name = kLaserName
+        laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
+        laser.physicsBody?.isDynamic = true
+        laser.physicsBody!.contactTestBitMask = laser.physicsBody!.collisionBitMask
+        laser.physicsBody?.usesPreciseCollisionDetection = true
         
-        let offset = touchLocation - projectile.position
+        let offset = touchLocation - laser.position
         if (offset.y < 100) { return }
-        addChild(projectile)
+        addChild(laser)
         let direction = offset.normalized()
         let shootAmount = direction * 1000
-        let realDest = shootAmount + projectile.position
+        let realDest = shootAmount + laser.position
         let actionMove = SKAction.move(to: realDest, duration: 2.0)
         let actionMoveDone = SKAction.removeFromParent()
-        projectile.run(SKAction.sequence([actionMove, actionMoveDone]))
-        
+        laser.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
     func collisionBetween(ob1: SKNode, ob2: SKNode){
-        if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == kAsteroidName)
+        if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == kAsteroidName || ob2.name == kAlienLaserName)
         {
             ob1.removeFromParent()
             gameOver(view: view!)
         }
-        if ob1.name == kAlienName && ob2.name == kProjectileName {
+        if ob1.name == kAlienName && ob2.name == kLaserName {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
         }
         
-        if ob1.name == kAsteroidName && ob2.name == kProjectileName {
+        if ob1.name == kAsteroidName && ob2.name == kLaserName {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
         }
@@ -289,6 +312,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if nodeB.name == kAsteroidName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
+        
         
     }
     

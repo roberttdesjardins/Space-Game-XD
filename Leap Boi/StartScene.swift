@@ -16,7 +16,7 @@ class StartScene: SKScene {
         let tapLabel = SKLabelNode(fontNamed: "Avenir")
         tapLabel.fontSize = 25
         tapLabel.fontColor = SKColor.white
-        tapLabel.text = "(Tap to Play)"
+        tapLabel.text = "Tap to Start"
         tapLabel.position = CGPoint(x: self.size.width/2, y: 2.0 / 3.0 * self.size.height);
         self.addChild(tapLabel)
         self.backgroundColor = SKColor.black
@@ -26,7 +26,9 @@ class StartScene: SKScene {
         
         let gameScene = GameScene(size: self.size)
         gameScene.scaleMode = .aspectFill
-        
+        view?.showsFPS = true
+        view?.showsNodeCount = true
+        view?.ignoresSiblingOrder = true
         self.view?.presentScene(gameScene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
         
     }
