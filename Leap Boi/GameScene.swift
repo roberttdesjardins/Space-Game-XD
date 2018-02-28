@@ -5,10 +5,10 @@
 //  Created by Robert Desjardins on 2018-02-26.
 //  Copyright © 2018 Robert Desjardins. All rights reserved.
 //  Icon made by Becris from www.flaticon.com
+//  Icon made by Freepik from www.flaticon.com 
 
 //TODO:
 // Make different weapons which do different damage
-// Make a game over screen
 // Make an explosion when things die
 // Make a score based on time alive and amount killed
 // Set fire rate of different weapons
@@ -17,8 +17,11 @@
 // add nice lanchscreen storyboard
 // add different levels based on planets
 // keep track of score (high scores)
-// Make aliens more "randomly"
+// add unlockable weapons, upgrades, etc based on score
+// inapp purchases?
+// Make aliens move "randomly"
 // give health to player
+// Make a restart button on game over scene
 
 
 import SpriteKit
@@ -252,6 +255,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == kAsteroidName)
         {
             ob1.removeFromParent()
+            gameOver(view: view!)
         }
         if ob1.name == kAlienName && ob2.name == kProjectileName {
             subtractHealth(sprite: ob1, damage: 1)

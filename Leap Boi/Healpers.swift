@@ -27,3 +27,11 @@ func subtractHealth(sprite: SKNode, damage: Int) {
         //print("Should die")
     }
 }
+
+func gameOver(view: UIView) {
+    let scene = GameOverScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.presentScene(scene)
+}
