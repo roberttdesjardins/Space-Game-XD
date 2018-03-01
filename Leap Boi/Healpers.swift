@@ -78,6 +78,7 @@ func resetHealthandScore() {
     GameData.shared.playerHealth = 100
 }
 
+
 func formatHighScores(arrayOfScores: [Int]) {
     GameData.shared.playerHighScore = quicksort(arrayOfScores)
     GameData.shared.playerHighScore = Array(GameData.shared.playerHighScore.prefix(5))

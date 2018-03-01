@@ -13,6 +13,7 @@
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
 		55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */; };
 		55978A1F2048912F00CA8AC6 /* HighScoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */; };
+		55978A242048B61500CA8AC6 /* laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55978A232048B61500CA8AC6 /* laser.mp3 */; };
 		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
 		55FFA845204490E000A36E67 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA844204490E000A36E67 /* GameScene.swift */; };
@@ -28,6 +29,7 @@
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
 		55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultExt.swift; sourceTree = "<group>"; };
 		55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighScoreScene.swift; sourceTree = "<group>"; };
+		55978A232048B61500CA8AC6 /* laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = laser.mp3; sourceTree = "<group>"; };
 		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		55FFA83E204490E000A36E67 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +51,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		55978A202048B39F00CA8AC6 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				55978A232048B61500CA8AC6 /* laser.mp3 */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		55FFA832204490E000A36E67 = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +78,7 @@
 		55FFA83D204490E000A36E67 /* Leap Boi */ = {
 			isa = PBXGroup;
 			children = (
+				55978A202048B39F00CA8AC6 /* Audio */,
 				55FFA83E204490E000A36E67 /* AppDelegate.swift */,
 				55032F9820461625000E6860 /* StartScene.swift */,
 				55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */,
@@ -146,6 +157,7 @@
 			files = (
 				55FFA84A204490E000A36E67 /* Main.storyboard in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
+				55978A242048B61500CA8AC6 /* laser.mp3 in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -10,14 +10,12 @@
 
 //TODO:
 // add background music
-// add shooting sounds
 // Make different weapons which do different damage
 // Make an explosion when things die
 // Make explosion sound
 // Set fire rate of different weapons
 // add nice lanchscreen storyboard
 // add different levels based on planets
-// keep track of score (high scores): https://developer.apple.com/library/content/referencelibrary/GettingStarted/DevelopiOSAppsSwift/PersistData.html
 // add unlockable weapons, upgrades, etc based on score
 // inapp purchases?
 // Make aliens move "randomly"
@@ -152,6 +150,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
         player.physicsBody?.allowsRotation = false
+        player.physicsBody!.contactTestBitMask = player.physicsBody!.collisionBitMask
         //player.physicsBody!.mass = 0.01
         
         return player
@@ -264,6 +263,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let touch = touches.first else {
             return
         }
+        
+        run(SKAction.playSoundFileNamed("laser.mp3", waitForCompletion: false))
+        
         let touchLocation = touch.location(in: self)
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
