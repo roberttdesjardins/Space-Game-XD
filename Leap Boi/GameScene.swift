@@ -23,6 +23,7 @@
 // Make aliens move "randomly"
 // add pause button
 // add different types of enemies
+// Bosses
 
 
 import SpriteKit

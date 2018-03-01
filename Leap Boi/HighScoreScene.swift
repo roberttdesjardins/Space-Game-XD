@@ -12,6 +12,7 @@ import CoreMotion
 
 
 class HighScoreScene: SKScene {
+    var backButton: SKNode! = nil
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -20,24 +21,10 @@ class HighScoreScene: SKScene {
     }
     
     func createBackButton() {
-        let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
-        backButton.titleLabel?.textAlignment = NSTextAlignment.center
-        backButton.setTitleColor(.white, for: .normal)
-        backButton.layer.borderWidth = 5
-        backButton.layer.borderColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        backButton.layer.cornerRadius = 10
-        backButton.clipsToBounds = true
-        backButton.setTitle("< Back", for: .normal)
-        backButton.addTarget(self, action: #selector(backButtonAction), for: .touchUpInside)
-        
-        self.view?.addSubview(backButton)
-    }
-    
-    @objc func backButtonAction(sender: UIButton!) {
-        for locView in (self.view?.subviews)! {
-            locView.removeFromSuperview()
-        }
-        startSceneLoad(view: view!)
+        backButton = SKSpriteNode(imageNamed: "backButton")
+        backButton.zPosition = 2
+        backButton.position = CGPoint(x: backButton.frame.size.width / 2 + 20, y: backButton.frame.size.height / 2 + 20)
+        addChild(backButton)
     }
     
     
@@ -53,6 +40,14 @@ class HighScoreScene: SKScene {
         highScoreTable.position = CGPoint(x: self.size.width/2, y: self.size.height/2 - highScoreTable.frame.size.height/2)
         
         self.addChild(highScoreTable)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first
+        let touchLocation = touch!.location(in: self)
+        if backButton.contains(touchLocation) {
+            startSceneLoad(view: view!)
+        }
     }
 
 }

@@ -12,6 +12,8 @@ import CoreMotion
 
 class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
+    var startButton: SKSpriteNode! = nil
+    var highScoreButton: SKSpriteNode! = nil
     
     
     override func didMove(to view: SKView) {
@@ -19,7 +21,6 @@ class StartScene: SKScene {
         createBackground()
         createStartButton()
         createHighScoreButton()
-        //print(GameData.shared.playerHighScore)
     }
     
     func createBackground() {
@@ -31,49 +32,29 @@ class StartScene: SKScene {
     }
     
     func createStartButton() {
-        let restartButton = UIButton(frame: CGRect(x: self.size.width/2 - 100, y: 1.0 / 3.0 * self.size.height, width: 200, height: 100))
-        restartButton.titleLabel?.font = UIFont(name: "Avenir", size: 45)
-        restartButton.titleLabel?.textAlignment = NSTextAlignment.center
-        restartButton.backgroundColor = #colorLiteral(red: 0.7971752948, green: 0.8071641785, blue: 1, alpha: 0.466020976)
-        restartButton.setTitleColor(.white, for: .normal)
-        restartButton.layer.borderWidth = 5
-        restartButton.layer.borderColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        restartButton.layer.cornerRadius = 10
-        restartButton.clipsToBounds = true
-        restartButton.setTitle("Start", for: .normal)
-        restartButton.addTarget(self, action: #selector(startButtonAction), for: .touchUpInside)
-        
-        self.view?.addSubview(restartButton)
-    }
-    
-    @objc func startButtonAction(sender: UIButton!) {
-        for locView in (self.view?.subviews)! {
-            locView.removeFromSuperview()
-        }
-        gameSceneLoad(view: view!)
+        startButton = SKSpriteNode(imageNamed: "startButton")
+        startButton.zPosition = 2
+        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/3.0))
+        addChild(startButton)
     }
     
     func createHighScoreButton() {
-        let highScoreButton = UIButton(frame: CGRect(x: self.size.width/2 - 90, y: 2.0 / 3.0 * self.size.height, width: 180, height: 90))
-        highScoreButton.titleLabel?.font = UIFont(name: "Avenir", size: 25)
-        highScoreButton.titleLabel?.textAlignment = NSTextAlignment.center
-        highScoreButton.backgroundColor = #colorLiteral(red: 0.7971752948, green: 0.8071641785, blue: 1, alpha: 0.466020976)
-        highScoreButton.setTitleColor(.white, for: .normal)
-        highScoreButton.layer.borderWidth = 5
-        highScoreButton.layer.borderColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        highScoreButton.layer.cornerRadius = 10
-        highScoreButton.clipsToBounds = true
-        highScoreButton.setTitle("High Scores", for: .normal)
-        highScoreButton.addTarget(self, action: #selector(highScoreButtonAction), for: .touchUpInside)
-        
-        self.view?.addSubview(highScoreButton)
+        highScoreButton = SKSpriteNode(imageNamed: "highScoresButton")
+        highScoreButton.zPosition = 2
+        highScoreButton.position = CGPoint(x: size.width * 0.5, y: size.height * (1.0/3.0))
+        addChild(highScoreButton)
     }
     
-    @objc func highScoreButtonAction(sender: UIButton!) {
-        for locView in (self.view?.subviews)! {
-            locView.removeFromSuperview()
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first
+        let touchLocation = touch!.location(in: self)
+        if startButton.contains(touchLocation) {
+            gameSceneLoad(view: view!)
         }
-        highScoreSceneLoad(view: view!)
+        if highScoreButton.contains(touchLocation){
+            highScoreSceneLoad(view: view!)
+        }
+        
     }
     
 }

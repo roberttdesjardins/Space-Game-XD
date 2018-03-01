@@ -11,6 +11,7 @@ import GameplayKit
 import CoreMotion
 
 class GameOverScene: SKScene {
+    var restartButton: SKNode! = nil
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -43,25 +44,18 @@ class GameOverScene: SKScene {
     }
     
     func createRestartButton() {
-        let restartButton = UIButton(frame: CGRect(x: self.size.width/2 - 100, y: self.size.height * (2/3), width: 200, height: 50))
-        restartButton.titleLabel?.textAlignment = NSTextAlignment.center
-        restartButton.backgroundColor = #colorLiteral(red: 0.7971752948, green: 0.8071641785, blue: 1, alpha: 0.466020976)
-        restartButton.setTitleColor(.white, for: .normal)
-        restartButton.layer.borderWidth = 5
-        restartButton.layer.borderColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        restartButton.layer.cornerRadius = 10
-        restartButton.clipsToBounds = true
-        restartButton.setTitle("Tap to Restart", for: .normal)
-        restartButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-        
-        self.view?.addSubview(restartButton)
+        restartButton = SKSpriteNode(imageNamed: "restartButton")
+        restartButton.zPosition = 2
+        restartButton.position = CGPoint(x: size.width/2, y: size.height * (1/3))
+        addChild(restartButton)
     }
     
-    @objc func buttonAction(sender: UIButton!) {
-        for locView in (self.view?.subviews)! {
-            locView.removeFromSuperview()
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first
+        let touchLocation = touch!.location(in: self)
+        if restartButton.contains(touchLocation) {
+            resetHealthandScore()
+            startSceneLoad(view: view!)
         }
-        resetHealthandScore()
-        startSceneLoad(view: view!)
     }
 }
