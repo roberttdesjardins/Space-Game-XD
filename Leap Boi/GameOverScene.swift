@@ -17,6 +17,9 @@ class GameOverScene: SKScene {
         createGameOverLabel()
         createScoreLabel()
         createRestartButton()
+        GameData.shared.playerHighScore.append(GameData.shared.playerScore)
+        formatHighScores(arrayOfScores: GameData.shared.playerHighScore)
+        UserDefaults.standard.setUserHighScores(array: GameData.shared.playerHighScore)
     }
     
     func createGameOverLabel() {

@@ -12,6 +12,7 @@ class GameData {
     static let shared = GameData()
     var playerHealth = 100
     var playerScore = 0
+    var playerHighScore: [Int] = []
     
     private init() { }
 }

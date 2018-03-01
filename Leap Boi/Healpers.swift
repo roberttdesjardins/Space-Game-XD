@@ -40,7 +40,7 @@ func gameOver(view: UIView) {
     let skView = view as! SKView
     skView.ignoresSiblingOrder = true
     scene.scaleMode = .resizeFill
-    skView.presentScene(scene)
+    skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
 }
 
 func startSceneLoad(view: UIView) {
@@ -50,7 +50,7 @@ func startSceneLoad(view: UIView) {
     scene.scaleMode = .resizeFill
     skView.showsFPS = false
     skView.showsNodeCount = false
-    skView.presentScene(scene)
+    skView.presentScene(scene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
 }
 
 func gameSceneLoad(view: UIView) {
@@ -63,7 +63,34 @@ func gameSceneLoad(view: UIView) {
     skView.presentScene(scene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
 }
 
+func highScoreSceneLoad(view: UIView) {
+    let scene = HighScoreScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.showsFPS = false
+    skView.showsNodeCount = false
+    skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
+}
+
 func resetHealthandScore() {
     GameData.shared.playerScore = 0
     GameData.shared.playerHealth = 100
 }
+
+func formatHighScores(arrayOfScores: [Int]) {
+    GameData.shared.playerHighScore = quicksort(arrayOfScores)
+    GameData.shared.playerHighScore = Array(GameData.shared.playerHighScore.prefix(5))
+}
+
+func quicksort<T: Comparable>(_ a: [T]) -> [T] {
+    guard a.count > 1 else { return a }
+    
+    let pivot = a[a.count/2]
+    let less = a.filter { $0 < pivot }
+    let equal = a.filter { $0 == pivot }
+    let greater = a.filter { $0 > pivot }
+    
+    return quicksort(greater) + equal + quicksort(less)
+}
+

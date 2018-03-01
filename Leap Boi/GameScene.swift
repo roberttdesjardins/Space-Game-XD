@@ -9,20 +9,20 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// add background music
+// add shooting sounds
 // Make different weapons which do different damage
 // Make an explosion when things die
-// Make a score based on time alive and amount killed
+// Make explosion sound
 // Set fire rate of different weapons
-// add background with stars
 // add nice lanchscreen storyboard
 // add different levels based on planets
-// keep track of score (high scores)
+// keep track of score (high scores): https://developer.apple.com/library/content/referencelibrary/GettingStarted/DevelopiOSAppsSwift/PersistData.html
 // add unlockable weapons, upgrades, etc based on score
 // inapp purchases?
 // Make aliens move "randomly"
-// give health to player
-// Improve hitboxes: http://stefansdevplayground.blogspot.ca/2014/11/how-to-implement-space-shooter-with_27.html
 // add pause button
+// add different types of enemies
 
 
 import SpriteKit
@@ -70,8 +70,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kLaserName = "laser"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
-    //var playerHealth = 100
-    //var playerScore = 0
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
     var healthLabel = SKLabelNode(fontNamed: "Avenir")
     
@@ -83,7 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupScreen()
         setupPlayer()
         setUpAliens()
-        setUpAsteroid()
+        setUpAsteroids()
         setupHud()
         motionManager.startAccelerometerUpdates()
     }
@@ -108,7 +106,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ))
     }
     
-    func setUpAsteroid() {
+    func setUpAsteroids() {
         run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addAstroid),
@@ -148,7 +146,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let player = SKSpriteNode(imageNamed: "spaceship")
         player.size = CGSize(width: 35, height: 35)
         player.name = kPlayerName
-        //player.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 30, height: 30))
+        
         player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size)
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
@@ -335,8 +333,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if nodeB.name == kAsteroidName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
-        
-        
     }
     
 }
