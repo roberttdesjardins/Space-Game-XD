@@ -5,7 +5,8 @@
 //  Created by Robert Desjardins on 2018-02-26.
 //  Copyright © 2018 Robert Desjardins. All rights reserved.
 //  Icon made by Becris from www.flaticon.com
-//  Icon made by Freepik from www.flaticon.com 
+//  Icon made by Freepik from www.flaticon.com
+//  Royalty Free Music from Bensound
 
 //TODO:
 // Make different weapons which do different damage
@@ -69,6 +70,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kLaserName = "laser"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
+    //var playerHealth = 100
+    //var playerScore = 0
+    var scoreLabel = SKLabelNode(fontNamed: "Avenir")
+    var healthLabel = SKLabelNode(fontNamed: "Avenir")
+    
     
     let motionManager = CMMotionManager()
     
@@ -112,22 +118,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupHud() {
-        let scoreLabel = SKLabelNode(fontNamed: "Avenir")
         scoreLabel.name = kScoreHudName
         scoreLabel.fontSize = 15
         scoreLabel.fontColor = SKColor.white
-        scoreLabel.text = String(format: "Score: %04u", 0)
+        scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
         scoreLabel.position = CGPoint(
             x: scoreLabel.frame.size.width/2,
             y: size.height - scoreLabel.frame.size.height
         )
         addChild(scoreLabel)
         
-        let healthLabel = SKLabelNode(fontNamed: "Avenir")
         healthLabel.name = kHealthHudName
         healthLabel.fontSize = 15
         healthLabel.fontColor = SKColor.green
-        healthLabel.text = String(format: "Health: %.1f%%", 100.0)
+        healthLabel.text = String("Health: \(GameData.shared.playerHealth)%")
         healthLabel.position = CGPoint(
             x: healthLabel.frame.size.width/2,
             y: size.height - (20 + healthLabel.frame.size.height/2)
@@ -135,14 +139,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(healthLabel)
     }
     
+    func updateHud(){
+        healthLabel.text = String("Health: \(GameData.shared.playerHealth)%")
+        scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
+    }
+    
     func makePlayer() -> SKNode {
         let player = SKSpriteNode(imageNamed: "spaceship")
         player.size = CGSize(width: 35, height: 35)
         player.name = kPlayerName
-        player.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 30, height: 30))
+        //player.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 30, height: 30))
+        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size)
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
-        player.physicsBody!.mass = 0.01
+        player.physicsBody?.allowsRotation = false
+        //player.physicsBody!.mass = 0.01
         
         return player
     }
@@ -164,7 +175,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.userData = NSMutableDictionary()
         setAlienHealth(alien: alien)
         
-        alien.physicsBody = SKPhysicsBody(circleOfRadius: alien.size.width/3)
+        alien.physicsBody = SKPhysicsBody(texture: alien.texture!, size: alien.size)
         alien.physicsBody?.isDynamic = false
         alien.physicsBody!.contactTestBitMask = alien.physicsBody!.collisionBitMask
         
@@ -187,7 +198,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.userData = NSMutableDictionary()
         setAstroidHealth(astroid: asteroid)
         
-        asteroid.physicsBody = SKPhysicsBody(circleOfRadius: asteroid.size.width/2)
+        asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
         asteroid.physicsBody!.contactTestBitMask = asteroid.physicsBody!.collisionBitMask
         
@@ -246,6 +257,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         processUserMotion(forUpdate: currentTime)
+        GameData.shared.playerScore = GameData.shared.playerScore + 1
+        updateHud()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -255,7 +268,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touchLocation = touch.location(in: self)
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2)
+            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2 + 4)
         }
         laser.name = kLaserName
         laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
@@ -275,11 +288,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func collisionBetween(ob1: SKNode, ob2: SKNode){
-        if ob1.name == kPlayerName && (ob2.name == kAlienName || ob2.name == kAsteroidName || ob2.name == kAlienLaserName)
-        {
-            ob1.removeFromParent()
-            gameOver(view: view!)
+        if ob1.name == kPlayerName && ob2.name == kAlienName {
+            ob2.removeFromParent()
+            playerTakesDamage(damage: 40, view: view!)
         }
+        
+        if ob1.name == kPlayerName && ob2.name == kAsteroidName {
+            ob2.removeFromParent()
+            playerTakesDamage(damage: 90, view: view!)
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kAlienLaserName {
+            ob2.removeFromParent()
+            playerTakesDamage(damage: 25, view: view!)
+        }
+        
         if ob1.name == kAlienName && ob2.name == kLaserName {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()

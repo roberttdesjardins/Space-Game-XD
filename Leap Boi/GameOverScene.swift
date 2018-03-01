@@ -15,21 +15,32 @@ class GameOverScene: SKScene {
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
         createGameOverLabel()
+        createScoreLabel()
         createRestartButton()
     }
     
     func createGameOverLabel() {
         let gameOverLabel = SKLabelNode(fontNamed: "Courier")
         gameOverLabel.fontSize = 50
-        gameOverLabel.fontColor = SKColor.white
-        gameOverLabel.text = "Game Over!"
-        gameOverLabel.position = CGPoint(x: self.size.width/2, y: 2.0 / 3.0 * self.size.height);
+        gameOverLabel.fontColor = SKColor.red
+        gameOverLabel.text = "You Died"
+        gameOverLabel.position = CGPoint(x: self.size.width/2, y: 2.0 / 3.0 * self.size.height)
         
         self.addChild(gameOverLabel)
     }
     
+    func createScoreLabel() {
+        let scoreLabel = SKLabelNode(fontNamed: "Avenir")
+        scoreLabel.fontSize = 35
+        scoreLabel.fontColor = SKColor.white
+        scoreLabel.text = "Score: \(GameData.shared.playerScore)"
+        scoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height/2)
+        
+        self.addChild(scoreLabel)
+    }
+    
     func createRestartButton() {
-        let restartButton = UIButton(frame: CGRect(x: self.size.width/2 - 100, y: self.size.height/2, width: 200, height: 50))
+        let restartButton = UIButton(frame: CGRect(x: self.size.width/2 - 100, y: self.size.height * (2/3), width: 200, height: 50))
         restartButton.titleLabel?.textAlignment = NSTextAlignment.center
         restartButton.backgroundColor = #colorLiteral(red: 0.7971752948, green: 0.8071641785, blue: 1, alpha: 0.466020976)
         restartButton.setTitleColor(.white, for: .normal)
@@ -47,6 +58,7 @@ class GameOverScene: SKScene {
         for locView in (self.view?.subviews)! {
             locView.removeFromSuperview()
         }
+        resetHealthandScore()
         startSceneLoad(view: view!)
     }
 }

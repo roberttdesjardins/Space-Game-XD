@@ -11,6 +11,7 @@
 		55032F9920461625000E6860 /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55032F9820461625000E6860 /* StartScene.swift */; };
 		550902F92045FB8E0035C65D /* Healpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550902F82045FB8E0035C65D /* Healpers.swift */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
+		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
 		55FFA845204490E000A36E67 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA844204490E000A36E67 /* GameScene.swift */; };
 		55FFA84A204490E000A36E67 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55FFA848204490E000A36E67 /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 		55032F9820461625000E6860 /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
 		550902F82045FB8E0035C65D /* Healpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Healpers.swift; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
+		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		55FFA83E204490E000A36E67 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		55FFA844204490E000A36E67 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 				55FFA84B204490E000A36E67 /* Assets.xcassets */,
 				55FFA84D204490E000A36E67 /* LaunchScreen.storyboard */,
 				55FFA850204490E000A36E67 /* Info.plist */,
+				55D62B122047822E0047E510 /* GameData.swift */,
 				550902F82045FB8E0035C65D /* Healpers.swift */,
 			);
 			path = "Leap Boi";
@@ -152,6 +155,7 @@
 				55032F9920461625000E6860 /* StartScene.swift in Sources */,
 				55032F9720461286000E6860 /* GameOverScene.swift in Sources */,
 				557306022044DF6500A9725C /* GameVC.swift in Sources */,
+				55D62B132047822E0047E510 /* GameData.swift in Sources */,
 				550902F92045FB8E0035C65D /* Healpers.swift in Sources */,
 				55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */,
 			);

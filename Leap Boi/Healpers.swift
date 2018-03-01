@@ -21,12 +21,19 @@ func subtractHealth(sprite: SKNode, damage: Int) {
     let currentHealth: Int = sprite.userData?.value(forKey: "health") as! Int
     let newHealth = currentHealth - damage
     sprite.userData?.setValue(newHealth, forKey: "health")
-    //print(newHealth)
     if (newHealth <= 0) {
         sprite.removeFromParent()
-        //print("Should die")
     }
 }
+
+func playerTakesDamage(damage: Int, view: UIView) {
+    GameData.shared.playerHealth = GameData.shared.playerHealth - damage
+    if (GameData.shared.playerHealth <= 0) {
+        gameOver(view: view)
+    }
+    //return newHealth
+}
+
 
 func gameOver(view: UIView) {
     let scene = GameOverScene(size: view.bounds.size)
@@ -44,4 +51,19 @@ func startSceneLoad(view: UIView) {
     skView.showsFPS = false
     skView.showsNodeCount = false
     skView.presentScene(scene)
+}
+
+func gameSceneLoad(view: UIView) {
+    let scene = GameScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.showsFPS = true
+    skView.showsNodeCount = true
+    skView.presentScene(scene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
+}
+
+func resetHealthandScore() {
+    GameData.shared.playerScore = 0
+    GameData.shared.playerHealth = 100
 }
