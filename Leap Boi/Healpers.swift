@@ -26,21 +26,13 @@ func setAstroidHealth(astroid: SKSpriteNode) {
     astroid.userData?.setValue(10, forKey: "health")
 }
 
-func subtractHealth(sprite: SKNode, damage: Int) {
-    let currentHealth: Int = sprite.userData?.value(forKey: "health") as! Int
-    let newHealth = currentHealth - damage
-    sprite.userData?.setValue(newHealth, forKey: "health")
-    if (newHealth <= 0) {
-        sprite.removeFromParent()
-    }
-}
+
 
 func playerTakesDamage(damage: Int, view: UIView) {
     GameData.shared.playerHealth = GameData.shared.playerHealth - damage
     if (GameData.shared.playerHealth <= 0) {
         gameOver(view: view)
     }
-    //return newHealth
 }
 
 
