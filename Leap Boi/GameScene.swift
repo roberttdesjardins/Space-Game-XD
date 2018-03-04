@@ -13,10 +13,10 @@
 // Make different weapons which do different damage
 // Make an explosion when things die
 // Make explosion sound
-// Set fire rate of different weapons
 // add nice lanchscreen storyboard
 // add different levels based on planets
 // add unlockable weapons, upgrades, etc based on score
+// Earn credits?
 // inapp purchases?
 // Make aliens move "randomly"
 // add pause button
@@ -27,6 +27,7 @@
 import SpriteKit
 import GameplayKit
 import CoreMotion
+import AVFoundation
 
 func + (left: CGPoint, right: CGPoint) -> CGPoint {
     return CGPoint(x: left.x + right.x, y: left.y + right.y)
@@ -72,10 +73,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
     var healthLabel = SKLabelNode(fontNamed: "Avenir")
     
+    // Starts with the screen not being pressed
+    var touchingScreen = false
+    
+    // Shoots every x seconds
+    var fireRate = 0.1
+    
+    // Time since last updated
+    private var lastUpdateTime: CFTimeInterval = 0
+    
+    private var bgMusicPlayer: AVAudioPlayer!
     
     let motionManager = CMMotionManager()
     
     override func didMove(to view: SKView) {
+
+        
         physicsWorld.contactDelegate = self
         setupScreen()
         setupPlayer()
@@ -120,7 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.fontColor = SKColor.white
         scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
         scoreLabel.position = CGPoint(
-            x: scoreLabel.frame.size.width/2,
+            x: scoreLabel.frame.size.width/2 + 30,
             y: size.height - scoreLabel.frame.size.height
         )
         addChild(scoreLabel)
@@ -236,6 +249,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
     }
     
+    func firePlayerWeapon(){
+        run(SKAction.playSoundFileNamed("laser.mp3", waitForCompletion: false))
+        let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2 + 4)
+        }
+        laser.name = kLaserName
+        laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
+        laser.physicsBody?.isDynamic = true
+        laser.physicsBody!.contactTestBitMask = laser.physicsBody!.collisionBitMask
+        laser.physicsBody?.usesPreciseCollisionDetection = true
+        
+        addChild(laser)
+        let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
+        let actionMoveDone = SKAction.removeFromParent()
+        laser.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if let data = motionManager.accelerometerData {
@@ -257,35 +288,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         processUserMotion(forUpdate: currentTime)
         GameData.shared.playerScore = GameData.shared.playerScore + 1
         updateHud()
+        let timeSinceLastUpdate = currentTime - lastUpdateTime
+        if timeSinceLastUpdate > fireRate && touchingScreen {
+            firePlayerWeapon()
+            lastUpdateTime = currentTime
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchingScreen = true
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else {
-            return
-        }
-        
-        run(SKAction.playSoundFileNamed("laser.mp3", waitForCompletion: false))
-        
-        let touchLocation = touch.location(in: self)
-        let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2 + 4)
-        }
-        laser.name = kLaserName
-        laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
-        laser.physicsBody?.isDynamic = true
-        laser.physicsBody!.contactTestBitMask = laser.physicsBody!.collisionBitMask
-        laser.physicsBody?.usesPreciseCollisionDetection = true
-        
-        let offset = touchLocation - laser.position
-        if (offset.y < 100) { return }
-        addChild(laser)
-        let direction = offset.normalized()
-        let shootAmount = direction * 1000
-        let realDest = shootAmount + laser.position
-        let actionMove = SKAction.move(to: realDest, duration: 2.0)
-        let actionMoveDone = SKAction.removeFromParent()
-        laser.run(SKAction.sequence([actionMove, actionMoveDone]))
+        touchingScreen = false
     }
     
     func collisionBetween(ob1: SKNode, ob2: SKNode){
