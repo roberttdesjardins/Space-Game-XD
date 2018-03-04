@@ -86,7 +86,7 @@ func weaponSceneLoad(view: UIView) {
 
 func resetHealthandScore() {
     GameData.shared.playerScore = 0
-    GameData.shared.playerHealth = 100
+    GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
 }
 
 

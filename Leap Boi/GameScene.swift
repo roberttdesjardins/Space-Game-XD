@@ -9,6 +9,7 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
 // add nice lanchscreen storyboard
 // Make better name
@@ -20,6 +21,7 @@
 // add pause button
 // add different types of enemies
 // Bosses
+// Power Ups
 
 
 import SpriteKit
@@ -65,16 +67,17 @@ extension CGPoint {
 
 // Collision bitmasks for all objects
 struct PhysicsCategory {
-    static let None      : UInt32 = 0
-    static let All       : UInt32 = UInt32.max
+    static let None: UInt32 = 0
+    static let All: UInt32 = UInt32.max
     static let Player: UInt32 = 0x1 << 1
     static let Alien: UInt32 = 0x1 << 2
     static let Asteroid: UInt32 = 0x1 << 3
     static let Projectile: UInt32 = 0x1 << 4
     static let MissileExplosion: UInt32 = 0x1 << 5
     static let AlienLaser: UInt32 = 0x1 << 6
+    static let HealthPack: UInt32 = 0x1 << 7
     
-    static let Edge: UInt32 = 0x1 << 7
+    static let Edge: UInt32 = 0x1 << 8
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
@@ -86,6 +89,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kLaserName = "laser"
     let kMissileName = "missile"
     let kMissileExplosionName = "missileExplosion"
+    let kHealthPackName = "healthPack"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -154,7 +158,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupWeapon() {
         switch GameData.shared.weaponChosen {
         case "laser":
-            fireRate = 0.3
+            fireRate = 0.2
             playerWeapon = kLaserName
         case "missile":
             fireRate = 1
@@ -295,11 +299,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpAlienLaser(alien: SKSpriteNode) {
-        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(4))))
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(8))))
         let run = SKAction.run {
             self.addAlienLaser(alien: alien)
         }
         alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
+    }
+    
+    func addHealthPowerup(position: CGPoint) {
+        let healthPack = SKSpriteNode(imageNamed: "healthpack")
+        healthPack.name = kHealthPackName
+        healthPack.size = CGSize(width: 20, height: 20)
+        healthPack.physicsBody = SKPhysicsBody(rectangleOf: healthPack.size)
+        healthPack.physicsBody?.isDynamic = false
+        healthPack.physicsBody?.categoryBitMask = PhysicsCategory.HealthPack
+        healthPack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        healthPack.physicsBody?.collisionBitMask = PhysicsCategory.None
+        healthPack.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(10.0), max: CGFloat(12.0))
+        healthPack.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: healthPack.position.x, y: position.y - 1000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        healthPack.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(healthPack)
+    }
+    
+    func spawnHealthRandom(position: CGPoint) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum > 99.0){
+            addHealthPowerup(position: position)
+        }
     }
     
     func firePlayerWeapon(){
@@ -366,6 +397,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosion.physicsBody?.categoryBitMask = PhysicsCategory.MissileExplosion
         missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
         missileExplosion.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missile.physicsBody?.usesPreciseCollisionDetection = true
         missileExplosion.physicsBody?.allowsRotation = false
 
         addChild(missileExplosion)
@@ -375,11 +407,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func missileExplosionEffect(position: CGPoint) {
-        let missileExplosion = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
-        missileExplosion?.particlePosition = position
-        missileExplosion?.zPosition = 2
-        addChild(missileExplosion!)
-        missileExplosion?.run(SKAction.wait(forDuration: 2), completion: { missileExplosion?.removeFromParent() })
+        let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
+        missileExplosionEffect?.particlePosition = position
+        missileExplosionEffect?.zPosition = 2
+        addChild(missileExplosionEffect!)
+        missileExplosionEffect?.run(SKAction.wait(forDuration: 2), completion: { missileExplosionEffect?.removeFromParent() })
     }
     
     func asteroidExplosionEffect(position: CGPoint) {
@@ -422,6 +454,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(sprite.name == kAlienName){
                 alienExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + alienKillScore
+                spawnHealthRandom(position: sprite.position)
             }
             if(sprite.name == kAsteroidName){
                 asteroidExplosionEffect(position: sprite.position)
@@ -453,6 +486,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         GameData.shared.playerScore = GameData.shared.playerScore + 1
         updateHud()
         let timeSinceLastUpdate = currentTime - lastUpdateTime
+        // Only fire weapon if the weapon hasn't been fired in the laste fireRate seconds and the user is touching the screen
         if timeSinceLastUpdate > fireRate && touchingScreen {
             firePlayerWeapon()
             lastUpdateTime = currentTime
@@ -482,6 +516,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ob1.name == kPlayerName && ob2.name == kAlienLaserName {
             ob2.removeFromParent()
             playerTakesDamage(damage: 25, view: view!)
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kHealthPackName {
+            //TODO: Heal sound effect
+            ob2.removeFromParent()
+            GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
         if ob1.name == kAlienName && ob2.name == kLaserName {
