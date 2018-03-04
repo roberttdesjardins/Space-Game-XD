@@ -14,6 +14,7 @@ class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
     var startButton: SKSpriteNode! = nil
     var highScoreButton: SKSpriteNode! = nil
+    var chooseWeaponButton: SKSpriteNode! = nil
     
     
     override func didMove(to view: SKView) {
@@ -21,6 +22,7 @@ class StartScene: SKScene {
         createBackground()
         createStartButton()
         createHighScoreButton()
+        createChooseWeaponButton()
     }
     
     func createBackground() {
@@ -45,14 +47,24 @@ class StartScene: SKScene {
         addChild(highScoreButton)
     }
     
+    func createChooseWeaponButton() {
+        chooseWeaponButton = SKSpriteNode(imageNamed: "chooseWeapon")
+        chooseWeaponButton.zPosition = 2
+        chooseWeaponButton.position = CGPoint(x: size.width * 0.5, y: 40)
+        addChild(chooseWeaponButton)
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if startButton.contains(touchLocation) {
             gameSceneLoad(view: view!)
         }
-        if highScoreButton.contains(touchLocation){
+        if highScoreButton.contains(touchLocation) {
             highScoreSceneLoad(view: view!)
+        }
+        if chooseWeaponButton.contains(touchLocation) {
+            weaponSceneLoad(view: view!)
         }
         
     }

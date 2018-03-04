@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		55032F9720461286000E6860 /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55032F9620461286000E6860 /* GameOverScene.swift */; };
 		55032F9920461625000E6860 /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55032F9820461625000E6860 /* StartScene.swift */; };
+		55075B90204B7CAB006D656F /* WeaponScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55075B8F204B7CAB006D656F /* WeaponScene.swift */; };
+		55075B92204B8FA9006D656F /* missile.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55075B91204B8FA9006D656F /* missile.wav */; };
 		550902F92045FB8E0035C65D /* Healpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550902F82045FB8E0035C65D /* Healpers.swift */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
 		55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */; };
@@ -26,6 +28,8 @@
 /* Begin PBXFileReference section */
 		55032F9620461286000E6860 /* GameOverScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
 		55032F9820461625000E6860 /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
+		55075B8F204B7CAB006D656F /* WeaponScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeaponScene.swift; sourceTree = "<group>"; };
+		55075B91204B8FA9006D656F /* missile.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = missile.wav; sourceTree = "<group>"; };
 		550902F82045FB8E0035C65D /* Healpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Healpers.swift; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
 		55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultExt.swift; sourceTree = "<group>"; };
@@ -57,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				55978A232048B61500CA8AC6 /* laser.mp3 */,
+				55075B91204B8FA9006D656F /* missile.wav */,
 				55978A252048B87B00CA8AC6 /* bensound-deepblue.mp3 */,
 			);
 			path = Audio;
@@ -85,6 +90,7 @@
 				55FFA83E204490E000A36E67 /* AppDelegate.swift */,
 				55032F9820461625000E6860 /* StartScene.swift */,
 				55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */,
+				55075B8F204B7CAB006D656F /* WeaponScene.swift */,
 				55FFA844204490E000A36E67 /* GameScene.swift */,
 				55032F9620461286000E6860 /* GameOverScene.swift */,
 				557306012044DF6500A9725C /* GameVC.swift */,
@@ -161,6 +167,7 @@
 				55FFA84A204490E000A36E67 /* Main.storyboard in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
 				55978A242048B61500CA8AC6 /* laser.mp3 in Resources */,
+				55075B92204B8FA9006D656F /* missile.wav in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
 				55978A262048B87B00CA8AC6 /* bensound-deepblue.mp3 in Resources */,
 			);
@@ -181,6 +188,7 @@
 				55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */,
 				55D62B132047822E0047E510 /* GameData.swift in Sources */,
 				550902F92045FB8E0035C65D /* Healpers.swift in Sources */,
+				55075B90204B7CAB006D656F /* WeaponScene.swift in Sources */,
 				55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

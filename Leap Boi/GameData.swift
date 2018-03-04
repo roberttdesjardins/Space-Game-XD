@@ -13,6 +13,7 @@ class GameData {
     var playerHealth = 100
     var playerScore = 0
     var playerHighScore: [Int] = []
+    var weaponChosen = "laser"
     
     private init() { }
 }

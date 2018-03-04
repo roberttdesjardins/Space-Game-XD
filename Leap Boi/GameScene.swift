@@ -9,13 +9,14 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// add background music
-// Make different weapons which do different damage
+// NEED TO FIX BITMASKS
+// Make it so missileExplosion only damages things once..
 // Make an explosion when things die
 // Make explosion sound
 // add nice lanchscreen storyboard
+// Make better name
 // add different levels based on planets
-// add unlockable weapons, upgrades, etc based on score
+// add unlockable weapons, upgrades, etc based on score?
 // Earn credits?
 // inapp purchases?
 // Make aliens move "randomly"
@@ -61,6 +62,18 @@ extension CGPoint {
     }
 }
 
+// Collision bitmasks for all objects
+struct PhysicsCategory {
+    static let None      : UInt32 = 0
+    static let All       : UInt32 = UInt32.max
+    static let Player: UInt32 = 0b0001
+    static let Alien: UInt32 = 0b0010
+    static let Asteroid: UInt32 = 0b0011
+    static let Projectile: UInt32 = 0b0100
+    static let Explosion: UInt32 = 0b0101
+    static let AlienLaser: UInt32 = 0b0110
+}
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let kPlayerName = "player"
@@ -68,6 +81,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kAlienLaserName = "alienlaser"
     let kAsteroidName = "asteroid"
     let kLaserName = "laser"
+    let kMissileName = "missile"
+    let kMissileExplosionName = "missileExplosion"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -77,7 +92,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var touchingScreen = false
     
     // Shoots every x seconds
-    var fireRate = 0.1
+    var fireRate = 0.3
+    
+    // The players weapon choice
+    var playerWeapon = ""
     
     // Time since last updated
     private var lastUpdateTime: CFTimeInterval = 0
@@ -87,11 +105,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let motionManager = CMMotionManager()
     
     override func didMove(to view: SKView) {
-
-        
         physicsWorld.contactDelegate = self
         setupScreen()
+        setupMusic()
         setupPlayer()
+        setupWeapon()
         setUpAliens()
         setUpAsteroids()
         setupHud()
@@ -103,10 +121,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
     }
     
+    func setupMusic() {
+        let path = Bundle.main.path(forResource: "bensound-deepblue", ofType: "mp3")!
+        let url = URL(fileURLWithPath: path)
+        do {
+            bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            bgMusicPlayer.numberOfLoops = -1
+            bgMusicPlayer.prepareToPlay()
+        } catch let error as NSError {
+            print(error.description)
+        }
+        bgMusicPlayer.play()
+    }
+    
     func setupPlayer() {
         let player = makePlayer()
         player.position = CGPoint(x: size.width * 0.5, y: size.height * 0.1)
         addChild(player)
+    }
+    
+    func setupWeapon() {
+        switch GameData.shared.weaponChosen {
+        case "laser":
+            fireRate = 0.3
+            playerWeapon = kLaserName
+        case "missile":
+            fireRate = 1
+            playerWeapon = kMissileName
+        default:
+            fireRate = 1
+        }
     }
     
     func setUpAliens() {
@@ -133,7 +177,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.fontColor = SKColor.white
         scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
         scoreLabel.position = CGPoint(
-            x: scoreLabel.frame.size.width/2 + 30,
+            x: scoreLabel.frame.size.width/2 + 15,
             y: size.height - scoreLabel.frame.size.height
         )
         addChild(scoreLabel)
@@ -163,21 +207,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
         player.physicsBody?.allowsRotation = false
-        player.physicsBody!.contactTestBitMask = player.physicsBody!.collisionBitMask
-        //player.physicsBody!.mass = 0.01
+        player.physicsBody?.categoryBitMask = PhysicsCategory.Player
+        player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser
+        //player.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         return player
     }
-    
-    
-    func random() -> CGFloat {
-        return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
-    }
-    
-    func random(min: CGFloat, max: CGFloat) -> CGFloat {
-        return random() * (max - min) + min
-    }
-    
+
     
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
@@ -188,7 +224,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         alien.physicsBody = SKPhysicsBody(texture: alien.texture!, size: alien.size)
         alien.physicsBody?.isDynamic = false
-        alien.physicsBody!.contactTestBitMask = alien.physicsBody!.collisionBitMask
+        alien.physicsBody?.categoryBitMask = PhysicsCategory.Alien
+        alien.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Projectile | PhysicsCategory.Explosion
+        alien.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualX = random(min: alien.size.width/2, max: size.width - alien.size.width/2)
         alien.position = CGPoint(x: actualX, y: size.height + alien.size.height/2)
@@ -211,7 +249,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
-        asteroid.physicsBody!.contactTestBitMask = asteroid.physicsBody!.collisionBitMask
+        asteroid.physicsBody?.categoryBitMask = PhysicsCategory.Asteroid
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Projectile | PhysicsCategory.Explosion
+        asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
         asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
@@ -230,7 +270,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
         alienLaser.physicsBody?.isDynamic = false
-        alienLaser.physicsBody!.contactTestBitMask = alienLaser.physicsBody!.collisionBitMask
+        alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
+        alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
         alienLaser.physicsBody?.usesPreciseCollisionDetection = true
         
         let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
@@ -250,21 +292,74 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func firePlayerWeapon(){
+        if(playerWeapon == kLaserName){
+            firePlayerLaser()
+        }
+        if(playerWeapon == kMissileName){
+            firePlayerMissile()
+        }
+    }
+    
+    func firePlayerLaser() {
         run(SKAction.playSoundFileNamed("laser.mp3", waitForCompletion: false))
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2 + 4)
+            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2)
         }
         laser.name = kLaserName
         laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
         laser.physicsBody?.isDynamic = true
-        laser.physicsBody!.contactTestBitMask = laser.physicsBody!.collisionBitMask
+        laser.physicsBody?.categoryBitMask = PhysicsCategory.Projectile
+        laser.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        laser.physicsBody?.collisionBitMask = PhysicsCategory.None
         laser.physicsBody?.usesPreciseCollisionDetection = true
         
         addChild(laser)
         let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
         let actionMoveDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func firePlayerMissile() {
+        run(SKAction.playSoundFileNamed("missile.wav", waitForCompletion: false))
+        let missile = SKSpriteNode(imageNamed: "missile")
+        missile.size = CGSize(width: 19, height: 40)
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            missile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + missile.size.height/2)
+        }
+        missile.name = kMissileName
+        missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
+        missile.physicsBody?.isDynamic = true
+        missile.physicsBody?.categoryBitMask = PhysicsCategory.Projectile
+        missile.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        missile.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missile.physicsBody?.usesPreciseCollisionDetection = true
+        missile.physicsBody?.allowsRotation = false
+        
+        addChild(missile)
+        let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: 3000), duration: 7.5)
+        let actionMoveDone = SKAction.removeFromParent()
+        missile.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func missileExplosion(missile: SKNode) {
+        //TODO explosion soundfile
+        let missileExplosion = SKSpriteNode(imageNamed: "explosion")
+        missileExplosion.size = CGSize(width: 35, height: 35)
+        missileExplosion.position = missile.position
+        
+        missileExplosion.name = kMissileExplosionName
+        missileExplosion.physicsBody = SKPhysicsBody(rectangleOf: missileExplosion.size)
+        missileExplosion.physicsBody?.isDynamic = true
+        missileExplosion.physicsBody?.categoryBitMask = PhysicsCategory.Explosion
+        missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        missileExplosion.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missileExplosion.physicsBody?.allowsRotation = false
+        
+        addChild(missileExplosion)
+        let actionMove = SKAction.move(to: missileExplosion.position, duration: 0.3)
+        let actionMoveDone = SKAction.removeFromParent()
+        missileExplosion.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
@@ -328,6 +423,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
         }
+        
+        if ob1.name == kAlienName && ob2.name == kMissileName {
+            subtractHealth(sprite: ob1, damage: 1)
+            ob2.removeFromParent()
+            missileExplosion(missile: ob2)
+        }
+        
+        if ob1.name == kAsteroidName && ob2.name == kMissileName {
+            subtractHealth(sprite: ob1, damage: 1)
+            ob2.removeFromParent()
+            missileExplosion(missile: ob2)
+        }
+        
+        if ob1.name == kAlienName && ob2.name == kMissileExplosionName {
+            subtractHealth(sprite: ob1, damage: 4)
+        }
+        
+        if ob1.name == kAsteroidName && ob2.name == kMissileExplosionName {
+            subtractHealth(sprite: ob1, damage: 4)
+        }
+        
     }
     
     func didBegin(_ contact: SKPhysicsContact) {

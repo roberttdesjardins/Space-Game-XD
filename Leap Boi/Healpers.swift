@@ -9,6 +9,15 @@
 import SpriteKit
 import Foundation
 
+func random() -> CGFloat {
+    return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
+}
+
+func random(min: CGFloat, max: CGFloat) -> CGFloat {
+    return random() * (max - min) + min
+}
+
+
 func setAlienHealth(alien: SKSpriteNode) {
     alien.userData?.setValue(3, forKey: "health")
 }
@@ -65,6 +74,16 @@ func gameSceneLoad(view: UIView) {
 
 func highScoreSceneLoad(view: UIView) {
     let scene = HighScoreScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.showsFPS = false
+    skView.showsNodeCount = false
+    skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
+}
+
+func weaponSceneLoad(view: UIView) {
+    let scene = WeaponScene(size: view.bounds.size)
     let skView = view as! SKView
     skView.ignoresSiblingOrder = true
     scene.scaleMode = .resizeFill
