@@ -9,8 +9,8 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// NEED TO FIX BITMASKS
 // Make it so missileExplosion only damages things once..
+// Make missileExmplosion look more natural- animated?
 // Make an explosion when things die
 // Make explosion sound
 // add nice lanchscreen storyboard
@@ -66,12 +66,14 @@ extension CGPoint {
 struct PhysicsCategory {
     static let None      : UInt32 = 0
     static let All       : UInt32 = UInt32.max
-    static let Player: UInt32 = 0b0001
-    static let Alien: UInt32 = 0b0010
-    static let Asteroid: UInt32 = 0b0011
-    static let Projectile: UInt32 = 0b0100
-    static let Explosion: UInt32 = 0b0101
-    static let AlienLaser: UInt32 = 0b0110
+    static let Player: UInt32 = 0x1 << 1
+    static let Alien: UInt32 = 0x1 << 2
+    static let Asteroid: UInt32 = 0x1 << 3
+    static let Projectile: UInt32 = 0x1 << 4
+    static let Explosion: UInt32 = 0x1 << 5
+    static let AlienLaser: UInt32 = 0x1 << 6
+    
+    static let Edge: UInt32 = 0x1 << 7
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
@@ -119,6 +121,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupScreen() {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+        let edge = SKNode()
+        edge.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        edge.physicsBody!.usesPreciseCollisionDetection = true
+        edge.physicsBody!.categoryBitMask = PhysicsCategory.Edge
     }
     
     func setupMusic() {
@@ -209,7 +215,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.allowsRotation = false
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser
-        //player.physicsBody?.collisionBitMask = PhysicsCategory.None
+        player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
         
         return player
     }
@@ -343,7 +349,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func missileExplosion(missile: SKNode) {
-        //TODO explosion soundfile
+        run(SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false))
         let missileExplosion = SKSpriteNode(imageNamed: "explosion")
         missileExplosion.size = CGSize(width: 35, height: 35)
         missileExplosion.position = missile.position
