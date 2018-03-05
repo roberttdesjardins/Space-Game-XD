@@ -8,6 +8,9 @@
 
 import SpriteKit
 import Foundation
+import AVFoundation
+
+private var warningPlayer: AVAudioPlayer!
 
 func random() -> CGFloat {
     return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
@@ -26,7 +29,9 @@ func setAstroidHealth(astroid: SKSpriteNode) {
     astroid.userData?.setValue(10, forKey: "health")
 }
 
-
+func setEyeBossHealth(eyeBoss: SKSpriteNode) {
+    eyeBoss.userData?.setValue(400, forKey: "health")
+}
 
 func playerTakesDamage(damage: Int, view: UIView) {
     GameData.shared.playerHealth = GameData.shared.playerHealth - damage
@@ -37,6 +42,7 @@ func playerTakesDamage(damage: Int, view: UIView) {
 
 
 func gameOver(view: UIView) {
+    warningPlayer?.stop()
     let scene = GameOverScene(size: view.bounds.size)
     let skView = view as! SKView
     skView.ignoresSiblingOrder = true
@@ -82,6 +88,33 @@ func weaponSceneLoad(view: UIView) {
     skView.showsFPS = false
     skView.showsNodeCount = false
     skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
+}
+
+func warningFlashing(scene: SKScene){
+    
+    let path = Bundle.main.path(forResource: "warningBeep", ofType: "wav")!
+    let url = URL(fileURLWithPath: path)
+    do {
+        warningPlayer = try AVAudioPlayer(contentsOf: url)
+        warningPlayer.numberOfLoops = 9
+        warningPlayer.prepareToPlay()
+    } catch let error as NSError {
+        print(error.description)
+    }
+    warningPlayer.play()
+    
+    let warningSign = SKSpriteNode(imageNamed: "warning")
+    warningSign.zPosition = 2
+    warningSign.size = CGSize(width: 40, height: 40)
+    warningSign.position = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
+    scene.addChild(warningSign)
+    
+    
+    let fadeOut = SKAction.fadeAlpha(to: 0.0, duration: 0.645)
+    let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.645)
+    let pulse = SKAction.sequence([fadeIn, fadeOut])
+    let pulseTenTimes = SKAction.sequence([SKAction.repeat(pulse,count: 10), fadeOut, SKAction.removeFromParent()])
+    warningSign.run(pulseTenTimes)
 }
 
 func resetHealthandScore() {

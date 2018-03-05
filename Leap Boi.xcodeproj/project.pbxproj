@@ -21,6 +21,7 @@
 		55978A1F2048912F00CA8AC6 /* HighScoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */; };
 		55978A242048B61500CA8AC6 /* laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55978A232048B61500CA8AC6 /* laser.mp3 */; };
 		55978A262048B87B00CA8AC6 /* bensound-deepblue.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55978A252048B87B00CA8AC6 /* bensound-deepblue.mp3 */; };
+		55C18353204C9BB300747F00 /* warningBeep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55C18352204C9BB300747F00 /* warningBeep.wav */; };
 		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
 		55FFA845204490E000A36E67 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA844204490E000A36E67 /* GameScene.swift */; };
@@ -44,6 +45,7 @@
 		55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighScoreScene.swift; sourceTree = "<group>"; };
 		55978A232048B61500CA8AC6 /* laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = laser.mp3; sourceTree = "<group>"; };
 		55978A252048B87B00CA8AC6 /* bensound-deepblue.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "bensound-deepblue.mp3"; sourceTree = "<group>"; };
+		55C18352204C9BB300747F00 /* warningBeep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = warningBeep.wav; sourceTree = "<group>"; };
 		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		55FFA83E204490E000A36E67 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 		55978A202048B39F00CA8AC6 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
+				55C18352204C9BB300747F00 /* warningBeep.wav */,
 				55978A232048B61500CA8AC6 /* laser.mp3 */,
 				55075B91204B8FA9006D656F /* missile.wav */,
 				55075B93204B9F03006D656F /* explosion.wav */,
@@ -179,6 +182,7 @@
 				55FFA84A204490E000A36E67 /* Main.storyboard in Resources */,
 				55075B9A204C66F3006D656F /* AlienExplosionParticle.sks in Resources */,
 				55075B96204C5BC2006D656F /* MissileExplosionParticle.sks in Resources */,
+				55C18353204C9BB300747F00 /* warningBeep.wav in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
 				55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */,
 				55075B94204B9F03006D656F /* explosion.wav in Resources */,
