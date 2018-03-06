@@ -33,13 +33,6 @@ func setEyeBossHealth(eyeBoss: SKSpriteNode) {
     eyeBoss.userData?.setValue(400, forKey: "health")
 }
 
-func playerTakesDamage(damage: Int, view: UIView) {
-    GameData.shared.playerHealth = GameData.shared.playerHealth - damage
-    if (GameData.shared.playerHealth <= 0) {
-        gameOver(view: view)
-    }
-}
-
 
 func gameOver(view: UIView) {
     warningPlayer?.stop()

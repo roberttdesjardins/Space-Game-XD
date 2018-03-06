@@ -9,28 +9,25 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// Make missile explosion only damage once
 // Fix "missle" button to "missile"
-// MAKE EXPLOSION ONLY DAMAGE ALIENS ONCE. works for asteroids for some reason...
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
-// add nice lanchscreen storyboard
 // Make better name
-// add different levels based on planets
 // add unlockable weapons, upgrades, etc based on score?
 // Earn credits?
 // inapp purchases? - Upgrades drop more, more max health,
 // Make aliens move "randomly"
 // add pause button
 // add different types of enemies
-// Bosses
 // Bosses reverse controls- confusion
-// Power Ups
 // Make aliens fire aoe, crossing diagonal bullets
-// Make asteroid break into two
+// Make asteroid break into two smaller asteroids
 // Make laser sound better
-// Upgrades: More bullets parallel, diagonal bullets,
+// Upgrades: More bullets parallel, diagonal bullets, energy shield
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Swipe to move like snake vs block
+//
 
 
 import SpriteKit
@@ -93,6 +90,7 @@ struct PhysicsCategory {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    var playerAlive = false
     let kPlayerName = "player"
     let kAlienName = "alien"
     let kAlienLaserName = "alienlaser"
@@ -189,6 +187,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let player = makePlayer()
         player.position = CGPoint(x: size.width * 0.5, y: size.height * 0.1)
         addChild(player)
+        playerAlive = true
     }
     
     func setupWeapon() {
@@ -426,20 +425,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosion.alpha = 0.0
         missileExplosion.size = CGSize(width: 50, height: 50)
         missileExplosion.position = missile.position
+        missileExplosion.userData = NSMutableDictionary()
 
         missileExplosion.name = kMissileExplosionName
         missileExplosion.physicsBody = SKPhysicsBody(rectangleOf: missileExplosion.size)
         missileExplosion.physicsBody?.isDynamic = true
         missileExplosion.physicsBody?.categoryBitMask = PhysicsCategory.MissileExplosion
-        missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.EyeBoss
         missileExplosion.physicsBody?.collisionBitMask = PhysicsCategory.None
         missile.physicsBody?.usesPreciseCollisionDetection = true
         missileExplosion.physicsBody?.allowsRotation = false
 
         addChild(missileExplosion)
         //TODO: TEST THIS
-        missileExplosion.run(SKAction.wait(forDuration: 0.001), completion: { missileExplosion.removeFromParent() })
+        missileExplosion.run(SKAction.wait(forDuration: 0.005), completion: { missileExplosion.removeFromParent() })
     }
+    
+    func removeMissileExplosion() {
+        for child in self.children {
+            if child.name == kMissileExplosionName {
+                child.removeFromParent()
+            }
+        }
+    }
+    
     
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
@@ -516,7 +525,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBoss.physicsBody?.isDynamic = true
         eyeBoss.physicsBody?.affectedByGravity = false
         eyeBoss.physicsBody?.categoryBitMask = PhysicsCategory.EyeBoss
-        eyeBoss.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        eyeBoss.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
         eyeBoss.physicsBody?.collisionBitMask = PhysicsCategory.None
         eyeBoss.physicsBody?.usesPreciseCollisionDetection = true
     }
@@ -560,7 +569,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile
         eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
-            eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height + (eyeBossLaser.size.height/2))
+            //eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height + (eyeBossLaser.size.height/2))
+            let range = SKRange(lowerLimit:0, upperLimit:0)
+            let constraint = SKConstraint.distance(range, to: eyeBoss)
+            eyeBossLaser.constraints = [constraint]
         }
         addChild(eyeBossLaser)
         eyeBossLaser.run(SKAction.wait(forDuration: 2), completion: { eyeBossLaser.removeFromParent() })
@@ -568,6 +580,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func eyeBossChargeAttack() {
         print("Charge attack eyeboss")
+        if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
+            eyeBoss.texture = SKTexture(imageNamed: "eyeBoss2")
+            let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 2.0)
+            
+            eyeBoss.run(actionMove, completion: {
+                eyeBoss.position = CGPoint(x: eyeBoss.position.x, y: self.size.height + eyeBoss.size.height)
+                eyeBoss.texture = SKTexture(imageNamed: "eyeBoss1")
+                eyeBoss.run(SKAction.move(to: CGPoint(x: eyeBoss.position.x, y: self.size.height - eyeBoss.size.height), duration: 1.5))
+            })
+        }
+    }
+    
+    func playerTakesDamage(damage: Int, view: UIView) {
+        GameData.shared.playerHealth = GameData.shared.playerHealth - damage
+        // If the player has 0 or less health, go to GameOverScene
+        if (GameData.shared.playerHealth <= 0) {
+            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+                player.removeFromParent()
+                playerAlive = false
+                missileExplosionEffect(position: player.position)
+                run(SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false))
+            }
+            let wait = SKAction.wait(forDuration:2.5)
+            let action = SKAction.run {
+                gameOver(view: view)
+            }
+            run(SKAction.sequence([wait,action]))
+            
+        }
     }
     
     func subtractHealth(sprite: SKNode, damage: Int) {
@@ -585,10 +626,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
             }
             if(sprite.name == kEyeBossName){
-                alienExplosionEffect(position: sprite.position)
+                //TODO: Make eyeBoss explosion and sound
                 GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
-                eyeBossSpawned = false
                 eyeBossFullySpawned = false
+                let wait = SKAction.wait(forDuration:2.5)
+                let action = SKAction.run {
+                    self.setupMusic()
+                    self.setUpAliens()
+                    self.setUpAsteroids()
+                }
+                run(SKAction.sequence([wait,action]))
             }
             sprite.removeFromParent()
         }
@@ -624,7 +671,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHud()
         let timeSinceLastFired = currentTime - lastFiredTime
         // Only fire weapon if the weapon hasn't been fired in the last fireRate seconds and the user is touching the screen
-        if timeSinceLastFired > fireRate && touchingScreen {
+        if timeSinceLastFired > fireRate && touchingScreen && playerAlive {
             firePlayerWeapon()
             lastFiredTime = currentTime
         }
@@ -652,6 +699,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // Called when there is a collision between two nodes.
+    // Combine if statements
     func collisionBetween(ob1: SKNode, ob2: SKNode){
         if ob1.name == kPlayerName && ob2.name == kAlienName {
             ob2.removeFromParent()
@@ -670,6 +718,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kEyeBossLaserName {
             playerTakesDamage(damage: 2, view: view!)
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kEyeBossName {
+            playerTakesDamage(damage: 80, view: view!)
         }
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
@@ -715,14 +767,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kAlienName && ob2.name == kMissileExplosionName {
             subtractHealth(sprite: ob1, damage: 4)
+            removeMissileExplosion()
         }
         
         if ob1.name == kAsteroidName && ob2.name == kMissileExplosionName {
             subtractHealth(sprite: ob1, damage: 4)
+            removeMissileExplosion()
         }
         
         if ob1.name == kEyeBossName && ob2.name == kMissileExplosionName {
             subtractHealth(sprite: ob1, damage: 4)
+            removeMissileExplosion()
+            print(ob1.userData?.value(forKey: "health"))
         }
         
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {
