@@ -9,7 +9,6 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// Make missile explosion only damage once
 // Fix "missle" button to "missile"
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
@@ -127,7 +126,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // How long a player must play before each boss spawns
-    private var timeToSpawnEyeBoss = 1.0
+    private var timeToSpawnEyeBoss = 100.0
     
     // Each boss starts unspawned
     private var eyeBossSpawned = false
@@ -144,12 +143,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let asteroidKillScore = 90
     let eyeBossKillScore = 5000
     
+    var damagedByPlayerLaserArray: [String] = []
+    var damagedByPlayerMissileArray: [String] = []
+    var damagedByPlayerMissileExplosionArray: [String] = []
+    
     private var bgMusicPlayer: AVAudioPlayer!
     
     let motionManager = CMMotionManager()
     
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
+        setUpDamageArrays()
         setupScreen()
         setupMusic()
         setupPlayer()
@@ -158,6 +162,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAsteroids()
         setupHud()
         motionManager.startAccelerometerUpdates()
+    }
+    
+    func setUpDamageArrays(){
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kEyeBossName]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kEyeBossName]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kEyeBossName]
     }
     
     func setupScreen() {
@@ -378,7 +388,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func firePlayerLaser() {
-        run(SKAction.playSoundFileNamed("laser.mp3", waitForCompletion: false))
+        let audioNode = SKAudioNode(fileNamed: "laser")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
+        
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2)
@@ -398,7 +413,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func firePlayerMissile() {
-        run(SKAction.playSoundFileNamed("missile.wav", waitForCompletion: false))
+        let audioNode = SKAudioNode(fileNamed: "missile")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
+        
         let missile = SKSpriteNode(imageNamed: "missile")
         missile.size = CGSize(width: 19, height: 40)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
@@ -420,7 +440,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func missileExplosion(missile: SKNode) {
-        run(SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false))
+        let audioNode = SKAudioNode(fileNamed: "explosion")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         let missileExplosion = SKSpriteNode()
         missileExplosion.alpha = 0.0
         missileExplosion.size = CGSize(width: 50, height: 50)
@@ -437,17 +461,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosion.physicsBody?.allowsRotation = false
 
         addChild(missileExplosion)
-        //TODO: TEST THIS
-        missileExplosion.run(SKAction.wait(forDuration: 0.005), completion: { missileExplosion.removeFromParent() })
+        missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
     }
     
-    func removeMissileExplosion() {
-        for child in self.children {
-            if child.name == kMissileExplosionName {
-                child.removeFromParent()
-            }
-        }
-    }
+
     
     
     func missileExplosionEffect(position: CGPoint) {
@@ -559,7 +576,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //TODO: Put in sound
         //TODO: Make charge up before attack
         //TODO: Make it so it deals continuous damage better...
-        print("LaserBeam attack eyeboss")
         let eyeBossLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 50, height: 3000))
         eyeBossLaser.name = kEyeBossLaserName
         
@@ -579,7 +595,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func eyeBossChargeAttack() {
-        print("Charge attack eyeboss")
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
             eyeBoss.texture = SKTexture(imageNamed: "eyeBoss2")
             let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 2.0)
@@ -600,7 +615,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 player.removeFromParent()
                 playerAlive = false
                 missileExplosionEffect(position: player.position)
-                run(SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false))
+                let audioNode = SKAudioNode(fileNamed: "explosion")
+                audioNode.autoplayLooped = false
+                self.addChild(audioNode)
+                let playAction = SKAction.play()
+                audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             }
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
@@ -624,6 +643,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(sprite.name == kAsteroidName){
                 asteroidExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
+                spawnHealthRandom(position: sprite.position)
             }
             if(sprite.name == kEyeBossName){
                 //TODO: Make eyeBoss explosion and sound
@@ -667,7 +687,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         processUserMotion(forUpdate: currentTime)
-        //GameData.shared.playerScore = GameData.shared.playerScore + 1
+        GameData.shared.playerScore = GameData.shared.playerScore + 1
         updateHud()
         let timeSinceLastFired = currentTime - lastFiredTime
         // Only fire weapon if the weapon hasn't been fired in the last fireRate seconds and the user is touching the screen
@@ -675,6 +695,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firePlayerWeapon()
             lastFiredTime = currentTime
         }
+        
+        // Sets all nodes damaged by explosion to be able to be damaged again.
+        for child in self.children {
+            if child.name != nil && damagedByPlayerMissileExplosionArray.contains(child.name!){
+                child.userData?.setValue(false, forKey: "invulnerable")
+            }
+        }
+        
+        
+        // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
         if (currentTime - startTime) >= timeToSpawnEyeBoss && !eyeBossSpawned {
             print("SPAWN EyeBoss")
             setUpEyeBoss()
@@ -699,7 +729,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // Called when there is a collision between two nodes.
-    // Combine if statements
     func collisionBetween(ob1: SKNode, ob2: SKNode){
         if ob1.name == kPlayerName && ob2.name == kAlienName {
             ob2.removeFromParent()
@@ -717,7 +746,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kEyeBossLaserName {
-            playerTakesDamage(damage: 2, view: view!)
+            playerTakesDamage(damage: 10, view: view!)
         }
         
         if ob1.name == kPlayerName && ob2.name == kEyeBossName {
@@ -730,55 +759,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
-        if ob1.name == kAlienName && ob2.name == kLaserName {
+        if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
         }
         
-        if ob1.name == kAsteroidName && ob2.name == kLaserName {
-            subtractHealth(sprite: ob1, damage: 1)
-            ob2.removeFromParent()
-        }
-        
-        if ob1.name == kEyeBossName && ob2.name == kLaserName {
-            subtractHealth(sprite: ob1, damage: 1)
-            ob2.removeFromParent()
-        }
-        
-        if ob1.name == kAlienName && ob2.name == kMissileName {
+        if damagedByPlayerMissileArray.contains(ob1.name!) && ob2.name == kMissileName {
             subtractHealth(sprite: ob1, damage: 1)
             ob2.removeFromParent()
             missileExplosion(missile: ob2)
             missileExplosionEffect(position: ob2.position)
         }
         
-        if ob1.name == kAsteroidName && ob2.name == kMissileName {
-            subtractHealth(sprite: ob1, damage: 1)
-            ob2.removeFromParent()
-            missileExplosion(missile: ob2)
-            missileExplosionEffect(position: ob2.position)
-        }
-        if ob1.name == kEyeBossName && ob2.name == kMissileName {
-            subtractHealth(sprite: ob1, damage: 1)
-            ob2.removeFromParent()
-            missileExplosion(missile: ob2)
-            missileExplosionEffect(position: ob2.position)
-        }
-        
-        if ob1.name == kAlienName && ob2.name == kMissileExplosionName {
+        if damagedByPlayerMissileExplosionArray.contains(ob1.name!) && ob2.name == kMissileExplosionName && ob1.userData?.value(forKey: "invulnerable") as? Bool != true {
+            ob1.userData?.setValue(true, forKey: "invulnerable")
             subtractHealth(sprite: ob1, damage: 4)
-            removeMissileExplosion()
-        }
-        
-        if ob1.name == kAsteroidName && ob2.name == kMissileExplosionName {
-            subtractHealth(sprite: ob1, damage: 4)
-            removeMissileExplosion()
-        }
-        
-        if ob1.name == kEyeBossName && ob2.name == kMissileExplosionName {
-            subtractHealth(sprite: ob1, damage: 4)
-            removeMissileExplosion()
-            print(ob1.userData?.value(forKey: "health"))
         }
         
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {

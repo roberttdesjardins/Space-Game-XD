@@ -30,7 +30,7 @@ func setAstroidHealth(astroid: SKSpriteNode) {
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
-    eyeBoss.userData?.setValue(400, forKey: "health")
+    eyeBoss.userData?.setValue(200, forKey: "health")
 }
 
 
