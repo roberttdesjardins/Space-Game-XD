@@ -9,6 +9,7 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// Change eyeboss image..
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
 // Make better name
@@ -108,6 +109,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kThreeShotUpgradeName = "threeShotUpgrade"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
+    let kEyeBossLaserChargeName = "eyeBossLaserCharge"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -136,6 +138,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Time since gameScene started
     private var sinceStart: CFTimeInterval = 0
     
+    // Is called in update only the first time
     private var setStartBool = true
     private var startTime: CFTimeInterval = 0
     
@@ -277,6 +280,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func makePlayer() -> SKNode {
         let player = SKSpriteNode(imageNamed: "spaceship")
         player.size = CGSize(width: 35, height: 35)
+        player.zPosition = 5
         player.name = kPlayerName
         
         player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size - CGSize(width: 5, height: 5))
@@ -614,7 +618,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // Spawns the first boss- eyeBoss
-    //TODO: Play boss music
+    // TODO: Play boss music
     func spawnEyeBoss() {
         let eyeBoss = SKSpriteNode(imageNamed: "eyeBoss1")
         eyeBoss.userData = NSMutableDictionary()
@@ -622,6 +626,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBoss.size = CGSize(width: 110, height: 152)
         eyeBoss.position = CGPoint(x: size.width/2, y: size.height + eyeBoss.size.height)
         eyeBoss.name = kEyeBossName
+        eyeBoss.zPosition = 3
         
         addChild(eyeBoss)
         eyeBoss.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - eyeBoss.size.height), duration: 10.0), completion: { () -> Void in
@@ -642,22 +647,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func processEyeBossMovement(forUpdate currentTime: CFTimeInterval) {
-        //TODO: Stop eyeBoss from "twitching"
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x + 10 >= eyeBoss.position.x {
-                    eyeBoss.physicsBody?.velocity.dx = CGFloat(50)
+                    eyeBoss.physicsBody?.velocity.dx = CGFloat(60)
                 } else if player.position.x - 10 < eyeBoss.position.x {
-                    eyeBoss.physicsBody?.velocity.dx = CGFloat(-50)
+                    eyeBoss.physicsBody?.velocity.dx = CGFloat(-60)
                 }
                 if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
                     eyeBossLaser.position.x = eyeBoss.position.x
+                }
+                if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
+                    eyeBossLaserCharge.position.x = eyeBoss.position.x
                 }
             }
         }
 
     }
     
+    // TODO: Add more eyeBoss attacks- 5 total?
     func processEyeBossAttacks(attackChosen: Int) {
         switch attackChosen {
         case 1:
@@ -670,25 +678,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func eyeBossLaserBeamAttack() {
-        //TODO: Put in sound
-        //TODO: Make charge up before attack
-        //TODO: Make it so it deals continuous damage better...
-        let eyeBossLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 50, height: 3000))
-        eyeBossLaser.name = kEyeBossLaserName
+        //TODO: Change physics body of laser
+        let audioNode = SKAudioNode(fileNamed: "laserchargesound")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         
-        eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size)
-        eyeBossLaser.physicsBody?.isDynamic = false
-        eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
-        eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile
-        eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
+        let chargeLaser = SKSpriteNode(imageNamed: "lasercharge")
+        chargeLaser.zPosition = 2
+        chargeLaser.name = kEyeBossLaserChargeName
+        chargeLaser.size = CGSize(width: 0, height: 0)
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
-            eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height + (eyeBossLaser.size.height/2))
-            //let range = SKRange(lowerLimit:0, upperLimit:0)
-            //let constraint = SKConstraint.distance(range, to: eyeBoss)
-            //eyeBossLaser.constraints = [constraint]
+            chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2)
         }
-        addChild(eyeBossLaser)
-        eyeBossLaser.run(SKAction.wait(forDuration: 2), completion: { eyeBossLaser.removeFromParent() })
+        addChild(chargeLaser)
+        chargeLaser.run(SKAction.resize(toWidth: 172.8, height: 90, duration: 1.4), completion: {
+            let audioNode2 = SKAudioNode(fileNamed: "laserbeamsound")
+            audioNode2.autoplayLooped = false
+            self.addChild(audioNode2)
+            let playAction = SKAction.play()
+            audioNode2.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 5), SKAction.removeFromParent()]))
+            
+            let eyeBossLaser = SKSpriteNode(imageNamed: "laserbeam")
+            eyeBossLaser.size = CGSize(width: 172.8, height: 920.23)
+            eyeBossLaser.zPosition = 2
+            eyeBossLaser.name = self.kEyeBossLaserName
+            
+            eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size)
+            eyeBossLaser.physicsBody?.isDynamic = false
+            eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
+            eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile
+            eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
+            if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
+                eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2 - chargeLaser.size.height/2))
+            }
+            chargeLaser.removeFromParent()
+            self.addChild(eyeBossLaser)
+            eyeBossLaser.run(SKAction.wait(forDuration: 3), completion: {
+                eyeBossLaser.removeFromParent()
+                //chargeLaser.removeFromParent()
+            })
+        })
     }
     
     func eyeBossChargeAttack() {
@@ -812,6 +843,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // eyeBoss moves and attacks after it has finished moving into position and has its physics body initialized
         if eyeBossFullySpawned {
             processEyeBossMovement(forUpdate: currentTime)
+            // CHANGE EYEBOSS ATTACK RATE.
             if(currentTime - timeEyeBossAttack) >= eyeBossAttackRate {
                 timeEyeBossAttack = currentTime
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
