@@ -9,6 +9,8 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// Make Asteroids spin
+// Change alien look
 // Make upgrades "bounce up and out" when spawned
 // make three and five attack upgrade only spawn with laser?
 // remove attack if eyebossdefeated
@@ -29,7 +31,7 @@
 // Make laser sound better
 // Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
 // Swipe up, move forward fixed amount, so two different y axis positions
-// Swipe to move like snake vs block
+// Swipe to move like snake vs block?
 // Improve HUD- show upgrades
 // Increase spawn rates with time
 // change enemies after a boss is defeated
@@ -89,8 +91,10 @@ struct PhysicsCategory {
     static let EyeBoss: UInt32 = 0x1 << 8
     static let EyeBossLaserAttack: UInt32 = 0x1 << 9
     static let Boss2: UInt32 = 0x1 << 10
+    static let MediumAsteroid: UInt32 = 0x1 << 11
+    static let SmallAsteroid: UInt32 = 0x1 << 12
     
-    static let Edge: UInt32 = 0x1 << 11
+    static let Edge: UInt32 = 0x1 << 13
 }
 
 struct BaseFireRate {
@@ -105,6 +109,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kAlienName = "alien"
     let kAlienLaserName = "alienlaser"
     let kAsteroidName = "asteroid"
+    let kMediumAsteroidName = "mediumAsteroid"
+    let kSmallAsteroidName = "smallAsteroid"
     let kLaserName = "laser"
     let kUpgradedLaserName = "upgradedLaser"
     let kMissileName = "missile"
@@ -172,6 +178,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Score for killing each enemy
     let alienKillScore = 30
     let asteroidKillScore = 90
+    let mediumAsteroidKillScore = 50
+    let smallAsteroidKillScore = 20
     let eyeBossKillScore = 5000 // Boss1
     let boss2killscore = 10000
     
@@ -198,9 +206,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
     }
     
     func setupScreen() {
@@ -259,8 +267,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setUpAsteroids() {
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.run(addAstroid),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(6))))
+                SKAction.run(addBigAsteroid),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(4), max: CGFloat(12))))
                 ])
         ))
     }
@@ -366,12 +374,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     
-    func addAstroid() {
+    func addBigAsteroid() {
         let asteroid = SKSpriteNode(imageNamed: "asteroid")
         asteroid.name = kAsteroidName
         asteroid.size = CGSize(width: 80, height: 80)
         asteroid.userData = NSMutableDictionary()
-        setAstroidHealth(astroid: asteroid)
+        setLargeAsteroidHealth(asteroid: asteroid)
         
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
@@ -389,6 +397,57 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
+    
+    
+    func addMediumAsteroid(position: CGPoint, xoffset: CGFloat) {
+        //TODO: Change image
+        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        asteroid.name = kMediumAsteroidName
+        asteroid.size = CGSize(width: 40, height: 40)
+        asteroid.userData = NSMutableDictionary()
+        setMediumAsteroidHealth(asteroid: asteroid)
+        
+        asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
+        asteroid.physicsBody?.isDynamic = false
+        asteroid.physicsBody?.categoryBitMask = PhysicsCategory.MediumAsteroid
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
+
+        asteroid.position = position + CGPoint(x: xoffset, y: 0)
+        addChild(asteroid)
+        
+        let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
+        
+        let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: position.y - size.height), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func addSmallAsteroid(position: CGPoint, xoffset: CGFloat) {
+        //TODO: Change image
+        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        asteroid.name = kSmallAsteroidName
+        asteroid.size = CGSize(width: 20, height: 20)
+        asteroid.userData = NSMutableDictionary()
+        setSmallAsteroidHealth(asteroid: asteroid)
+        
+        asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
+        asteroid.physicsBody?.isDynamic = false
+        asteroid.physicsBody?.categoryBitMask = PhysicsCategory.SmallAsteroid
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        asteroid.position = position + CGPoint(x: xoffset, y: 0)
+        addChild(asteroid)
+        
+        let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
+        
+        let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: position.y - size.height), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    
     
     func addHealthPowerup(position: CGPoint) {
         let healthPack = SKSpriteNode(imageNamed: "healthpack")
@@ -824,6 +883,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 asteroidExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
                 spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
+                self.addMediumAsteroid(position: sprite.position, xoffset: -10)
+                self.addMediumAsteroid(position: sprite.position, xoffset: 10)
+            }
+            if(sprite.name == kMediumAsteroidName){
+                // TODO: Make medium asteroid explosion effect
+                GameData.shared.playerScore = GameData.shared.playerScore + mediumAsteroidKillScore
+                spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
+                self.addSmallAsteroid(position: sprite.position, xoffset: -5)
+                self.addSmallAsteroid(position: sprite.position, xoffset: 5)
+            }
+            if(sprite.name == kSmallAsteroidName){
+                // TODO: Make small asteroid explosion effect
+                GameData.shared.playerScore = GameData.shared.playerScore + smallAsteroidKillScore
+                spawnRandomPowerUp(position: sprite.position, percentChance: 0.5)
             }
             if(sprite.name == kEyeBossName){
                 //TODO: Make eyeBoss explosion and sound- like an eyeball poping
@@ -952,8 +1025,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kAsteroidName {
+            addMediumAsteroid(position: ob2.position, xoffset: -10)
+            addMediumAsteroid(position: ob2.position, xoffset: 10)
             ob2.removeFromParent()
             playerTakesDamage(damage: 90, view: view!)
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kMediumAsteroidName {
+            addSmallAsteroid(position: ob2.position, xoffset: -5)
+            addSmallAsteroid(position: ob2.position, xoffset: 5)
+            ob2.removeFromParent()
+            playerTakesDamage(damage: 45, view: view!)
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kSmallAsteroidName {
+            ob2.removeFromParent()
+            playerTakesDamage(damage: 20, view: view!)
         }
         
         if ob1.name == kPlayerName && ob2.name == kAlienLaserName {
@@ -1032,6 +1119,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kAsteroidName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kAsteroidName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kMediumAsteroidName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kMediumAsteroidName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kSmallAsteroidName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kSmallAsteroidName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         

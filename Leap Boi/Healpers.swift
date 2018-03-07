@@ -25,8 +25,16 @@ func setAlienHealth(alien: SKSpriteNode) {
     alien.userData?.setValue(3, forKey: "health")
 }
 
-func setAstroidHealth(astroid: SKSpriteNode) {
-    astroid.userData?.setValue(10, forKey: "health")
+func setLargeAsteroidHealth(asteroid: SKSpriteNode) {
+    asteroid.userData?.setValue(10, forKey: "health")
+}
+
+func setMediumAsteroidHealth(asteroid: SKSpriteNode) {
+    asteroid.userData?.setValue(5, forKey: "health")
+}
+
+func setSmallAsteroidHealth(asteroid: SKSpriteNode) {
+    asteroid.userData?.setValue(2, forKey: "health")
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
