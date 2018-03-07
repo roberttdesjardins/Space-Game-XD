@@ -30,9 +30,12 @@ func setAstroidHealth(astroid: SKSpriteNode) {
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
-    eyeBoss.userData?.setValue(200, forKey: "health")
+    eyeBoss.userData?.setValue(20, forKey: "health")
 }
 
+func setBoss2Health(boss2: SKSpriteNode) {
+    boss2.userData?.setValue(20, forKey: "health")
+}
 
 func gameOver(view: UIView) {
     warningPlayer?.stop()
@@ -89,7 +92,7 @@ func warningFlashing(scene: SKScene){
     let url = URL(fileURLWithPath: path)
     do {
         warningPlayer = try AVAudioPlayer(contentsOf: url)
-        warningPlayer.numberOfLoops = 9
+        warningPlayer.numberOfLoops = 6
         warningPlayer.prepareToPlay()
     } catch let error as NSError {
         print(error.description)
@@ -106,7 +109,7 @@ func warningFlashing(scene: SKScene){
     let fadeOut = SKAction.fadeAlpha(to: 0.0, duration: 0.645)
     let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.645)
     let pulse = SKAction.sequence([fadeIn, fadeOut])
-    let pulseTenTimes = SKAction.sequence([SKAction.repeat(pulse,count: 10), fadeOut, SKAction.removeFromParent()])
+    let pulseTenTimes = SKAction.sequence([SKAction.repeat(pulse,count: 7), fadeOut, SKAction.removeFromParent()])
     warningSign.run(pulseTenTimes)
 }
 

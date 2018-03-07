@@ -9,6 +9,9 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// Make upgrades "bounce up and out" when spawned
+// make three and five attack upgrade only spawn with laser?
+// remove attack if eyebossdefeated
 // Change eyeboss image..
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
@@ -20,10 +23,11 @@
 // add pause button
 // add different types of enemies
 // Bosses reverse controls- confusion
+// Cthulu boss
 // Make aliens fire aoe, crossing diagonal bullets
 // Make asteroid break into two smaller asteroids
 // Make laser sound better
-// Upgrades: More bullets parallel, diagonal bullets, energy shield, DOT fire, freeze weapon?
+// Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Swipe to move like snake vs block
 // Improve HUD- show upgrades
@@ -84,6 +88,7 @@ struct PhysicsCategory {
     static let UpgradePack: UInt32 = 0x1 << 7
     static let EyeBoss: UInt32 = 0x1 << 8
     static let EyeBossLaserAttack: UInt32 = 0x1 << 9
+    static let Boss2: UInt32 = 0x1 << 10
     
     static let Edge: UInt32 = 0x1 << 11
 }
@@ -110,30 +115,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
+    let kBoss2Name = "boss2"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
     var healthLabel = SKLabelNode(fontNamed: "Avenir")
     
-    
+    // Player Weapon Variables
     // Starts with the screen not being pressed
-    var touchingScreen = false
-    
+    private var touchingScreen = false
     // Shoots every x seconds
     var fireRate = 0.3
-    
     // The players weapon choice
     var playerWeapon = ""
-    
     // The number of fireRate upgrades
-    var fireRateUpgradeNumber = 0
-    
+    private var fireRateUpgradeNumber = 0
     // All the possible upgrades
     private var threeShotUpgrade = false
     private var fiveShotUpgrade = false
-    
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
+    
     
     // Time since gameScene started
     private var sinceStart: CFTimeInterval = 0
@@ -142,24 +144,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var setStartBool = true
     private var startTime: CFTimeInterval = 0
     
+    // Enemy Variables
+    private var alienTriShotActive = false
     
+    // BossVariables
     // How long a player must play before each boss spawns
-    private var timeToSpawnEyeBoss = 1.0
+    private var timeToSpawnNextBoss = 100.0
     
-    // Each boss starts unspawned
+    // When each boss is defeated
+    private var timeEyeBossDefeated: TimeInterval = 0.0
+    private var timeBoss2Defeated: TimeInterval = 0.0
+    
+    // Each boss starts unspawned and udefeated
     private var eyeBossSpawned = false
     private var eyeBossFullySpawned = false
-    
+    private var eyeBossDefeated = false
+    private var boss2Spawned = false
+    private var boss2FullySpawned = false
+    private var boss2Defeated = false
     // Attack rate of each boss- seconds between each attack
     private var eyeBossAttackRate = 5.0
-    
+    private var boss2AttackRate = 5.0
     // Time each boss attacked last
     private var timeEyeBossAttack: CFTimeInterval = 0
+    private var timeBoss2Attack: CFTimeInterval = 0
     
     // Score for killing each enemy
     let alienKillScore = 30
     let asteroidKillScore = 90
-    let eyeBossKillScore = 5000
+    let eyeBossKillScore = 5000 // Boss1
+    let boss2killscore = 10000
+    
     
     var damagedByPlayerLaserArray: [String] = []
     var damagedByPlayerMissileArray: [String] = []
@@ -183,9 +198,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kEyeBossName]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kEyeBossName]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kEyeBossName]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kEyeBossName, kBoss2Name]
     }
     
     func setupScreen() {
@@ -294,7 +309,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return player
     }
 
-    
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
@@ -320,6 +334,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAlienLaser(alien: alien)
     }
     
+    func addAlienLaser(alien: SKSpriteNode, offset: CGFloat) {
+        let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 16))
+        alienLaser.name = kAlienLaserName
+        
+        alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
+        alienLaser.physicsBody?.isDynamic = false
+        alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
+        alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
+        alienLaser.physicsBody?.usesPreciseCollisionDetection = true
+        
+        let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
+        alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
+        let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x + offset, y: alienLaser.position.y - 1000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        alienLaser.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(alienLaser)
+    }
+    
+    func setUpAlienLaser(alien: SKSpriteNode) {
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(8))))
+        let run = SKAction.run {
+            self.addAlienLaser(alien: alien, offset: 0)
+            if self.alienTriShotActive {
+                self.addAlienLaser(alien: alien, offset: 300)
+                self.addAlienLaser(alien: alien, offset: -300)
+            }
+        }
+        alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
+    }
+
+    
     func addAstroid() {
         let asteroid = SKSpriteNode(imageNamed: "asteroid")
         asteroid.name = kAsteroidName
@@ -342,33 +388,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: -asteroid.size.height/2), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
-    }
-    
-    func addAlienLaser(alien: SKSpriteNode) {
-        let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 16))
-        alienLaser.name = kAlienLaserName
-        
-        alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
-        alienLaser.physicsBody?.isDynamic = false
-        alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
-        alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
-        alienLaser.physicsBody?.usesPreciseCollisionDetection = true
-        
-        let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
-        alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
-        let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x, y: alienLaser.position.y - 1000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        alienLaser.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(alienLaser)
-    }
-    
-    func setUpAlienLaser(alien: SKSpriteNode) {
-        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(8))))
-        let run = SKAction.run {
-            self.addAlienLaser(alien: alien)
-        }
-        alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
     }
     
     func addHealthPowerup(position: CGPoint) {
@@ -486,8 +505,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    
-    
     func firePlayerLaser(offset: CGFloat) {
         
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
@@ -495,6 +512,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
         }
         laser.name = kLaserName
+        laser.zPosition = 3
         laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
         laser.physicsBody?.isDynamic = true
         laser.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
@@ -507,8 +525,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
-    
-    
     
     func firePlayerMissile() {
         let audioNode = SKAudioNode(fileNamed: "missile")
@@ -562,9 +578,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
     }
     
-
-    
-    
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
         missileExplosionEffect?.particlePosition = position
@@ -605,16 +618,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienScoreEffect.run(SKAction.wait(forDuration: 1), completion: { alienScoreEffect.removeFromParent() })
     }
     
+    func stopSpawns() {
+        removeAllActions()
+    }
+    
+    
+    // FIRST BOSS
     // Sets up the first boss- eyeBoss
     func setUpEyeBoss() {
         stopSpawns()
         warningFlashing(scene: self.scene!)
         spawnEyeBoss()
         eyeBossSpawned = true
-    }
-    
-    func stopSpawns() {
-        removeAllActions()
     }
     
     // Spawns the first boss- eyeBoss
@@ -735,6 +750,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    
+    
+    // SECOND BOSS
+    func setUpBoss2() {
+        stopSpawns()
+        warningFlashing(scene: self.scene!)
+        spawnBoss2()
+        boss2Spawned = true
+    }
+    
+    func spawnBoss2() {
+        let boss2 = SKSpriteNode(imageNamed: "boss2")
+        boss2.userData = NSMutableDictionary()
+        setBoss2Health(boss2: boss2)
+        boss2.size = CGSize(width: 110, height: 152)
+        boss2.position = CGPoint(x: size.width/2, y: size.height + boss2.size.height)
+        boss2.name = kBoss2Name
+        boss2.zPosition = 3
+        
+        addChild(boss2)
+        boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height), duration: 10.0), completion: { () -> Void in
+            self.setUpBoss2PhysicsBody(boss2: boss2)
+            self.boss2FullySpawned = true
+        })
+    }
+    
+    func setUpBoss2PhysicsBody(boss2: SKSpriteNode){
+        boss2.physicsBody = SKPhysicsBody(texture: boss2.texture!, size: boss2.size)
+        boss2.physicsBody?.isDynamic = true
+        boss2.physicsBody?.affectedByGravity = false
+        boss2.physicsBody?.categoryBitMask = PhysicsCategory.Boss2
+        boss2.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        boss2.physicsBody?.collisionBitMask = PhysicsCategory.None
+        boss2.physicsBody?.usesPreciseCollisionDetection = true
+    }
+    
+    
     func playerTakesDamage(damage: Int, view: UIView) {
         GameData.shared.playerHealth = GameData.shared.playerHealth - damage
         // If the player has 0 or less health, go to GameOverScene
@@ -777,6 +829,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 //TODO: Make eyeBoss explosion and sound- like an eyeball poping
                 GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
                 eyeBossFullySpawned = false
+                alienTriShotActive = true
+                self.timeEyeBossDefeated = sinceStart
+                eyeBossDefeated = true
+                print("EyeBoss defeated at: \(self.timeEyeBossDefeated)")
                 spawnRandomPowerUp(position: sprite.position, percentChance: 100.0)
                 let wait = SKAction.wait(forDuration:2.5)
                 let action = SKAction.run {
@@ -787,6 +843,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 run(SKAction.sequence([wait,action]))
             }
+            if(sprite.name == kBoss2Name){
+                GameData.shared.playerScore = GameData.shared.playerScore + boss2killscore
+                boss2FullySpawned = false
+                // TODO: Upgrade enemies
+                // TODO: put in explosion effect and sound
+                self.timeBoss2Defeated = sinceStart
+                boss2Defeated = true
+                print("Boss2 defeated at: \(self.timeBoss2Defeated)")
+                spawnRandomPowerUp(position: sprite.position, percentChance: 150.0)
+                let wait = SKAction.wait(forDuration:2.5)
+                let action = SKAction.run {
+                    // Increase spawn and change spawns
+                    self.setupMusic()
+                    self.setUpAliens()
+                    self.setUpAsteroids()
+                }
+                run(SKAction.sequence([wait,action]))
+            }
+            
             sprite.removeFromParent()
         }
     }
@@ -814,6 +889,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         if setStartBool {
             startTime = currentTime
+            print("start of game at: \(startTime)")
             setStartBool = false
         }
         
@@ -836,8 +912,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
-        if (currentTime - startTime) >= timeToSpawnEyeBoss && !eyeBossSpawned {
+        if (currentTime - startTime) >= timeToSpawnNextBoss && !eyeBossSpawned {
             setUpEyeBoss()
+            print("EyeBoss Spawned at: \(currentTime)")
+        }
+        
+        if (currentTime - startTime) >= (timeToSpawnNextBoss + timeEyeBossDefeated) && !boss2Spawned && eyeBossDefeated {
+            // TODO: setUpBoss2
+            setUpBoss2()
+            print("Boss2 Spawned at: \(currentTime)")
         }
         
         // eyeBoss moves and attacks after it has finished moving into position and has its physics body initialized
@@ -849,6 +932,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
+        
+        sinceStart = currentTime - startTime
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -959,6 +1044,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kEyeBossLaserName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kEyeBossLaserName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kBoss2Name {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kBoss2Name {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
     }
