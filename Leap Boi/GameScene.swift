@@ -9,13 +9,12 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// Fix "missle" button to "missile"
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
 // Make better name
 // add unlockable weapons, upgrades, etc based on score?
 // Earn credits?
-// inapp purchases? - Upgrades drop more, more max health,
+// inapp purchases? - Upgrades drop more, more max health, Revive
 // Make aliens move "randomly"
 // add pause button
 // add different types of enemies
@@ -23,11 +22,12 @@
 // Make aliens fire aoe, crossing diagonal bullets
 // Make asteroid break into two smaller asteroids
 // Make laser sound better
-// Upgrades: More bullets parallel, diagonal bullets, energy shield
+// Upgrades: More bullets parallel, diagonal bullets, energy shield, DOT fire, freeze weapon?
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Swipe to move like snake vs block
-//
-
+// Improve HUD- show upgrades
+// Increase spawn rates with time
+// change enemies after a boss is defeated
 
 import SpriteKit
 import GameplayKit
@@ -80,7 +80,7 @@ struct PhysicsCategory {
     static let PlayerProjectile: UInt32 = 0x1 << 4
     static let MissileExplosion: UInt32 = 0x1 << 5
     static let AlienLaser: UInt32 = 0x1 << 6
-    static let HealthPack: UInt32 = 0x1 << 7
+    static let UpgradePack: UInt32 = 0x1 << 7
     static let EyeBoss: UInt32 = 0x1 << 8
     static let EyeBossLaserAttack: UInt32 = 0x1 << 9
     
@@ -100,10 +100,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kAlienLaserName = "alienlaser"
     let kAsteroidName = "asteroid"
     let kLaserName = "laser"
+    let kUpgradedLaserName = "upgradedLaser"
     let kMissileName = "missile"
     let kMissileExplosionName = "missileExplosion"
     let kHealthPackName = "healthPack"
-    let kFireRatePackName = "fireratePack"
+    let kFireRateUpgradeName = "firerateUpgrade"
+    let kThreeShotUpgradeName = "threeShotUpgrade"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kScoreHudName = "scoreHud"
@@ -123,6 +125,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // The number of fireRate upgrades
     var fireRateUpgradeNumber = 0
+    
+    // All the possible upgrades
+    private var threeShotUpgrade = false
+    private var fiveShotUpgrade = false
     
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
@@ -367,7 +373,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         healthPack.size = CGSize(width: 20, height: 20)
         healthPack.physicsBody = SKPhysicsBody(rectangleOf: healthPack.size)
         healthPack.physicsBody?.isDynamic = false
-        healthPack.physicsBody?.categoryBitMask = PhysicsCategory.HealthPack
+        healthPack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
         healthPack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         healthPack.physicsBody?.collisionBitMask = PhysicsCategory.None
         healthPack.physicsBody?.usesPreciseCollisionDetection = true
@@ -382,12 +388,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addFireRatePowerup(position: CGPoint) {
-        let fireRatePack = SKSpriteNode(imageNamed: "fireratepack")
-        fireRatePack.name = kFireRatePackName
+        let fireRatePack = SKSpriteNode(imageNamed: "firerateupgrade")
+        fireRatePack.name = kFireRateUpgradeName
         fireRatePack.size = CGSize(width: 20, height: 20)
         fireRatePack.physicsBody = SKPhysicsBody(rectangleOf: fireRatePack.size)
         fireRatePack.physicsBody?.isDynamic = false
-        fireRatePack.physicsBody?.categoryBitMask = PhysicsCategory.HealthPack
+        fireRatePack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
         fireRatePack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         fireRatePack.physicsBody?.collisionBitMask = PhysicsCategory.None
         fireRatePack.physicsBody?.usesPreciseCollisionDetection = true
@@ -401,6 +407,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(fireRatePack)
     }
     
+    func addThreeShotUpgradePowerUp(position: CGPoint) {
+        let threeShotUpgrade = SKSpriteNode(imageNamed: "threeshotupgrade")
+        threeShotUpgrade.name = kThreeShotUpgradeName
+        threeShotUpgrade.size = CGSize(width: 20, height: 20)
+        threeShotUpgrade.physicsBody = SKPhysicsBody(rectangleOf: threeShotUpgrade.size)
+        threeShotUpgrade.physicsBody?.isDynamic = false
+        threeShotUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        threeShotUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        threeShotUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        threeShotUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        threeShotUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: threeShotUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        threeShotUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(threeShotUpgrade)
+    }
+    
+    
+    // Spawns a random powerup, each with a percentChance divided by the total number of powerups available
+    func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
+        spawnHealthRandom(position: position, percentChance: percentChance/3)
+        spawnFireRateRandom(position: position, percentChance: percentChance/3)
+        spawnThreeShotRandom(position: position, percentChance: percentChance/3)
+    }
     
     // chance to spawn a healthPowerUp
     func spawnHealthRandom(position: CGPoint, percentChance: CGFloat) {
@@ -418,10 +451,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    // chance to spawn a threeShotPowerUp
+    func spawnThreeShotRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addThreeShotUpgradePowerUp(position: position)
+        }
+    }
+    
     
     func firePlayerWeapon(){
         if(playerWeapon == kLaserName){
-            firePlayerLaser()
+            firePlayerLaser(offset: 0.0)
+            let audioNode = SKAudioNode(fileNamed: "laser")
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
+        }
+        if(playerWeapon == kLaserName) && threeShotUpgrade {
+            firePlayerLaser(offset: -8.0)
+            firePlayerLaser(offset: 8.0)
+        }
+        if(playerWeapon == kLaserName) && fiveShotUpgrade {
+            firePlayerLaser(offset: -16.0)
+            firePlayerLaser(offset: 16.0)
         }
         if(playerWeapon == kMissileName){
             firePlayerMissile()
@@ -430,16 +484,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     
-    func firePlayerLaser() {
-        let audioNode = SKAudioNode(fileNamed: "laser")
-        audioNode.autoplayLooped = false
-        self.addChild(audioNode)
-        let playAction = SKAction.play()
-        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
+    func firePlayerLaser(offset: CGFloat) {
         
         let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            laser.position = player.position + CGPoint(x: 0, y: player.size.height/2 + laser.size.height/2)
+            laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
         }
         laser.name = kLaserName
         laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
@@ -454,6 +503,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
+    
+    
     
     func firePlayerMissile() {
         let audioNode = SKAudioNode(fileNamed: "missile")
@@ -684,23 +735,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(sprite.name == kAlienName){
                 alienExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + alienKillScore
-                spawnHealthRandom(position: sprite.position, percentChance: 1.0)
-                spawnFireRateRandom(position: sprite.position, percentChance: 1.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             }
             if(sprite.name == kAsteroidName){
                 asteroidExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
-                spawnHealthRandom(position: sprite.position, percentChance: 2.0)
-                spawnFireRateRandom(position: sprite.position, percentChance: 2.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             }
             if(sprite.name == kEyeBossName){
-                //TODO: Make eyeBoss explosion and sound
+                //TODO: Make eyeBoss explosion and sound- like an eyeball poping
                 GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
                 eyeBossFullySpawned = false
-                spawnHealthRandom(position: sprite.position, percentChance: 100.0)
-                spawnFireRateRandom(position: sprite.position, percentChance: 100.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 100.0)
                 let wait = SKAction.wait(forDuration:2.5)
                 let action = SKAction.run {
+                    // Increase spawn and change spawns
                     self.setupMusic()
                     self.setUpAliens()
                     self.setUpAsteroids()
@@ -809,11 +858,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
-        if ob1.name == kPlayerName && ob2.name == kFireRatePackName {
-            //TODO: Upgrade sound effect
+        if ob1.name == kPlayerName && ob2.name == kFireRateUpgradeName {
+            //TODO: reloading sound effect
             ob2.removeFromParent()
             fireRateUpgradeNumber = fireRateUpgradeNumber + 1
             setupWeapon()
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kThreeShotUpgradeName {
+            ob2.removeFromParent()
+            if threeShotUpgrade {
+                fiveShotUpgrade = true
+            }
+            threeShotUpgrade = true
         }
         
         if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
