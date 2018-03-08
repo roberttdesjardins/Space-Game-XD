@@ -9,7 +9,6 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// Make Asteroids spin
 // Change alien look
 // Make upgrades "bounce up and out" when spawned
 // make three and five attack upgrade only spawn with laser?
@@ -21,7 +20,7 @@
 // add unlockable weapons, upgrades, etc based on score?
 // Earn credits?
 // inapp purchases? - Upgrades drop more, more max health, Revive
-// Make aliens move "randomly"
+// Make an enemy move "randomly", turn while moving, activate propulsion while moving, turn to face player, and fire
 // add pause button
 // add different types of enemies
 // Boss reverse controls- confusion
@@ -30,10 +29,12 @@
 // Make laser sound better
 // Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
 // Swipe up, move forward fixed amount, so two different y axis positions
-// Swipe to move like snake vs block?
 // Improve HUD- show upgrades
 // Increase spawn rates with time
 // change enemies after a boss is defeated
+// Make sound and animation for gaining credits
+// change balance of upgrades
+// Display credits
 
 import SpriteKit
 import GameplayKit
@@ -206,8 +207,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupMusic()
         setupPlayer()
         setupWeapon()
-        setUpAliens()
-        setUpAsteroids()
+        setUpAliens(min: 0.2, max: 0.8)
+        setUpAsteroids(min: 4, max: 12)
         setupHud()
         motionManager.startAccelerometerUpdates()
     }
@@ -262,16 +263,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("Fire rate is \(fireRate)")
     }
     
-    func setUpAliens() {
+    func setUpAliens(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addAlien),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(0.1), max: CGFloat(0.4))))
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
                 ])
         ))
     }
     
-    func setUpAsteroids() {
+    func setUpAsteroids(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addBigAsteroid),
@@ -411,7 +412,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func addMediumAsteroid(position: CGPoint, xoffset: CGFloat) {
-        //TODO: Change image
         let asteroid = SKSpriteNode(imageNamed: "asteroid")
         asteroid.name = kMediumAsteroidName
         asteroid.size = CGSize(width: 40, height: 40)
@@ -438,7 +438,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addSmallAsteroid(position: CGPoint, xoffset: CGFloat) {
-        //TODO: Change image
         let asteroid = SKSpriteNode(imageNamed: "asteroid")
         asteroid.name = kSmallAsteroidName
         asteroid.size = CGSize(width: 20, height: 20)
@@ -879,6 +878,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let playAction = SKAction.play()
                 audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             }
+            GameData.shared.creditsEarned = GameData.shared.creditsEarned + Int(round(Double(GameData.shared.playerScore/250)))
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
                 gameOver(view: view)
@@ -933,8 +933,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let action = SKAction.run {
                     // Increase spawn and change spawns
                     self.setupMusic()
-                    self.setUpAliens()
-                    self.setUpAsteroids()
+                    self.setUpAliens(min: 0.1, max: 0.4)
+                    self.setUpAsteroids(min: 4, max: 10)
                 }
                 run(SKAction.sequence([wait,action]))
             }
@@ -951,8 +951,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let action = SKAction.run {
                     // Increase spawn and change spawns
                     self.setupMusic()
-                    self.setUpAliens()
-                    self.setUpAsteroids()
+                    self.setUpAliens(min: 0.1, max: 0.2)
+                    self.setUpAsteroids(min: 3, max: 8)
                 }
                 run(SKAction.sequence([wait,action]))
             }

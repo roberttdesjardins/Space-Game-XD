@@ -16,8 +16,18 @@ extension UserDefaults{
     func getUserHighScores() -> [Int]{
         return object(forKey: UserDefaultsKeys.userHighScores.rawValue) as? [Int] ?? [Int]()
     }
+    
+    func setUserCredits(credits: Int){
+        set(credits, forKey: UserDefaultsKeys.userCredits.rawValue)
+    }
+    
+    func getUserCredits() -> Int {
+        return object(forKey: UserDefaultsKeys.userCredits.rawValue) as? Int ?? Int()
+    }
+    
 }
 
 enum UserDefaultsKeys : String {
     case userHighScores
+    case userCredits
 }

@@ -121,8 +121,9 @@ func warningFlashing(scene: SKScene){
     warningSign.run(pulseTenTimes)
 }
 
-func resetHealthandScore() {
+func resetGameData() {
     GameData.shared.playerScore = 0
+    GameData.shared.creditsEarned = 0
     GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
 }
 

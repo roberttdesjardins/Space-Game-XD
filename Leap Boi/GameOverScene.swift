@@ -21,6 +21,11 @@ class GameOverScene: SKScene {
         GameData.shared.playerHighScore.append(GameData.shared.playerScore)
         formatHighScores(arrayOfScores: GameData.shared.playerHighScore)
         UserDefaults.standard.setUserHighScores(array: GameData.shared.playerHighScore)
+        let newCreditBalance = GameData.shared.totalCredits + GameData.shared.creditsEarned
+        UserDefaults.standard.setUserCredits(credits: newCreditBalance)
+        print("Credits Earned = \(GameData.shared.creditsEarned)")
+        print("Total Credits = \(UserDefaults.standard.getUserCredits())")
+        resetGameData()
     }
     
     func createGameOverLabel() {
@@ -54,7 +59,6 @@ class GameOverScene: SKScene {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if restartButton.contains(touchLocation) {
-            resetHealthandScore()
             startSceneLoad(view: view!)
         }
     }

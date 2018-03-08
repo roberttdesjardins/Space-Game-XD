@@ -19,6 +19,7 @@ class StartScene: SKScene {
     
     override func didMove(to view: SKView) {
         GameData.shared.playerHighScore = UserDefaults.standard.getUserHighScores()
+        GameData.shared.totalCredits = UserDefaults.standard.getUserCredits()
         createBackground()
         createStartButton()
         createHighScoreButton()
