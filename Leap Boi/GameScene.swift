@@ -117,8 +117,9 @@ struct PhysicsCategory {
     static let MediumAsteroid: UInt32 = 0x1 << 11
     static let SmallAsteroid: UInt32 = 0x1 << 12
     static let AlienCruiser: UInt32 = 0x1 << 13
+    static let AlienMissile: UInt32 = 0x1 << 14
     
-    static let Edge: UInt32 = 0x1 << 14
+    static let Edge: UInt32 = 0x1 << 15
 }
 
 struct BaseFireRate {
@@ -136,6 +137,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kMediumAsteroidName = "mediumAsteroid"
     let kSmallAsteroidName = "smallAsteroid"
     let kAlienCruiserName = "alienCruiser"
+    let kAlienMissileName = "alienMissile"
     let kLaserName = "laser"
     let kMissileName = "missile"
     let kMissileExplosionName = "missileExplosion"
@@ -525,6 +527,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))
         let move = SKAction.sequence([SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiserMoving")}, SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))])
         let changeImageBack = SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiser")}
+        // Make turn2 face player?
         let turn2 = SKAction.rotate(toAngle: 0, duration: 1)
         let fire = SKAction.run {
             self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: -30)
@@ -534,18 +537,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setUpAlienCruiserBehaviour(alienCruiser: alienCruiser)
         })
     }
-    
-    func angleToRotateToWhileFacingDown(adjacent: CGFloat, opposite: CGFloat) -> CGFloat {
-        if adjacent <= 0 && opposite >= 0 {
-            // Quadrant 2
-            return atan(opposite/adjacent) - 90 * DegreesToRadians
-        }
-        // Quadrants 1, 3 and 4
-        return atan2(opposite, adjacent) + 90 * DegreesToRadians
-    }
+
     
     func addAlienCruiserMissile(alienCruiser: SKSpriteNode, offset: CGFloat) {
+        let alienMissile = SKSpriteNode(imageNamed: "missile")
+        // TODO: Change size and add image
+        alienMissile.size = CGSize(width: 20, height: 40)
+        alienMissile.name = kAlienMissileName
         
+        alienMissile.physicsBody = SKPhysicsBody(rectangleOf: alienMissile.size)
+        alienMissile.physicsBody?.isDynamic = true
+        alienMissile.physicsBody?.affectedByGravity = false
+        alienMissile.physicsBody?.categoryBitMask = PhysicsCategory.AlienMissile
+        alienMissile.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        alienMissile.physicsBody?.collisionBitMask = PhysicsCategory.None
+        alienMissile.physicsBody?.usesPreciseCollisionDetection = true
+
+        alienMissile.position = alienCruiser.position - CGPoint(x: -offset, y: alienCruiser.size.height/2 + alienMissile.size.height/2)
+        // TODO: Add tracking missiles
+        alienMissile.physicsBody?.velocity.dy = -200
+        addChild(alienMissile)
+    }
+    
+    func processAlienMissileMovement() {
+        // TODO: Test impact on performance
+        for child in children {
+            if let alienMissile = child as? SKSpriteNode {
+                if alienMissile.name == kAlienMissileName {
+                    if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+                        if player.position.x >= alienMissile.position.x {
+                            alienMissile.physicsBody?.velocity.dx = CGFloat(60)
+                        } else if player.position.x < alienMissile.position.x {
+                            alienMissile.physicsBody?.velocity.dx = CGFloat(-60)
+                        }
+                    }
+                    if alienMissile.position.y <= (0 - alienMissile.size.height) {
+                        alienMissile.removeFromParent()
+                    }
+                }
+            }
+        }
     }
     
     func addHealthPowerup(position: CGPoint) {
@@ -822,9 +853,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func processEyeBossMovement(forUpdate currentTime: CFTimeInterval) {
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-                if player.position.x + 10 >= eyeBoss.position.x {
+                if player.position.x - 5 >= eyeBoss.position.x {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(60)
-                } else if player.position.x - 10 < eyeBoss.position.x {
+                } else if player.position.x + 5 < eyeBoss.position.x {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(-60)
                 }
                 if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
@@ -1111,6 +1142,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
+        
+        processAlienMissileMovement()
         
         sinceStart = currentTime - startTime
     }

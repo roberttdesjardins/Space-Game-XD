@@ -125,6 +125,15 @@ func warningFlashing(scene: SKScene){
     warningSign.run(pulseTenTimes)
 }
 
+func angleToRotateToWhileFacingDown(adjacent: CGFloat, opposite: CGFloat) -> CGFloat {
+    if adjacent <= 0 && opposite >= 0 {
+        // Quadrant 2
+        return atan(opposite/adjacent) - 90 * DegreesToRadians
+    }
+    // Quadrants 1, 3 and 4
+    return atan2(opposite, adjacent) + 90 * DegreesToRadians
+}
+
 func resetGameData() {
     GameData.shared.playerScore = 0
     GameData.shared.creditsEarned = 0
