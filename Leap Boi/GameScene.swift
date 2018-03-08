@@ -9,7 +9,14 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
+// TOP PRIORITY: Finish boss2, finish adding in alienCruiser, finish displaying credits, Fix eyeBossLaser physics box
+
+
 // Change alien look
+// Change player default look
+// Add options to change look
+// Add more background music
+// Add boss music
 // Make upgrades "bounce up and out" when spawned
 // make three and five attack upgrade only spawn with laser?
 // remove attack if eyebossdefeated
@@ -17,17 +24,18 @@
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
 // Make better name
-// add unlockable weapons, upgrades, etc based on score?
-// Earn credits?
-// inapp purchases? - Upgrades drop more, more max health, Revive
-// Make an enemy move "randomly", turn while moving, activate propulsion while moving, turn to face player, and fire
-// add pause button
+// add purchasable(with credits) weapons, upgrades
+// inapp purchases for cosmetics
+// inapp purchases to get credits
+// Add achievements
+// add pause button?
 // add different types of enemies
 // Boss reverse controls- confusion
-// Cthulu boss- Final boss- defeating brings you to score scren- not you died though
+// Cthulu boss- Final boss- defeating brings you to score screen- not you died though
 // Make aliens fire aoe, crossing diagonal bullets
 // Make laser sound better
 // Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
+// Attack upgrade that turns lasers a different colour
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Improve HUD- show upgrades
 // Increase spawn rates with time
@@ -35,6 +43,8 @@
 // Make sound and animation for gaining credits
 // change balance of upgrades
 // Display credits
+// Some sort of effect when you get hit
+// Make bosses spawn randomly? When you kill enough get to fight final boss
 
 import SpriteKit
 import GameplayKit
@@ -66,6 +76,11 @@ func - (left: CGSize, right: CGSize) -> CGSize {
         return CGFloat(sqrtf(Float(a)))
     }
 #endif
+
+let Pi = CGFloat(Double.pi)
+let DegreesToRadians = Pi / 180
+let RadiansToDegrees = 180 / Pi
+
 
 extension CGPoint {
     func length() -> CGFloat {
@@ -101,8 +116,9 @@ struct PhysicsCategory {
     static let Boss2: UInt32 = 0x1 << 10
     static let MediumAsteroid: UInt32 = 0x1 << 11
     static let SmallAsteroid: UInt32 = 0x1 << 12
+    static let AlienCruiser: UInt32 = 0x1 << 13
     
-    static let Edge: UInt32 = 0x1 << 13
+    static let Edge: UInt32 = 0x1 << 14
 }
 
 struct BaseFireRate {
@@ -119,8 +135,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kAsteroidName = "asteroid"
     let kMediumAsteroidName = "mediumAsteroid"
     let kSmallAsteroidName = "smallAsteroid"
+    let kAlienCruiserName = "alienCruiser"
     let kLaserName = "laser"
-    let kUpgradedLaserName = "upgradedLaser"
     let kMissileName = "missile"
     let kMissileExplosionName = "missileExplosion"
     let kHealthPackName = "healthPack"
@@ -164,11 +180,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // BossVariables
     // How long a player must play before each boss spawns
     private var timeToSpawnNextBoss = 100.0
-    
     // When each boss is defeated
     private var timeEyeBossDefeated: TimeInterval = 0.0
     private var timeBoss2Defeated: TimeInterval = 0.0
-    
     // Each boss starts unspawned and udefeated
     private var eyeBossSpawned = false
     private var eyeBossFullySpawned = false
@@ -188,6 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let asteroidKillScore = 90
     let mediumAsteroidKillScore = 50
     let smallAsteroidKillScore = 20
+    let alienCruiserKillScore = 500
     let eyeBossKillScore = 5000 // Boss1
     let boss2killscore = 10000
     
@@ -207,16 +222,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupMusic()
         setupPlayer()
         setupWeapon()
-        setUpAliens(min: 0.2, max: 0.8)
-        setUpAsteroids(min: 4, max: 12)
+        //setUpAliens(min: 0.2, max: 0.8)
+        //setUpAsteroids(min: 4, max: 12)
+        setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kEyeBossName, kBoss2Name]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
     }
     
     func setupScreen() {
@@ -260,7 +276,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         default:
             fireRate = 1
         }
-        print("Fire rate is \(fireRate)")
     }
     
     func setUpAliens(min: CGFloat, max: CGFloat) {
@@ -464,6 +479,74 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
+    func setUpAlienCruisers(min: CGFloat, max: CGFloat) {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addAlienCruiser),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
+                ])
+        ))
+    }
+    
+    func addAlienCruiser() {
+        let alienCruiser = SKSpriteNode(imageNamed: "alienCruiser")
+        alienCruiser.name = kAlienCruiserName
+        alienCruiser.zPosition = 3
+        alienCruiser.size = CGSize(width: 80, height: 100)
+        alienCruiser.userData = NSMutableDictionary()
+        setAlienCruiserHealth(alienCruiser: alienCruiser)
+        
+        alienCruiser.physicsBody = SKPhysicsBody(texture: alienCruiser.texture!, size: alienCruiser.size)
+        alienCruiser.physicsBody?.isDynamic = false
+        alienCruiser.physicsBody?.categoryBitMask = PhysicsCategory.AlienCruiser
+        alienCruiser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        alienCruiser.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        let actualX = random(min: alienCruiser.size.width/2, max: size.width - alienCruiser.size.width/2)
+        alienCruiser.position = CGPoint(x: actualX, y: size.height + alienCruiser.size.height/2)
+        addChild(alienCruiser)
+        
+        //TODO: Add movement? seperate function?- // Make enemy move "randomly", turn while moving, activate propulsion while moving, turn to face player, and fire
+        //TODO: Add attacks-> semi-homing missiles- setUpAlienCruiserAttacks
+        setUpAlienCruiserBehaviour(alienCruiser: alienCruiser)
+    }
+    
+    func setUpAlienCruiserBehaviour(alienCruiser: SKSpriteNode) {
+        // TODO: Change image while moving
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(3), max: CGFloat(5))))
+        let randomX = random(min: alienCruiser.size.width/2, max: size.width - alienCruiser.size.width/2)
+        let randomY = random(min: size.height/3, max: size.height - alienCruiser.size.height/2)
+        let locationToMoveTo = CGPoint(x: randomX, y: randomY)
+        let opposite = (locationToMoveTo.y - alienCruiser.position.y)
+        let adjacent = (locationToMoveTo.x - alienCruiser.position.x)
+        let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
+        let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
+        let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 1)
+        //let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))
+        let move = SKAction.sequence([SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiserMoving")}, SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))])
+        let changeImageBack = SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiser")}
+        let turn2 = SKAction.rotate(toAngle: 0, duration: 1)
+        let fire = SKAction.run {
+            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: -30)
+            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: 30)
+        }
+        alienCruiser.run(SKAction.sequence([wait, turn1, move, changeImageBack, turn2, fire]), completion: { () -> Void in
+            self.setUpAlienCruiserBehaviour(alienCruiser: alienCruiser)
+        })
+    }
+    
+    func angleToRotateToWhileFacingDown(adjacent: CGFloat, opposite: CGFloat) -> CGFloat {
+        if adjacent <= 0 && opposite >= 0 {
+            // Quadrant 2
+            return atan(opposite/adjacent) - 90 * DegreesToRadians
+        }
+        // Quadrants 1, 3 and 4
+        return atan2(opposite, adjacent) + 90 * DegreesToRadians
+    }
+    
+    func addAlienCruiserMissile(alienCruiser: SKSpriteNode, offset: CGFloat) {
+        
+    }
     
     func addHealthPowerup(position: CGPoint) {
         let healthPack = SKSpriteNode(imageNamed: "healthpack")
@@ -951,8 +1034,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let action = SKAction.run {
                     // Increase spawn and change spawns
                     self.setupMusic()
-                    self.setUpAliens(min: 0.1, max: 0.2)
-                    self.setUpAsteroids(min: 3, max: 8)
+                    self.setUpAliens(min: 0.1, max: 0.4)
+                    self.setUpAsteroids(min: 4, max: 10)
+                    self.setUpAlienCruisers(min: 5, max: 10)
                 }
                 run(SKAction.sequence([wait,action]))
             }
