@@ -24,10 +24,9 @@
 // Make aliens move "randomly"
 // add pause button
 // add different types of enemies
-// Bosses reverse controls- confusion
-// Cthulu boss
+// Boss reverse controls- confusion
+// Cthulu boss- Final boss- defeating brings you to score scren- not you died though
 // Make aliens fire aoe, crossing diagonal bullets
-// Make asteroid break into two smaller asteroids
 // Make laser sound better
 // Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
 // Swipe up, move forward fixed amount, so two different y axis positions
@@ -74,6 +73,14 @@ extension CGPoint {
     
     func normalized() -> CGPoint {
         return self / length()
+    }
+}
+
+public extension CGFloat {
+    
+    /// Randomly returns either 1.0 or -1.0.
+    public static var randomSign: CGFloat {
+        return (arc4random_uniform(2) == 0) ? 1.0 : -1.0
     }
 }
 
@@ -244,10 +251,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupWeapon() {
         switch GameData.shared.weaponChosen {
         case "laser":
-            fireRate = BaseFireRate.Laser * pow(0.8, Double(fireRateUpgradeNumber))
+            fireRate = BaseFireRate.Laser * pow(0.8, min(Double(fireRateUpgradeNumber), 5))
             playerWeapon = kLaserName
         case "missile":
-            fireRate = BaseFireRate.Missile * pow(0.8, Double(fireRateUpgradeNumber))
+            fireRate = BaseFireRate.Missile * pow(0.8, min(Double(fireRateUpgradeNumber), 5))
             playerWeapon = kMissileName
         default:
             fireRate = 1
@@ -387,6 +394,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         
+        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 6, max: 10)))
+        let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
+        asteroid.run(repeatRotation)
+        
         let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
         asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
         addChild(asteroid)
@@ -412,6 +423,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody?.categoryBitMask = PhysicsCategory.MediumAsteroid
         asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
+        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 3, max: 5)))
+        let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
+        asteroid.run(repeatRotation)
 
         asteroid.position = position + CGPoint(x: xoffset, y: 0)
         addChild(asteroid)
@@ -436,6 +450,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody?.categoryBitMask = PhysicsCategory.SmallAsteroid
         asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
+        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 1, max: 3)))
+        let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
+        asteroid.run(repeatRotation)
         
         asteroid.position = position + CGPoint(x: xoffset, y: 0)
         addChild(asteroid)
@@ -845,6 +862,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.usesPreciseCollisionDetection = true
     }
     
+    //TODO: Make second boss move and attack
+    
     
     func playerTakesDamage(damage: Int, view: UIView) {
         GameData.shared.playerHealth = GameData.shared.playerHealth - damage
@@ -869,6 +888,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    
+    // Removes health equal to damage from sprite.
+    // Also checks if the damage killed the sprite -> SHOULD PUT IN ANOTHER FUNCTION
     func subtractHealth(sprite: SKNode, damage: Int) {
         let currentHealth: Int = sprite.userData?.value(forKey: "health") as! Int
         let newHealth = currentHealth - damage
@@ -877,26 +899,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(sprite.name == kAlienName){
                 alienExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + alienKillScore
-                spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             }
             if(sprite.name == kAsteroidName){
                 asteroidExplosionEffect(position: sprite.position)
                 GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
-                spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 4.0)
                 self.addMediumAsteroid(position: sprite.position, xoffset: -10)
                 self.addMediumAsteroid(position: sprite.position, xoffset: 10)
             }
             if(sprite.name == kMediumAsteroidName){
                 // TODO: Make medium asteroid explosion effect
                 GameData.shared.playerScore = GameData.shared.playerScore + mediumAsteroidKillScore
-                spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
                 self.addSmallAsteroid(position: sprite.position, xoffset: -5)
                 self.addSmallAsteroid(position: sprite.position, xoffset: 5)
             }
             if(sprite.name == kSmallAsteroidName){
                 // TODO: Make small asteroid explosion effect
                 GameData.shared.playerScore = GameData.shared.playerScore + smallAsteroidKillScore
-                spawnRandomPowerUp(position: sprite.position, percentChance: 0.5)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             }
             if(sprite.name == kEyeBossName){
                 //TODO: Make eyeBoss explosion and sound- like an eyeball poping
@@ -906,7 +928,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.timeEyeBossDefeated = sinceStart
                 eyeBossDefeated = true
                 print("EyeBoss defeated at: \(self.timeEyeBossDefeated)")
-                spawnRandomPowerUp(position: sprite.position, percentChance: 100.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 150.0)
                 let wait = SKAction.wait(forDuration:2.5)
                 let action = SKAction.run {
                     // Increase spawn and change spawns
@@ -924,7 +946,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.timeBoss2Defeated = sinceStart
                 boss2Defeated = true
                 print("Boss2 defeated at: \(self.timeBoss2Defeated)")
-                spawnRandomPowerUp(position: sprite.position, percentChance: 150.0)
+                spawnRandomPowerUp(position: sprite.position, percentChance: 200.0)
                 let wait = SKAction.wait(forDuration:2.5)
                 let action = SKAction.run {
                     // Increase spawn and change spawns
