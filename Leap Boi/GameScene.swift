@@ -865,10 +865,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setUpEyeBossPhysicsBody(eyeBoss: eyeBoss)
             self.eyeBossFullySpawned = true
         })
-        eyeBossSetUpSpawnEyes(min: 2, max: 4)
+        setUpSpawnLittleEyes(min: 2, max: 4)
     }
     
-    // Sets up the physicsBody of eyeBoss, called after it has moved into position
+    // Sets up the physicsBody of eyeBoss, called after eyeBoss has moved into position
     func setUpEyeBossPhysicsBody(eyeBoss: SKSpriteNode){
         eyeBoss.physicsBody = SKPhysicsBody(texture: eyeBoss.texture!, size: eyeBoss.size)
         eyeBoss.physicsBody?.isDynamic = true
@@ -898,7 +898,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     }
     
-    // TODO: Add more eyeBoss attacks- 5 total?
+    // TODO: Add more eyeBoss attacks-> 3 total because spawns littleEyes
     func processEyeBossAttacks(attackChosen: Int) {
         switch attackChosen {
         case 1:
@@ -911,7 +911,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func eyeBossLaserBeamAttack() {
-        //TODO: Change physics body of laser
         let audioNode = SKAudioNode(fileNamed: "laserchargesound")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
@@ -941,7 +940,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size - CGSize(width: 168, height: 0))
             eyeBossLaser.physicsBody?.isDynamic = false
             eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
-            eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile
+            eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.LittleEye
             eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
             if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
                 eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2 - chargeLaser.size.height/2))
@@ -968,27 +967,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // adds little eyeballs only while eyeBoss is active
-    func eyeBossSetUpSpawnEyes(min: CGFloat, max: CGFloat) {
+    func setUpSpawnLittleEyes(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.run(eyeBossAddSpawnEyes),
+                SKAction.run(addSpawnLittleEyes),
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
                 ])
         ))
     }
     
-    func eyeBossAddSpawnEyes() {
+    func addSpawnLittleEyes() {
         let littleEye = SKSpriteNode(imageNamed: "")
         littleEye.name = kLittleEyeName
         littleEye.size = CGSize(width: 32, height: 32)
-        littleEye.zPosition = 3
+        littleEye.zPosition = 5
         littleEye.userData = NSMutableDictionary()
         setLittleEyeHealth(littleEye: littleEye)
         
         littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size)
-        littleEye.physicsBody?.isDynamic = false
+        littleEye.physicsBody?.isDynamic = true
+        littleEye.physicsBody?.affectedByGravity = false
         littleEye.physicsBody?.categoryBitMask = PhysicsCategory.LittleEye
-        littleEye.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        littleEye.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack
         littleEye.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualX = random(min: littleEye.size.width/2, max: size.width - littleEye.size.width/2)
@@ -1029,13 +1029,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
     }
     
-    // TODO: Test if i need to remove array of textures after killing a littleEye-> Memmory leak?
     func setUpLittleEyeRestingGif(littleEye: SKSpriteNode) {
         var gifResting: [SKTexture] = []
         for i in 0...7 {
             gifResting.append(SKTexture(imageNamed: "eyeball spritesheet-0-\(i)"))
         }
-        littleEye.run(SKAction.repeat(SKAction.animate(with: gifResting, timePerFrame: 0.1), count: 4))
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifResting, timePerFrame: 0.1), count: 7))
     }
     
     func setUpLittleEyeMovingGif(littleEye: SKSpriteNode) {
@@ -1043,7 +1042,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in 0...7 {
             gifMoving.append(SKTexture(imageNamed: "eyeball spritesheet-1-\(i)"))
         }
-        littleEye.run(SKAction.repeat(SKAction.animate(with: gifMoving, timePerFrame: 0.1), count: 4))
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifMoving, timePerFrame: 0.1), count: 6))
     }
     
     func setUpLittleEyeBlinkingGif(littleEye: SKSpriteNode) {
@@ -1051,7 +1050,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in 0...7 {
             gifBlinking.append(SKTexture(imageNamed: "eyeball spritesheet-2-\(i)"))
         }
-        littleEye.run(SKAction.repeat(SKAction.animate(with: gifBlinking, timePerFrame: 0.1), count: 4))
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifBlinking, timePerFrame: 0.1), count: 1))
     }
     
     // SECOND BOSS
@@ -1384,7 +1383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
             ob2.removeFromParent()
-            // DO THIS
+            // TODO: DO THIS
         }
         
         if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
@@ -1407,6 +1406,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {
             ob2.removeFromParent()
         }
+        if ob1.name == kEyeBossLaserName && ob2.name == kLittleEyeName {
+            //TODO: Make littleEye burn up
+            ob2.removeFromParent()
+        }
+//        if ob1.name == kEyeBossName && ob2.name == kLittleEyeName {
+//            // TODO: Do i really want this?
+//            ob2.removeFromParent()
+//        }
         
     }
     
