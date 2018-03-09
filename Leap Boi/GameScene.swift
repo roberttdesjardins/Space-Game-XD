@@ -9,8 +9,9 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// TOP PRIORITY: Finish boss2, finish displaying credits, Fix eyeBossLaser physics box
+// TOP PRIORITY: Finish boss2, Make EyeBoss laser and charge kill the littleEyes
 
+// FIX bitmask so that if alienMissile collision is with alien missile bitmask, it doesn't hit the edge of the screen
 // Pulsing Start button
 // Change alien look
 // Change player default look
@@ -24,12 +25,11 @@
 // Add stats like "Damage" "Fire Rate" etc under each weapon
 // Make explosion sound
 // Make better name
-// add purchasable(with credits) weapons, upgrades
+// add purchasable(with credits) weapons, upgrades, max health upgrades, speed upgrades, bullet speed upgrades
 // inapp purchases for cosmetics
 // inapp purchases to get credits
 // Add achievements
 // add pause button?
-// add different types of enemies
 // Boss reverse controls- confusion
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
 // Make aliens fire aoe, crossing diagonal bullets
@@ -39,12 +39,11 @@
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Improve HUD- show upgrades
 // Increase spawn rates with time
-// change enemies after a boss is defeated
 // Make sound and animation for gaining credits
 // change balance of upgrades
-// Display credits
 // Some sort of effect when you get hit
 // Make bosses spawn randomly? When you kill enough get to fight final boss
+// add homing missiles that shoot up and apply force (Torque?) to go to nearest (Strongest?) Target
 
 import SpriteKit
 import GameplayKit
@@ -117,6 +116,7 @@ struct PhysicsCategory {
     static let SmallAsteroid: UInt32 = 0x1 << 12
     static let AlienCruiser: UInt32 = 0x1 << 13
     static let AlienMissile: UInt32 = 0x1 << 14
+    static let LittleEye: UInt32 = 0x1 << 15
     
     static let Edge: UInt32 = 0x1 << 20
     static let All: UInt32 = UInt32.max
@@ -148,6 +148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
+    let kLittleEyeName = "littleEye"
     let kBoss2Name = "boss2"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
@@ -207,6 +208,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let smallAsteroidKillScore = 20
     let alienCruiserKillScore = 500
     let eyeBossKillScore = 5000 // Boss1
+    let littleEyeKillScore = 50
     let boss2killscore = 10000
     
     
@@ -228,15 +230,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupWeapon()
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
-        setUpBoss2()
+        setUpEyeBoss()
+        //setUpBoss2()
         setupHud()
         motionManager.startAccelerometerUpdates()
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kEyeBossName, kBoss2Name]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
     }
     
     func setupScreen() {
@@ -862,6 +865,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setUpEyeBossPhysicsBody(eyeBoss: eyeBoss)
             self.eyeBossFullySpawned = true
         })
+        eyeBossSetUpSpawnEyes(min: 2, max: 4)
     }
     
     // Sets up the physicsBody of eyeBoss, called after it has moved into position
@@ -934,7 +938,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.zPosition = 2
             eyeBossLaser.name = self.kEyeBossLaserName
             
-            eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size)
+            eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size - CGSize(width: 168, height: 0))
             eyeBossLaser.physicsBody?.isDynamic = false
             eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
             eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile
@@ -946,7 +950,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.addChild(eyeBossLaser)
             eyeBossLaser.run(SKAction.wait(forDuration: 3), completion: {
                 eyeBossLaser.removeFromParent()
-                //chargeLaser.removeFromParent()
             })
         })
     }
@@ -964,7 +967,92 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    // adds little eyeballs only while eyeBoss is active
+    func eyeBossSetUpSpawnEyes(min: CGFloat, max: CGFloat) {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(eyeBossAddSpawnEyes),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
+                ])
+        ))
+    }
     
+    func eyeBossAddSpawnEyes() {
+        let littleEye = SKSpriteNode(imageNamed: "")
+        littleEye.name = kLittleEyeName
+        littleEye.size = CGSize(width: 32, height: 32)
+        littleEye.zPosition = 3
+        littleEye.userData = NSMutableDictionary()
+        setLittleEyeHealth(littleEye: littleEye)
+        
+        littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size)
+        littleEye.physicsBody?.isDynamic = false
+        littleEye.physicsBody?.categoryBitMask = PhysicsCategory.LittleEye
+        littleEye.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        littleEye.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        let actualX = random(min: littleEye.size.width/2, max: size.width - littleEye.size.width/2)
+        littleEye.position = CGPoint(x: actualX, y: size.height + littleEye.size.height/2)
+        addChild(littleEye)
+        setUpLittleEyeBehaviour(littleEye: littleEye)
+    }
+    
+    func setUpLittleEyeBehaviour(littleEye: SKSpriteNode) {
+        // TODO: Randomly blink
+        let playBlinkingGif = SKAction.run {
+            self.setUpLittleEyeBlinkingGif(littleEye: littleEye)
+        }
+        let playWaitingGif = SKAction.run {
+            self.setUpLittleEyeRestingGif(littleEye: littleEye)
+        }
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(3), max: CGFloat(5))))
+        let randomX = random(min: littleEye.size.width/2, max: size.width - littleEye.size.width/2)
+        let randomY = random(min: size.height/3, max: size.height - littleEye.size.height/2)
+        let locationToMoveTo = CGPoint(x: randomX, y: randomY)
+        let opposite = (locationToMoveTo.y - littleEye.position.y)
+        let adjacent = (locationToMoveTo.x - littleEye.position.x)
+        let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
+        let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
+        let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 0.5)
+        let playMovingGif = SKAction.run {
+            self.setUpLittleEyeMovingGif(littleEye: littleEye)
+        }
+        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))
+        // TODO: Make turn2 face the player
+        let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
+        let fire = SKAction.run {
+            // TODO: make littleEye fire a laser targeted at the player
+        }
+        littleEye.run(SKAction.sequence([SKAction.wait(forDuration: TimeInterval(random(min: 0, max: 10))), playBlinkingGif]))
+        littleEye.run(SKAction.sequence([playWaitingGif, wait, turn1, playMovingGif, move, playWaitingGif, turn2, fire]), completion: { () -> Void in
+            self.setUpLittleEyeBehaviour(littleEye: littleEye)
+        })
+    }
+    
+    // TODO: Test if i need to remove array of textures after killing a littleEye-> Memmory leak?
+    func setUpLittleEyeRestingGif(littleEye: SKSpriteNode) {
+        var gifResting: [SKTexture] = []
+        for i in 0...7 {
+            gifResting.append(SKTexture(imageNamed: "eyeball spritesheet-0-\(i)"))
+        }
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifResting, timePerFrame: 0.1), count: 4))
+    }
+    
+    func setUpLittleEyeMovingGif(littleEye: SKSpriteNode) {
+        var gifMoving: [SKTexture] = []
+        for i in 0...7 {
+            gifMoving.append(SKTexture(imageNamed: "eyeball spritesheet-1-\(i)"))
+        }
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifMoving, timePerFrame: 0.1), count: 4))
+    }
+    
+    func setUpLittleEyeBlinkingGif(littleEye: SKSpriteNode) {
+        var gifBlinking: [SKTexture] = []
+        for i in 0...7 {
+            gifBlinking.append(SKTexture(imageNamed: "eyeball spritesheet-2-\(i)"))
+        }
+        littleEye.run(SKAction.repeat(SKAction.animate(with: gifBlinking, timePerFrame: 0.1), count: 4))
+    }
     
     // SECOND BOSS
     func setUpBoss2() {
@@ -1018,7 +1106,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             self.missileExplosionEffect(position: boss2.position)
-            print("Finishes gifExplosion")
             boss2.removeFromParent()
         })
     }
@@ -1051,8 +1138,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    // Removes health equal to damage from sprite.
-    // Also checks if the damage killed the sprite -> SHOULD PUT IN ANOTHER FUNCTION
+    // Removes health equal to damage from sprite
     func subtractHealth(sprite: SKNode, damage: Int) {
         let currentHealth: Int = sprite.userData?.value(forKey: "health") as! Int
         let newHealth = currentHealth - damage
@@ -1062,6 +1148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    // Handles when an emeny has less than 0 health (Hint: it dies)
     func enemyDead(sprite: SKNode){
         if(sprite.name == kAlienName){
             alienExplosionEffect(position: sprite.position)
@@ -1106,6 +1193,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossDefeated = true
             print("EyeBoss defeated at: \(self.timeEyeBossDefeated)")
             spawnRandomPowerUp(position: sprite.position, percentChance: 150.0)
+            // Stop littleEye spawns
+            stopSpawns()
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
                 // Increase spawn and change spawns
@@ -1114,6 +1203,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setUpAsteroids(min: 4, max: 10)
             }
             run(SKAction.sequence([wait,action]))
+            sprite.removeFromParent()
+        }
+        if(sprite.name == kLittleEyeName){
+            GameData.shared.playerScore = GameData.shared.playerScore + littleEyeKillScore
+            spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
         }
         if(sprite.name == kBoss2Name){
@@ -1359,6 +1453,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kEyeBossName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kEyeBossName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kLittleEyeName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kLittleEyeName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         

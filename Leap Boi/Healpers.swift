@@ -42,11 +42,15 @@ func setAlienCruiserHealth(alienCruiser: SKSpriteNode) {
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
-    eyeBoss.userData?.setValue(200, forKey: "health")
+    eyeBoss.userData?.setValue(300, forKey: "health")
+}
+
+func setLittleEyeHealth(littleEye: SKSpriteNode) {
+    littleEye.userData?.setValue(8, forKey: "health")
 }
 
 func setBoss2Health(boss2: SKSpriteNode) {
-    boss2.userData?.setValue(4, forKey: "health")
+    boss2.userData?.setValue(600, forKey: "health")
 }
 
 func gameOver(view: UIView) {
