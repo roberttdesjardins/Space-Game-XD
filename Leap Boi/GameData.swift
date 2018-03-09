@@ -10,11 +10,13 @@ import Foundation
 
 class GameData {
     static let shared = GameData()
-    var maxPlayerHealth = 10000000
-    var playerHealth = 10000000
+    var maxPlayerHealth = 100
+    var playerHealth = 100
     var playerScore = 0
     var playerHighScore: [Int] = []
     var weaponChosen = "laser"
+    var shieldAmount = 1000
+    var shieldTime: TimeInterval = 10
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
     

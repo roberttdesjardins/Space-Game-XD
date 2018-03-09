@@ -53,6 +53,10 @@ func setBoss2Health(boss2: SKSpriteNode) {
     boss2.userData?.setValue(600, forKey: "health")
 }
 
+func setShieldHealth(shield: SKSpriteNode) {
+    shield.userData?.setValue(GameData.shared.shieldAmount, forKey: "health")
+}
+
 func gameOver(view: UIView) {
     warningPlayer?.stop()
     let scene = GameOverScene(size: view.bounds.size)

@@ -9,9 +9,8 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// TOP PRIORITY: Finish boss2, Make EyeBoss laser and charge kill the littleEyes
+// TOP PRIORITY: Finish boss2, fix littleEye hitbox?, CPU usage increases over time...where is leak? :thinking_emoji:
 
-// FIX bitmask so that if alienMissile collision is with alien missile bitmask, it doesn't hit the edge of the screen
 // Pulsing Start button
 // Change alien look
 // Change player default look
@@ -44,6 +43,8 @@
 // Some sort of effect when you get hit
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // add homing missiles that shoot up and apply force (Torque?) to go to nearest (Strongest?) Target
+// Change image to more guns with 3 and 5 shot upgrade?
+// Shield: display shield amount
 
 import SpriteKit
 import GameplayKit
@@ -92,7 +93,6 @@ extension CGPoint {
 }
 
 public extension CGFloat {
-    
     /// Randomly returns either 1.0 or -1.0.
     public static var randomSign: CGFloat {
         return (arc4random_uniform(2) == 0) ? 1.0 : -1.0
@@ -117,6 +117,7 @@ struct PhysicsCategory {
     static let AlienCruiser: UInt32 = 0x1 << 13
     static let AlienMissile: UInt32 = 0x1 << 14
     static let LittleEye: UInt32 = 0x1 << 15
+    static let Shield: UInt32 = 0x1 << 16
     
     static let Edge: UInt32 = 0x1 << 20
     static let All: UInt32 = UInt32.max
@@ -145,6 +146,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kFireRateUpgradeName = "firerateUpgrade"
     let kThreeShotUpgradeName = "threeShotUpgrade"
     let kProtectiveShieldUpgradeName = "protectiveShieldUpgrade"
+    let kProtectiveShieldName = "protectiveShield"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
@@ -167,6 +169,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // All the possible upgrades
     private var threeShotUpgrade = false
     private var fiveShotUpgrade = false
+    private var protectiveShieldActive = false
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
     
@@ -187,7 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // When each boss is defeated
     private var timeEyeBossDefeated: TimeInterval = 0.0
     private var timeBoss2Defeated: TimeInterval = 0.0
-    // Each boss starts unspawned and udefeated
+    // Each boss starts unspawned and undefeated
     private var eyeBossSpawned = false
     private var eyeBossFullySpawned = false
     private var eyeBossDefeated = false
@@ -209,7 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let alienCruiserKillScore = 500
     let eyeBossKillScore = 5000 // Boss1
     let littleEyeKillScore = 50
-    let boss2killscore = 10000
+    let boss2killscore = 10000 // Boss2
     
     
     var damagedByPlayerLaserArray: [String] = []
@@ -230,8 +233,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupWeapon()
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
-        setUpEyeBoss()
+        addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
+        //setUpEyeBoss()
         //setUpBoss2()
+        //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
     }
@@ -244,14 +249,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setupScreen() {
         scene?.scaleMode = .aspectFit
-        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
-        let edge = SKNode()
-        edge.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
-        edge.physicsBody!.usesPreciseCollisionDetection = true
-        edge.physicsBody!.categoryBitMask = PhysicsCategory.Edge
-        edge.physicsBody?.contactTestBitMask = PhysicsCategory.None
-        edge.physicsBody?.collisionBitMask = PhysicsCategory.None
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        self.physicsBody!.usesPreciseCollisionDetection = true
+        self.physicsBody!.categoryBitMask = PhysicsCategory.Edge
+        self.physicsBody?.contactTestBitMask = PhysicsCategory.None
+        self.physicsBody?.collisionBitMask = PhysicsCategory.Player
     }
     
     func setupMusic() {
@@ -343,7 +346,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody!.affectedByGravity = false
         player.physicsBody?.allowsRotation = false
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
-        player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack
+        player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
         
         return player
@@ -550,9 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienMissile.physicsBody?.affectedByGravity = false
         alienMissile.physicsBody?.categoryBitMask = PhysicsCategory.AlienMissile
         alienMissile.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        //TODO: Find out why when setting collisionBitMask to only AlienMissile, it collides with edge of screen
-        //alienMissile.physicsBody?.collisionBitMask = PhysicsCategory.AlienMissile
-        alienMissile.physicsBody?.collisionBitMask = PhysicsCategory.None
+        alienMissile.physicsBody?.collisionBitMask = PhysicsCategory.AlienMissile
         alienMissile.physicsBody?.usesPreciseCollisionDetection = true
 
         alienMissile.position = alienCruiser.position - CGPoint(x: -offset, y: alienCruiser.size.height/3)
@@ -637,8 +638,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(threeShotUpgrade)
     }
     
-    // Gives the player a shield that protects against up to 100 damage for a limited time
-    func addProtectiveShield(position: CGPoint) {
+    // Gives the player a shield that protects against up to GameData.shared.shieldAmount damage for a limited time
+    func addProtectiveShieldPowerUp(position: CGPoint) {
         let protectiveShildUpgrade = SKSpriteNode(imageNamed: "protectiveShield")
         protectiveShildUpgrade.name = kProtectiveShieldUpgradeName
         protectiveShildUpgrade.size = CGSize(width: 20, height: 20)
@@ -664,7 +665,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         spawnHealthRandom(position: position, percentChance: percentChance/3)
         spawnFireRateRandom(position: position, percentChance: percentChance/5)
         spawnThreeShotRandom(position: position, percentChance: percentChance/4)
-        spawnProtectiveShield(position: position, percentChance: percentChance/2)
+        spawnProtectiveShieldRandom(position: position, percentChance: percentChance/2)
     }
     
     // chance to spawn a healthPowerUp
@@ -692,10 +693,61 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // chance to spawn a protective Shield
-    func spawnProtectiveShield(position: CGPoint, percentChance: CGFloat) {
+    func spawnProtectiveShieldRandom(position: CGPoint, percentChance: CGFloat) {
         let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
         if(randomNum <= percentChance){
-            addProtectiveShield(position: position)
+            addProtectiveShieldPowerUp(position: position)
+        }
+    }
+    
+    func addProtectiveShield() {
+        protectiveShieldActive = true
+        let shield = SKSpriteNode(imageNamed: "shield")
+        shield.name = kProtectiveShieldName
+        shield.size = CGSize(width: 40, height: 40)
+        shield.zPosition = 5
+        shield.userData = NSMutableDictionary()
+        setShieldHealth(shield: shield)
+        
+        shield.physicsBody = SKPhysicsBody(texture: shield.texture!, size: shield.size)
+        shield.physicsBody?.isDynamic = true
+        shield.physicsBody?.affectedByGravity = false
+        // TODO: everything that damages player should add shield to their contactBitMask
+        shield.physicsBody?.categoryBitMask = PhysicsCategory.Shield
+        shield.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
+        shield.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            shield.position = player.position
+        }
+        addChild(shield)
+        
+        let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
+        let actionWaitDone = SKAction.removeFromParent()
+        let actionBool = SKAction.run {
+            self.protectiveShieldActive = false
+        }
+        shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
+    }
+    
+    func updateProtectiveShield() {
+        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+            setShieldHealth(shield: shield)
+            shield.removeAllActions()
+            let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
+            let actionWaitDone = SKAction.removeFromParent()
+            let actionBool = SKAction.run {
+                self.protectiveShieldActive = false
+            }
+            shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
+        }
+    }
+    
+    func processProtectiveShieldMovement() {
+        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+                shield.position = player.position
+            }
         }
     }
     
@@ -895,7 +947,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
-
     }
     
     // TODO: Add more eyeBoss attacks-> 3 total because spawns littleEyes
@@ -997,8 +1048,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpLittleEyeBehaviour(littleEye: littleEye)
     }
     
+    // Controls the movement and attacking of the littleEyes. Also calls the littleEyeGif functions to gives the littleEye's animations
     func setUpLittleEyeBehaviour(littleEye: SKSpriteNode) {
-        // TODO: Randomly blink
         let playBlinkingGif = SKAction.run {
             self.setUpLittleEyeBlinkingGif(littleEye: littleEye)
         }
@@ -1149,6 +1200,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Handles when an emeny has less than 0 health (Hint: it dies)
     func enemyDead(sprite: SKNode){
+        if(sprite.name == kProtectiveShieldName) {
+            protectiveShieldActive = false
+            sprite.removeFromParent()
+        }
+        
         if(sprite.name == kAlienName){
             alienExplosionEffect(position: sprite.position)
             GameData.shared.playerScore = GameData.shared.playerScore + alienKillScore
@@ -1259,7 +1315,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         if setStartBool {
             startTime = currentTime
-            print("start of game at: \(startTime)")
             setStartBool = false
         }
         
@@ -1284,23 +1339,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
         if (currentTime - startTime) >= timeToSpawnNextBoss && !eyeBossSpawned {
             setUpEyeBoss()
-            print("EyeBoss Spawned at: \(currentTime)")
         }
         
         if (currentTime - startTime) >= (timeToSpawnNextBoss + timeEyeBossDefeated) && !boss2Spawned && eyeBossDefeated {
             // TODO: setUpBoss2
             setUpBoss2()
-            print("Boss2 Spawned at: \(currentTime)")
         }
         
         // eyeBoss moves and attacks after it has finished moving into position and has its physics body initialized
         if eyeBossFullySpawned {
             processEyeBossMovement(forUpdate: currentTime)
-            // CHANGE EYEBOSS ATTACK RATE.
             if(currentTime - timeEyeBossAttack) >= eyeBossAttackRate {
                 timeEyeBossAttack = currentTime
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
+        }
+        if protectiveShieldActive {
+            processProtectiveShieldMovement()
         }
         
         processAlienMissileMovement()
@@ -1318,46 +1373,75 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Called when there is a collision between two nodes.
     func collisionBetween(ob1: SKNode, ob2: SKNode){
-        if ob1.name == kPlayerName && ob2.name == kAlienName {
-            ob2.removeFromParent()
-            playerTakesDamage(damage: 40, view: view!)
+        if !protectiveShieldActive {
+            if ob1.name == kPlayerName && ob2.name == kAlienName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 40, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kAsteroidName {
+                addMediumAsteroid(position: ob2.position, xoffset: -10)
+                addMediumAsteroid(position: ob2.position, xoffset: 10)
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 90, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kMediumAsteroidName {
+                addSmallAsteroid(position: ob2.position, xoffset: -5)
+                addSmallAsteroid(position: ob2.position, xoffset: 5)
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 45, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kSmallAsteroidName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 20, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kAlienLaserName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 25, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kAlienMissileName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 75, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kEyeBossLaserName {
+                playerTakesDamage(damage: 10, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kEyeBossName {
+                playerTakesDamage(damage: 80, view: view!)
+            }
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kAsteroidName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kAlienName {
+            ob2.removeFromParent()
+            subtractHealth(sprite: ob1, damage: 40)
+        }
+        if ob1.name == kProtectiveShieldName && ob2.name == kAsteroidName {
             addMediumAsteroid(position: ob2.position, xoffset: -10)
             addMediumAsteroid(position: ob2.position, xoffset: 10)
             ob2.removeFromParent()
-            playerTakesDamage(damage: 90, view: view!)
+            subtractHealth(sprite: ob1, damage: 90)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kMediumAsteroidName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kMediumAsteroidName {
             addSmallAsteroid(position: ob2.position, xoffset: -5)
             addSmallAsteroid(position: ob2.position, xoffset: 5)
             ob2.removeFromParent()
-            playerTakesDamage(damage: 45, view: view!)
+            subtractHealth(sprite: ob1, damage: 45)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kSmallAsteroidName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kSmallAsteroidName {
             ob2.removeFromParent()
-            playerTakesDamage(damage: 20, view: view!)
+            subtractHealth(sprite: ob1, damage: 20)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kAlienLaserName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kAlienLaserName {
             ob2.removeFromParent()
-            playerTakesDamage(damage: 25, view: view!)
+            subtractHealth(sprite: ob1, damage: 25)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kAlienMissileName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kAlienMissileName {
             ob2.removeFromParent()
-            playerTakesDamage(damage: 75, view: view!)
+            subtractHealth(sprite: ob1, damage: 75)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kEyeBossLaserName {
-            playerTakesDamage(damage: 10, view: view!)
+        if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossLaserName {
+            subtractHealth(sprite: ob1, damage: 10)
         }
-        
-        if ob1.name == kPlayerName && ob2.name == kEyeBossName {
-            playerTakesDamage(damage: 80, view: view!)
+        if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossName {
+            subtractHealth(sprite: ob1, damage: 80)
         }
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
@@ -1383,7 +1467,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
             ob2.removeFromParent()
-            // TODO: DO THIS
+            if !protectiveShieldActive {
+                addProtectiveShield()
+            } else {
+                updateProtectiveShield()
+            }
+            
         }
         
         if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
@@ -1410,10 +1499,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //TODO: Make littleEye burn up
             ob2.removeFromParent()
         }
-//        if ob1.name == kEyeBossName && ob2.name == kLittleEyeName {
-//            // TODO: Do i really want this?
-//            ob2.removeFromParent()
-//        }
         
     }
     
@@ -1424,6 +1509,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kPlayerName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kPlayerName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kProtectiveShieldName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kProtectiveShieldName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         
