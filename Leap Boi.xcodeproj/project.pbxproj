@@ -19,6 +19,7 @@
 		55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DEE205067F400DB6491 /* laserchargesound.wav */; };
 		55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DF02050697E00DB6491 /* laserbeamsound.wav */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
+		5592286520523884002836CA /* boss2explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5592286420523884002836CA /* boss2explosion.wav */; };
 		55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */; };
 		55978A1F2048912F00CA8AC6 /* HighScoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */; };
 		55978A242048B61500CA8AC6 /* laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55978A232048B61500CA8AC6 /* laser.mp3 */; };
@@ -45,6 +46,7 @@
 		55601DEE205067F400DB6491 /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55601DF02050697E00DB6491 /* laserbeamsound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserbeamsound.wav; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
+		5592286420523884002836CA /* boss2explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = boss2explosion.wav; sourceTree = "<group>"; };
 		55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultExt.swift; sourceTree = "<group>"; };
 		55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighScoreScene.swift; sourceTree = "<group>"; };
 		55978A232048B61500CA8AC6 /* laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = laser.mp3; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 		55978A202048B39F00CA8AC6 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
+				5592286420523884002836CA /* boss2explosion.wav */,
 				55601DEE205067F400DB6491 /* laserchargesound.wav */,
 				55601DF02050697E00DB6491 /* laserbeamsound.wav */,
 				55C18352204C9BB300747F00 /* warningBeep.wav */,
@@ -189,6 +192,7 @@
 				55075B9A204C66F3006D656F /* AlienExplosionParticle.sks in Resources */,
 				55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */,
 				55075B96204C5BC2006D656F /* MissileExplosionParticle.sks in Resources */,
+				5592286520523884002836CA /* boss2explosion.wav in Resources */,
 				55C18353204C9BB300747F00 /* warningBeep.wav in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
 				55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */,

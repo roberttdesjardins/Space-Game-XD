@@ -21,6 +21,8 @@ class StartScene: SKScene {
         GameData.shared.playerHighScore = UserDefaults.standard.getUserHighScores()
         GameData.shared.totalCredits = UserDefaults.standard.getUserCredits()
         createBackground()
+        createGameNameLabel()
+        createCreditsLabel()
         createStartButton()
         createHighScoreButton()
         createChooseWeaponButton()
@@ -34,17 +36,39 @@ class StartScene: SKScene {
         addChild(background)
     }
     
+    func createGameNameLabel() {
+        let gameNameLabel = SKLabelNode(fontNamed: "Avenir")
+        gameNameLabel.zPosition = 2
+        gameNameLabel.fontSize = 55
+        gameNameLabel.fontColor = SKColor.white
+        gameNameLabel.text = "THIS NAME IS A WIP"
+        gameNameLabel.position = CGPoint(x: size.width/2, y: self.size.height * (5/6))
+        
+        self.addChild(gameNameLabel)
+    }
+    
+    func createCreditsLabel() {
+        let creditsLabel = SKLabelNode(fontNamed: "Avenir")
+        creditsLabel.zPosition = 2
+        creditsLabel.fontSize = 35
+        creditsLabel.fontColor = SKColor.white
+        creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+        creditsLabel.position = CGPoint(x: size.width/2, y: self.size.height * (3/6))
+        
+        self.addChild(creditsLabel)
+    }
+    
     func createStartButton() {
         startButton = SKSpriteNode(imageNamed: "startButton")
         startButton.zPosition = 2
-        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/3.0))
+        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/6.0))
         addChild(startButton)
     }
     
     func createHighScoreButton() {
         highScoreButton = SKSpriteNode(imageNamed: "highScoresButton")
         highScoreButton.zPosition = 2
-        highScoreButton.position = CGPoint(x: size.width * 0.5, y: size.height * (1.0/3.0))
+        highScoreButton.position = CGPoint(x: size.width * 0.5, y: size.height * (1.0/6.0))
         addChild(highScoreButton)
     }
     

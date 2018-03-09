@@ -17,6 +17,7 @@ class GameOverScene: SKScene {
         self.backgroundColor = SKColor.black
         createGameOverLabel()
         createScoreLabel()
+        createCreditsEarnedLabel()
         createRestartButton()
         GameData.shared.playerHighScore.append(GameData.shared.playerScore)
         formatHighScores(arrayOfScores: GameData.shared.playerHighScore)
@@ -48,10 +49,20 @@ class GameOverScene: SKScene {
         self.addChild(scoreLabel)
     }
     
+    func createCreditsEarnedLabel() {
+        let creditsLabel = SKLabelNode(fontNamed: "Avenir")
+        creditsLabel.fontSize = 35
+        creditsLabel.fontColor = SKColor.white
+        creditsLabel.text = "Credits Earned: \(GameData.shared.creditsEarned)"
+        creditsLabel.position = CGPoint(x: size.width/2, y: size.height/2 - 100)
+        
+        self.addChild(creditsLabel)
+    }
+    
     func createRestartButton() {
         restartButton = SKSpriteNode(imageNamed: "restartButton")
         restartButton.zPosition = 2
-        restartButton.position = CGPoint(x: size.width/2, y: size.height * (1/3))
+        restartButton.position = CGPoint(x: size.width/2, y: size.height/2 - 250)
         addChild(restartButton)
     }
     
