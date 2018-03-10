@@ -16,8 +16,10 @@ class GameData {
     var playerScore = 0
     var playerHighScore: [Int] = []
     var weaponChosen = "laser"
-    var shieldAmount = 500
-    var shieldTime: TimeInterval = 10
+    var shieldAmount = 0
+    var numberOfShieldHealthUpgrades = 0
+    var shieldTime: TimeInterval = 0 //10
+    var numberOfShieldDurationUpgrades = 0
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
     

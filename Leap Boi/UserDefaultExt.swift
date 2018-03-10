@@ -33,6 +33,21 @@ extension UserDefaults{
         return object(forKey: UserDefaultsKeys.userNumberOfHealthUpgrades.rawValue) as? Int ?? Int()
     }
     
+    func setUserShieldHealthUpgrades(numberOfShieldHealthUpgrades: Int){
+        set(numberOfShieldHealthUpgrades, forKey: UserDefaultsKeys.userNumberOfShieldHealthUpgrades.rawValue)
+    }
+    
+    func getUserShieldHealthUpgrades() -> Int {
+        return object(forKey: UserDefaultsKeys.userNumberOfShieldHealthUpgrades.rawValue) as? Int ?? Int()
+    }
+    
+    func setUserShieldDurationUpgrades(numberOfShieldDurationUpgrades: Int){
+        set(numberOfShieldDurationUpgrades, forKey: UserDefaultsKeys.userNumberOfShieldDurationUpgrades.rawValue)
+    }
+    
+    func getUserShieldDurationUpgrades() -> Int {
+        return object(forKey: UserDefaultsKeys.userNumberOfShieldDurationUpgrades.rawValue) as? Int ?? Int()
+    }
     
 }
 
@@ -40,4 +55,6 @@ enum UserDefaultsKeys : String {
     case userHighScores
     case userCredits
     case userNumberOfHealthUpgrades
+    case userNumberOfShieldHealthUpgrades
+    case userNumberOfShieldDurationUpgrades
 }
