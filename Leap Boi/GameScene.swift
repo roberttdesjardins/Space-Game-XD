@@ -1170,7 +1170,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let playAction = SKAction.play()
                 audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             }
-            GameData.shared.creditsEarned = GameData.shared.creditsEarned + Int(round(Double(GameData.shared.playerScore/250)))
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
                 gameOver(view: view)

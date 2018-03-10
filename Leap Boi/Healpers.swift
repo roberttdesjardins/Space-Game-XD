@@ -155,7 +155,7 @@ func angleToRotateToWhileFacingDown(adjacent: CGFloat, opposite: CGFloat) -> CGF
 func resetGameData() {
     GameData.shared.playerScore = 0
     GameData.shared.creditsEarned = 0
-    GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
+    //GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
 }
 
 

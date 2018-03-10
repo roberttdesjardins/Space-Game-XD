@@ -97,16 +97,18 @@ class StoreScene: SKScene {
                     GameData.shared.numberOfHealthUpgrades = GameData.shared.numberOfHealthUpgrades + 1
                     UserDefaults.standard.setUserHealthUpgrades(numberOfHealthUpgrades: GameData.shared.numberOfHealthUpgrades)
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
-                    self.creditsLabel = nil
-                    self.createCreditsLabel()
-                    //TODO: Sound? Notification?
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let newHealth = 100 + 50 * UserDefaults.standard.getUserHealthUpgrades()
+                    let purchaseAlert = UIAlertController(title: "HP increased to \(newHealth)!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
                 }
             }))
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
         }
         if shieldHealthUpgradeButton.contains(touchLocation) {
             let costToUpgrade = 1000 + GameData.shared.numberOfShieldHealthUpgrades * 1000
-            let alert = UIAlertController(title: "Increase Shield by 50?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Increase shield by 50?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
             }))
@@ -121,16 +123,18 @@ class StoreScene: SKScene {
                     GameData.shared.numberOfShieldHealthUpgrades = GameData.shared.numberOfShieldHealthUpgrades + 1
                     UserDefaults.standard.setUserShieldHealthUpgrades(numberOfShieldHealthUpgrades: GameData.shared.numberOfShieldHealthUpgrades)
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
-                    self.creditsLabel = nil
-                    self.createCreditsLabel()
-                    //TODO: Sound? Notification?
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let newShieldAmount = 100 + 50 * UserDefaults.standard.getUserShieldHealthUpgrades()
+                    let purchaseAlert = UIAlertController(title: "Shield amount increased to \(newShieldAmount)!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
                 }
             }))
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
         }
         if shieldDurationUpgradeButton.contains(touchLocation) {
             let costToUpgrade = 1000 + GameData.shared.numberOfShieldDurationUpgrades * 1000
-            let alert = UIAlertController(title: "Increase Shield Duration by 5 seconds?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Increase shield duration by 5 seconds?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
             }))
@@ -145,9 +149,11 @@ class StoreScene: SKScene {
                     GameData.shared.numberOfShieldDurationUpgrades = GameData.shared.numberOfShieldDurationUpgrades + 1
                     UserDefaults.standard.setUserShieldDurationUpgrades(numberOfShieldDurationUpgrades: GameData.shared.numberOfShieldDurationUpgrades)
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
-                    self.creditsLabel = nil
-                    self.createCreditsLabel()
-                    //TODO: Sound? Notification?
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let newShieldDuration = 10 + 5 * UserDefaults.standard.getUserShieldDurationUpgrades()
+                    let purchaseAlert = UIAlertController(title: "Shield duration increased to \(newShieldDuration) seconds!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
                 }
             }))
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
