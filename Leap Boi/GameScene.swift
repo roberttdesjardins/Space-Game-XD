@@ -9,36 +9,36 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// TOP PRIORITY: Finish boss2, fix littleEye hitbox?, CPU usage increases over time...where is leak? :thinking_emoji:
+// TOP PRIORITY: Finish boss2, in-app payments, CPU usage increases over time...where is leak? :thinking_emoji:
 
 // Centre eyeBossLaster better..
 // Pulsing Start button
 // Change alien look
-// Change player default look
-// Add options to change look
+// Change player default look -> Button in the store to go to cosmetic upgrades
+// Add option on startScene to change look
 // Add more background music
 // Add boss music
 // Make upgrades "bounce up and out" when spawned
 // make three and five attack upgrade only spawn with laser?
 // remove attack if eyebossdefeated
 // Change eyeboss image..
-// Add stats like "Damage" "Fire Rate" etc under each weapon
+// Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
 // Make explosion sound
 // Make better name
-// add purchasable(with credits) weapons, upgrades, max health upgrades, speed upgrades, bullet speed upgrades
+// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades
 // inapp purchases for cosmetics
 // inapp purchases to get credits
 // Add achievements
 // add pause button?
 // Boss reverse controls- confusion
+// Spacestation boss,
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
 // Make aliens fire aoe, crossing diagonal bullets
 // Make laser sound better
 // Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
-// Attack upgrade that turns lasers a different colour
+// Attack upgrade that turns lasers a different colour?
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Improve HUD- show upgrades
-// Increase spawn rates with time
 // Make sound and animation for gaining credits
 // change balance of upgrades
 // Some sort of effect when you get hit
@@ -235,7 +235,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
-        //setUpEyeBoss()
+        setUpEyeBoss()
         //setUpBoss2()
         //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
@@ -1062,15 +1062,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setUpLittleEyeMovingGif(littleEye: littleEye)
         }
         let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))
-        // TODO: Make turn2 face the player
         let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
         let fire = SKAction.run {
-            // TODO: make littleEye fire a laser targeted at the player
+            self.littleEyeFireLaser(littleEye: littleEye)
         }
         littleEye.run(SKAction.sequence([SKAction.wait(forDuration: TimeInterval(random(min: 0, max: 10))), playBlinkingGif]))
         littleEye.run(SKAction.sequence([playWaitingGif, wait, turn1, playMovingGif, move, playWaitingGif, turn2, fire]), completion: { () -> Void in
             self.setUpLittleEyeBehaviour(littleEye: littleEye)
         })
+    }
+    
+    // fires a laser towards the player
+    func littleEyeFireLaser(littleEye: SKSpriteNode) {
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            let laser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 16))
+            laser.name = kAlienLaserName
+            laser.zPosition = 4
+            laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
+            laser.physicsBody?.isDynamic = false
+            laser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
+            laser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            laser.physicsBody?.collisionBitMask = PhysicsCategory.None
+            laser.physicsBody?.usesPreciseCollisionDetection = true
+            
+            laser.position = littleEye.position - CGPoint(x: 0, y: littleEye.size.height/2 + laser.size.height/2)
+            
+            
+            let adjacent = player.position.y - littleEye.position.y
+            let opposite = player.position.x - littleEye.position.x
+            let angle = tan(opposite/adjacent)
+            let newAdjacent = adjacent - 100
+            let newOpposite = tan(angle) * newAdjacent
+            let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
+            let newX = littleEye.position.x + newOpposite
+            laser.zRotation = faceTowards(sprite1: laser, sprite2: player)
+            let actualDuration = newHypotenuse / 50
+            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let actionMoveDone = SKAction.removeFromParent()
+            laser.run(SKAction.sequence([actionMove, actionMoveDone]))
+            addChild(laser)
+        }
     }
     
     func setUpLittleEyeRestingGif(littleEye: SKSpriteNode) {
@@ -1129,7 +1160,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
         boss2.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss2.physicsBody?.usesPreciseCollisionDetection = true
+        boss2.physicsBody?.velocity.dx = CGFloat(40)
     }
+    
+    // Move boss2 back and forth, always facing towards the player
+    func processBoss2Movement() {
+        if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
+            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+                if boss2.position.x >= size.width - boss2.size.width {
+                    boss2.physicsBody?.velocity.dx = CGFloat(-40)
+                } else if boss2.position.x <= 0 + boss2.size.width {
+                    boss2.physicsBody?.velocity.dx = CGFloat(40)
+                }
+                boss2.zPosition = faceTowards(sprite1: boss2, sprite2: player)
+            }
+        }
+    }
+    // TODO: Make attacks
+//    func processBoss2Attacks(attackChosen: Int) {
+//        switch attackChosen {
+//        case 1:
+//            boss2Attack1()
+//        case 2:
+//            boss2Attack2()
+//        default:
+//            return
+//        }
+//    }
+    
     
     // Called when boss2 is killed
     func setUpBoss2Explosion(boss2: SKNode) {
@@ -1345,6 +1403,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(currentTime - timeEyeBossAttack) >= eyeBossAttackRate {
                 timeEyeBossAttack = currentTime
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
+            }
+        }
+        if boss2FullySpawned {
+            processBoss2Movement()
+            if(currentTime - timeBoss2Attack) >= boss2AttackRate {
+                timeBoss2Attack = currentTime
+                //TODO: Boss2 attack
+                //processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
         processAlienMissileMovement()

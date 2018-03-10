@@ -108,8 +108,6 @@ class StartScene: SKScene {
         if chooseWeaponButton.contains(touchLocation) {
             weaponSceneLoad(view: view!)
         }
-        
     }
-    
 }
 

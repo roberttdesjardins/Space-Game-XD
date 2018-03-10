@@ -152,6 +152,12 @@ func angleToRotateToWhileFacingDown(adjacent: CGFloat, opposite: CGFloat) -> CGF
     return atan2(opposite, adjacent) + 90 * DegreesToRadians
 }
 
+func faceTowards(sprite1: SKSpriteNode, sprite2: SKSpriteNode) -> CGFloat {
+    let adjacent = sprite2.position.x - sprite1.position.x
+    let opposite = sprite2.position.y - sprite1.position.y
+    return angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
+}
+
 func resetGameData() {
     GameData.shared.playerScore = 0
     GameData.shared.creditsEarned = 0
