@@ -11,6 +11,7 @@
 //TODO:
 // TOP PRIORITY: Finish boss2, fix littleEye hitbox?, CPU usage increases over time...where is leak? :thinking_emoji:
 
+// Centre eyeBossLaster better..
 // Pulsing Start button
 // Change alien look
 // Change player default look
@@ -233,7 +234,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupWeapon()
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
-        addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
+        //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
         //setUpEyeBoss()
         //setUpBoss2()
         //setUpAlienCruisers(min: 1, max: 5)
@@ -348,7 +349,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        
+        GameData.shared.maxPlayerHealth = 100 + 50 * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
 
@@ -743,15 +745,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func processProtectiveShieldMovement() {
-        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
-            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-                shield.position = player.position
-            }
-        }
-    }
-    
-    
     func firePlayerWeapon(){
         if(playerWeapon == kLaserName){
             firePlayerLaser(offset: 0.0)
@@ -1035,7 +1028,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         littleEye.userData = NSMutableDictionary()
         setLittleEyeHealth(littleEye: littleEye)
         
-        littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size)
+        littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size - CGSize(width: 12, height: 12))
         littleEye.physicsBody?.isDynamic = true
         littleEye.physicsBody?.affectedByGravity = false
         littleEye.physicsBody?.categoryBitMask = PhysicsCategory.LittleEye
@@ -1309,6 +1302,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10))
                 }
             }
+            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+                shield.position = player.position
+            }
         }
     }
     
@@ -1335,14 +1331,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
-        
         // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
         if (currentTime - startTime) >= timeToSpawnNextBoss && !eyeBossSpawned {
             setUpEyeBoss()
         }
-        
+        // Spawns the second boss if it hasen't been spawned before, eyeBoss has been killed and enought time has passed
         if (currentTime - startTime) >= (timeToSpawnNextBoss + timeEyeBossDefeated) && !boss2Spawned && eyeBossDefeated {
-            // TODO: setUpBoss2
             setUpBoss2()
         }
         
@@ -1354,12 +1348,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
-        if protectiveShieldActive {
-            processProtectiveShieldMovement()
-        }
-        
         processAlienMissileMovement()
-        
         sinceStart = currentTime - startTime
     }
     

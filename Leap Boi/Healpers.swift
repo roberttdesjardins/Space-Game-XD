@@ -86,6 +86,16 @@ func gameSceneLoad(view: UIView) {
     skView.presentScene(scene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
 }
 
+func storeSceneLoad(view: UIView) {
+    let scene = StoreScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.showsFPS = false
+    skView.showsNodeCount = false
+    skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
+}
+
 func highScoreSceneLoad(view: UIView) {
     let scene = HighScoreScene(size: view.bounds.size)
     let skView = view as! SKView

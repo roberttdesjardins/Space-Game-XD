@@ -13,6 +13,7 @@ import CoreMotion
 class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
     var startButton: SKSpriteNode! = nil
+    var storeButton: SKSpriteNode! = nil
     var highScoreButton: SKSpriteNode! = nil
     var chooseWeaponButton: SKSpriteNode! = nil
     
@@ -20,10 +21,12 @@ class StartScene: SKScene {
     override func didMove(to view: SKView) {
         GameData.shared.playerHighScore = UserDefaults.standard.getUserHighScores()
         GameData.shared.totalCredits = UserDefaults.standard.getUserCredits()
+        GameData.shared.numberOfHealthUpgrades = UserDefaults.standard.getUserHealthUpgrades()
         createBackground()
         createGameNameLabel()
-        createCreditsLabel()
         createStartButton()
+        createCreditsLabel()
+        createStoreButton()
         createHighScoreButton()
         createChooseWeaponButton()
     }
@@ -41,10 +44,17 @@ class StartScene: SKScene {
         gameNameLabel.zPosition = 2
         gameNameLabel.fontSize = 55
         gameNameLabel.fontColor = SKColor.white
-        gameNameLabel.text = "THIS NAME IS A WIP"
+        gameNameLabel.text = "Space Game xD"
         gameNameLabel.position = CGPoint(x: size.width/2, y: self.size.height * (5/6))
         
         self.addChild(gameNameLabel)
+    }
+    
+    func createStartButton() {
+        startButton = SKSpriteNode(imageNamed: "startButton")
+        startButton.zPosition = 2
+        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (4.0/6.0))
+        addChild(startButton)
     }
     
     func createCreditsLabel() {
@@ -53,16 +63,16 @@ class StartScene: SKScene {
         creditsLabel.fontSize = 35
         creditsLabel.fontColor = SKColor.white
         creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
-        creditsLabel.position = CGPoint(x: size.width/2, y: self.size.height * (3/6))
+        creditsLabel.position = CGPoint(x: size.width/2, y: size.height * (3.0/6.0))
         
         self.addChild(creditsLabel)
     }
     
-    func createStartButton() {
-        startButton = SKSpriteNode(imageNamed: "startButton")
-        startButton.zPosition = 2
-        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/6.0))
-        addChild(startButton)
+    func createStoreButton() {
+        storeButton = SKSpriteNode(imageNamed: "storeButton")
+        storeButton.zPosition = 2
+        storeButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/6.0))
+        addChild(storeButton)
     }
     
     func createHighScoreButton() {
@@ -84,6 +94,9 @@ class StartScene: SKScene {
         let touchLocation = touch!.location(in: self)
         if startButton.contains(touchLocation) {
             gameSceneLoad(view: view!)
+        }
+        if storeButton.contains(touchLocation) {
+            storeSceneLoad(view: view!)
         }
         if highScoreButton.contains(touchLocation) {
             highScoreSceneLoad(view: view!)

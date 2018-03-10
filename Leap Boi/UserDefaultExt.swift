@@ -25,9 +25,19 @@ extension UserDefaults{
         return object(forKey: UserDefaultsKeys.userCredits.rawValue) as? Int ?? Int()
     }
     
+    func setUserHealthUpgrades(numberOfHealthUpgrades: Int){
+        set(numberOfHealthUpgrades, forKey: UserDefaultsKeys.userNumberOfHealthUpgrades.rawValue)
+    }
+    
+    func getUserHealthUpgrades() -> Int {
+        return object(forKey: UserDefaultsKeys.userNumberOfHealthUpgrades.rawValue) as? Int ?? Int()
+    }
+    
+    
 }
 
 enum UserDefaultsKeys : String {
     case userHighScores
     case userCredits
+    case userNumberOfHealthUpgrades
 }

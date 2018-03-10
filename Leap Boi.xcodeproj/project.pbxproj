@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		55032F9720461286000E6860 /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55032F9620461286000E6860 /* GameOverScene.swift */; };
 		55032F9920461625000E6860 /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55032F9820461625000E6860 /* StartScene.swift */; };
+		55050FF72053528F002E3B20 /* StoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55050FF62053528F002E3B20 /* StoreScene.swift */; };
 		55075B90204B7CAB006D656F /* WeaponScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55075B8F204B7CAB006D656F /* WeaponScene.swift */; };
 		55075B92204B8FA9006D656F /* missile.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55075B91204B8FA9006D656F /* missile.wav */; };
 		55075B94204B9F03006D656F /* explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55075B93204B9F03006D656F /* explosion.wav */; };
@@ -36,6 +37,7 @@
 /* Begin PBXFileReference section */
 		55032F9620461286000E6860 /* GameOverScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
 		55032F9820461625000E6860 /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
+		55050FF62053528F002E3B20 /* StoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreScene.swift; sourceTree = "<group>"; };
 		55075B8F204B7CAB006D656F /* WeaponScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeaponScene.swift; sourceTree = "<group>"; };
 		55075B91204B8FA9006D656F /* missile.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = missile.wav; sourceTree = "<group>"; };
 		55075B93204B9F03006D656F /* explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = explosion.wav; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 				55978A202048B39F00CA8AC6 /* Audio */,
 				55FFA83E204490E000A36E67 /* AppDelegate.swift */,
 				55032F9820461625000E6860 /* StartScene.swift */,
+				55050FF62053528F002E3B20 /* StoreScene.swift */,
 				55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */,
 				55075B8F204B7CAB006D656F /* WeaponScene.swift */,
 				55FFA844204490E000A36E67 /* GameScene.swift */,
@@ -217,6 +220,7 @@
 				55032F9720461286000E6860 /* GameOverScene.swift in Sources */,
 				55978A1F2048912F00CA8AC6 /* HighScoreScene.swift in Sources */,
 				557306022044DF6500A9725C /* GameVC.swift in Sources */,
+				55050FF72053528F002E3B20 /* StoreScene.swift in Sources */,
 				55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */,
 				55D62B132047822E0047E510 /* GameData.swift in Sources */,
 				550902F92045FB8E0035C65D /* Healpers.swift in Sources */,
