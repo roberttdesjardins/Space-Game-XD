@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 class GameData {
     static let shared = GameData()
@@ -22,7 +23,7 @@ class GameData {
     var numberOfShieldDurationUpgrades = 0
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
-    
+    var bgMusicPlayer: AVAudioPlayer!
     
     private init() { }
 }

@@ -9,7 +9,7 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, CPU usage increases over time...where is leak? :thinking_emoji:, littleEyeLasers sometimes act a little funky, music changes
+// TOP PRIORITY: Finish boss2, in-app payments, CPU usage increases over time...where is leak? :thinking_emoji:, littleEyeLasers sometimes act a little funky, music changes, homing effect of homing missiles
 
 // Centre eyeBossLaster better..
 // Pulsing Start button
@@ -141,6 +141,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kAlienMissileName = "alienMissile"
     let kLaserName = "laser"
     let kMissileName = "missile"
+    let kHomingMissileName = "homingMissile"
     let kMissileExplosionName = "missileExplosion"
     let kHealthPackName = "healthPack"
     let kFireRateUpgradeName = "firerateUpgrade"
@@ -173,6 +174,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var protectiveShieldActive = false
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
+    // Array of homing missiles
+    private var homingMissileArray: [SKSpriteNode] = []
     
     
     // Time since gameScene started
@@ -220,7 +223,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var damagedByPlayerMissileArray: [String] = []
     var damagedByPlayerMissileExplosionArray: [String] = []
     
-    private var bgMusicPlayer: AVAudioPlayer!
+    var allPossibleEnemies: [String] = []
     
     let motionManager = CMMotionManager()
     
@@ -235,7 +238,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
-        addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height))
+        addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/5))
         //setUpEyeBoss()
         //setUpBoss2()
         //setUpAlienCruisers(min: 1, max: 5)
@@ -247,6 +250,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
         damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
         damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
+        
+        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
     }
     
     func setupScreen() {
@@ -263,13 +268,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let path = Bundle.main.path(forResource: "bensound-deepblue", ofType: "mp3")!
         let url = URL(fileURLWithPath: path)
         do {
-            bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
-            bgMusicPlayer.numberOfLoops = -1
-            bgMusicPlayer.prepareToPlay()
+            GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            GameData.shared.bgMusicPlayer.numberOfLoops = -1
+            GameData.shared.bgMusicPlayer.prepareToPlay()
         } catch let error as NSError {
             print(error.description)
         }
-        bgMusicPlayer.play()
+        GameData.shared.bgMusicPlayer.play()
     }
     
     func setupPlayer() {
@@ -585,29 +590,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setUpHomingMissile() {
         let wait = SKAction.wait(forDuration: 2.0)
-        // TODO: Change homing missile sound?
         let audioNode = SKAudioNode(fileNamed: "missile")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
         let playAction = SKAction.play()
         let playSound = SKAction.run {
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
+            audioNode.run(playAction)
+        }
+        let stopSound = SKAction.run {
+            audioNode.run(SKAction.stop())
         }
         let fire = SKAction.run {
             self.addHomingMissile(direction: "Left")
             self.addHomingMissile(direction: "Right")
         }
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            player.run(SKAction.repeatForever(SKAction.sequence([wait, playSound, fire])))
+            player.run(SKAction.repeatForever(SKAction.sequence([wait, stopSound, fire, playSound])))
         }
     }
     
     func addHomingMissile(direction: String) {
-        // TODO: Change image?
-        let missile = SKSpriteNode(imageNamed: "missile")
-        missile.size = CGSize(width: 10, height: 20)
-        missile.name = kMissileName
+        let missile = SKSpriteNode(imageNamed: "homingMissile")
+        missile.size = CGSize(width: 7, height: 20)
+        missile.name = kHomingMissileName
         missile.zPosition = 5
+        missile.userData = NSMutableDictionary()
         missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
         missile.physicsBody?.isDynamic = true
         missile.physicsBody?.affectedByGravity = false
@@ -621,15 +628,58 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if direction == "Left" {
-                missile.physicsBody?.velocity.dx = -60
+                missile.physicsBody?.velocity.dx = -10
                 missile.position = player.position + CGPoint(x: -20, y: player.size.height/2 + missile.size.height/2)
             } else if direction == "Right" {
-                missile.physicsBody?.velocity.dx = 60
+                missile.physicsBody?.velocity.dx = 10
                 missile.position = player.position + CGPoint(x: 20, y: player.size.height/2 + missile.size.height/2)
             }
         }
-        missile.physicsBody?.velocity.dy = 100
-        
+        // TODO: Change starting velocity
+        setClosestNode(node: missile)
+        missile.physicsBody?.velocity.dy = 00
+        homingMissileArray.append(missile)
+    }
+    
+    // TODO: Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
+    // Solution?: Find the closest enemy node when the missile is created, and have it constantly track that one node... what to do if that node is destroyed? find closest node again?
+    func processHomingMissileMovement() {
+        for homingMissile in homingMissileArray {
+            if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
+                if homingMissile.position.x > closestEnemy.position.x {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: -10, dy: 0))
+                } else {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 10, dy: 0))
+                }
+                if homingMissile.position.y > closestEnemy.position.y {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -10))
+                } else {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 10))
+                }
+            } else {
+                setClosestNode(node: homingMissile)
+            }
+        }
+    }
+    
+    func setClosestNode(node: SKSpriteNode) {
+        var closestNode: CGFloat = 0
+        for child in children {
+            if child.name != nil && allPossibleEnemies.contains(child.name!) {
+                let tempDistance = calculateDistanceBetween(node1: node, node2: child as! SKSpriteNode)
+                if tempDistance > closestNode {
+                    closestNode = tempDistance
+                    node.userData?.setValue(child, forKey: "closest")
+                }
+            }
+        }
+    }
+    
+    // TODO: Use this for other fuctions
+    func calculateDistanceBetween(node1: SKSpriteNode, node2: SKSpriteNode) -> CGFloat {
+        let adjacent = node1.position.y - node2.position.y
+        let opposite = node1.position.x - node2.position.x
+        return sqrt(pow(adjacent, 2.0) + pow(opposite, 2.0))
     }
     
     
@@ -742,6 +792,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnProtectiveShieldRandom(position: position, percentChance: percentChance/2)
             spawnFireRateRandom(position: position, percentChance: percentChance/5)
             spawnThreeShotRandom(position: position, percentChance: percentChance/4)
+            spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
             
         }
         if playerWeapon == kMissileName {
@@ -1498,6 +1549,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
+        if !playerAlive {
+            // TODO: Get rid of eyeBossLaser and other nodes
+        }
         if boss2FullySpawned {
             processBoss2Movement()
             if(currentTime - timeBoss2Attack) >= boss2AttackRate {
@@ -1508,6 +1562,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if !alienMissileArray.isEmpty {
             processAlienMissileMovement()
+        }
+        if !homingMissileArray.isEmpty {
+            processHomingMissileMovement()
         }
         sinceStart = currentTime - startTime
     }
@@ -1548,6 +1605,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playerTakesDamage(damage: 25, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kAlienMissileName {
+                // TODO: Test
+                alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 75, view: view!)
             }
@@ -1583,6 +1642,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             subtractHealth(sprite: ob1, damage: 25)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kAlienMissileName {
+            alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 75)
         }
@@ -1640,12 +1700,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             missileExplosionEffect(position: ob2.position)
         }
         
+        if damagedByPlayerMissileArray.contains(ob1.name!) && ob2.name == kHomingMissileName {
+            subtractHealth(sprite: ob1, damage: 1)
+            homingMissileArray.remove(at: homingMissileArray.index(of: ob2 as! SKSpriteNode)!)
+            ob2.removeFromParent()
+            missileExplosion(missile: ob2)
+            missileExplosionEffect(position: ob2.position)
+        }
+        
         if damagedByPlayerMissileExplosionArray.contains(ob1.name!) && ob2.name == kMissileExplosionName && ob1.userData?.value(forKey: "invulnerable") as? Bool != true {
             ob1.userData?.setValue(true, forKey: "invulnerable")
             subtractHealth(sprite: ob1, damage: 4)
         }
         
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {
+            ob2.removeFromParent()
+        }
+        if ob1.name == kEyeBossLaserName && ob2.name == kHomingMissileName {
             ob2.removeFromParent()
         }
         if ob1.name == kEyeBossLaserName && ob2.name == kLittleEyeName {
