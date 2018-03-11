@@ -9,8 +9,7 @@
 //  Royalty Free Music from Bensound
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, CPU usage increases over time...where is leak? :thinking_emoji:, littleEyeLasers sometimes act a little funky, music changes, homing effect of homing missiles
-
+// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, music changes
 // Centre eyeBossLaster better..
 // Pulsing Start button
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -32,19 +31,18 @@
 // Boss reverse controls- confusion
 // Spacestation boss,
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
-// Make aliens fire aoe, crossing diagonal bullets
+// Make aliens fire aoe
 // Make laser sound better
-// Upgrades: Diagonal bullets, energy shield, DOT fire, freeze weapon?
+// Upgrades: Diagonal bullets, DOT fire, freeze weapon?
 // Attack upgrade that turns lasers a different colour?
 // Swipe up, move forward fixed amount, so two different y axis positions
 // Improve HUD- show upgrades
-// Make sound and animation for gaining credits
+// Make sound and animation for gaining credits, rain coins down
 // change balance of upgrades
 // Some sort of effect when you get hit
 // Make bosses spawn randomly? When you kill enough get to fight final boss
-// add homing missiles that shoot up and apply force (Torque?) to go to nearest (Strongest?) Target
 // Shield: display shield amount?
-// credit sprites and music
+// credit sprites and music creators
 
 import SpriteKit
 import GameplayKit
@@ -174,7 +172,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var protectiveShieldActive = false
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
-    // Array of homing missiles
+    // Array of homingMissiles
     private var homingMissileArray: [SKSpriteNode] = []
     
     
@@ -345,7 +343,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func makePlayer() -> SKNode {
         let player = SKSpriteNode(imageNamed: "player")
         player.size = CGSize(width: 35, height: 35)
-        player.zPosition = 5
+        player.zPosition = 6
         player.name = kPlayerName
         
         player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size - CGSize(width: 5, height: 5))
@@ -571,6 +569,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienMissileArray.append(alienMissile)
     }
     
+    
+    // TODO: Change rotation to face closest enemy, apply impulse based on rotation : https://stackoverflow.com/questions/25628811/spritekit-move-rotated-physicsbody-with-applyimpulse
     func processAlienMissileMovement() {
         for alienMissile in alienMissileArray {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
@@ -629,33 +629,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if direction == "Left" {
                 missile.physicsBody?.velocity.dx = -10
-                missile.position = player.position + CGPoint(x: -20, y: player.size.height/2 + missile.size.height/2)
+                missile.position = player.position + CGPoint(x: -20, y: 0)
             } else if direction == "Right" {
                 missile.physicsBody?.velocity.dx = 10
-                missile.position = player.position + CGPoint(x: 20, y: player.size.height/2 + missile.size.height/2)
+                missile.position = player.position + CGPoint(x: 20, y: 0)
             }
         }
-        // TODO: Change starting velocity
         setClosestNode(node: missile)
-        missile.physicsBody?.velocity.dy = 00
+        missile.physicsBody?.velocity.dy = 5
         homingMissileArray.append(missile)
     }
     
     // TODO: Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
-    // Solution?: Find the closest enemy node when the missile is created, and have it constantly track that one node... what to do if that node is destroyed? find closest node again?
+    // Finds the closest enemy node when the missile is created, constantly moves towards that node.
+    // If node it is tracking is destroyed, make a new node to track
     func processHomingMissileMovement() {
         for homingMissile in homingMissileArray {
             if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
                 if homingMissile.position.x > closestEnemy.position.x {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: -10, dy: 0))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
                 } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 10, dy: 0))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 1, dy: 0))
                 }
                 if homingMissile.position.y > closestEnemy.position.y {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -10))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -1))
                 } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 10))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 1))
                 }
+                let positionToRotateTo = atan2((homingMissile.physicsBody?.velocity.dy)!, (homingMissile.physicsBody?.velocity.dx)!)
+                homingMissile.zRotation = CGFloat(positionToRotateTo) - 90 * DegreesToRadians
             } else {
                 setClosestNode(node: homingMissile)
             }
@@ -1075,12 +1077,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 } else if player.position.x + 5 < eyeBoss.position.x {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(-60)
                 }
-                if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
-                    eyeBossLaser.position.x = eyeBoss.position.x
-                }
-                if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
-                    eyeBossLaserCharge.position.x = eyeBoss.position.x
-                }
+            }
+            if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
+                eyeBossLaser.position.x = eyeBoss.position.x
+            }
+            if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
+                eyeBossLaserCharge.position.x = eyeBoss.position.x
             }
         }
     }
@@ -1092,6 +1094,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaserBeamAttack()
         case 2:
             eyeBossChargeAttack()
+        case 3:
+            eyeBossMultiLaserAttack()
         default:
             return
         }
@@ -1152,6 +1156,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             })
         }
     }
+    
+    func eyeBossMultiLaserAttack() {
+        //TODO: Do this. Shoot a laser from each vein - they all converge on a single point and move outwards
+    }
+    
+    
     
     // adds little eyeballs only while eyeBoss is active
     func setUpSpawnLittleEyes(min: CGFloat, max: CGFloat) {
@@ -1546,11 +1556,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processEyeBossMovement(forUpdate: currentTime)
             if(currentTime - timeEyeBossAttack) >= eyeBossAttackRate {
                 timeEyeBossAttack = currentTime
-                processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
+                processEyeBossAttacks(attackChosen: Int(arc4random_uniform(3) + 1))
             }
         }
         if !playerAlive {
-            // TODO: Get rid of eyeBossLaser and other nodes
+            //TODO: Should probably do something with this
         }
         if boss2FullySpawned {
             processBoss2Movement()
@@ -1605,7 +1615,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playerTakesDamage(damage: 25, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kAlienMissileName {
-                // TODO: Test
                 alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 75, view: view!)
