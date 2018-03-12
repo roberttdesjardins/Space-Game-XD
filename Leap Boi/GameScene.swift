@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, LAG NEAR ALIEN HITBOX??
+// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky
 // Make shield track better
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -38,7 +38,6 @@
 // Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // change balance of upgrades
-// Some sort of effect when you get hit
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // Shield: display shield amount?
 // credit sprites and music creators
@@ -392,7 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func makePlayer() -> SKNode {
-        let player = SKSpriteNode(imageNamed: "player")
+        let player = SKSpriteNode(imageNamed: "PlayerShip_\(GameData.shared.shipColourChosen)")
         player.size = CGSize(width: 35, height: 35)
         player.zPosition = 6
         player.name = kPlayerName
@@ -468,7 +467,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     
     func addBigAsteroid() {
-        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
         asteroid.name = kAsteroidName
         asteroid.size = CGSize(width: 80, height: 80)
         asteroid.userData = NSMutableDictionary()
@@ -497,7 +496,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func addMediumAsteroid(position: CGPoint, xoffset: CGFloat) {
-        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        let asteroid = SKSpriteNode(imageNamed: "Meteor_Medium")
         asteroid.name = kMediumAsteroidName
         asteroid.size = CGSize(width: 40, height: 40)
         asteroid.userData = NSMutableDictionary()
@@ -523,7 +522,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addSmallAsteroid(position: CGPoint, xoffset: CGFloat) {
-        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        let asteroid = SKSpriteNode(imageNamed: "Meteor_Small")
         asteroid.name = kSmallAsteroidName
         asteroid.size = CGSize(width: 20, height: 20)
         asteroid.userData = NSMutableDictionary()
@@ -978,7 +977,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
         let laser = SKSpriteNode(imageNamed: "playerLaser")
-        laser.size = CGSize(width: 2, height: 9.6)
+        laser.size = CGSize(width: 15, height: 15)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
         }
@@ -1005,7 +1004,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
         
         let missile = SKSpriteNode(imageNamed: "missile")
-        missile.size = CGSize(width: 19, height: 40)
+        missile.size = CGSize(width: 20, height: 30)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             missile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + missile.size.height/2)
         }
@@ -1364,6 +1363,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.position = CGPoint(x: size.width/2, y: size.height + boss2.size.height)
         boss2.name = kBoss2Name
         boss2.zPosition = 3
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            let lookAtConstraint = SKConstraint.orient(to: player, offset: SKRange(constantValue: CGFloat.pi / 2))
+            boss2.constraints = [lookAtConstraint]
+        }
+
         
         addChild(boss2)
         boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height), duration: 10.0), completion: { () -> Void in
@@ -1405,6 +1409,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    
+    // shoots a volley of plasma attacks
     func boss2Attack1() {
         
     }

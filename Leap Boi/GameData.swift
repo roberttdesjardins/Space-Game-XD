@@ -25,6 +25,7 @@ class GameData {
     var totalCredits: Int = 0
     var bgMusicPlayer: AVAudioPlayer!
     var playingMenuMusic = false
+    var shipColourChosen = "Black"
     
     private init() { }
 }
