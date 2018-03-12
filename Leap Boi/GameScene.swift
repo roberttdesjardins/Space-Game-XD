@@ -9,13 +9,12 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky
+// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, LAG NEAR ALIEN HITBOX??
+// Make shield track better
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
-// Add more background music
-// Add boss music
 // Make upgrades "bounce up and out" when spawned
 // make three and five attack upgrade only spawn with laser?
 // remove attack if eyebossdefeated
@@ -29,7 +28,7 @@
 // Add achievements
 // add pause button?
 // Boss reverse controls- confusion
-// Spacestation boss,
+// Spacestation boss
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
 // Make aliens fire aoe
 // Make laser sound better
@@ -161,16 +160,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Background
     let background1 = SKSpriteNode(imageNamed: "bg1")
-    let background2 = SKSpriteNode(imageNamed: "bg2")
+    let background2 = SKSpriteNode(imageNamed: "bg1")
     
     
-    // Player Weapon Variables
+    // Player Variables
     // Starts with the screen not being pressed
     private var touchingScreen = false
     // Shoots every x seconds
     var fireRate = 0.3
     // The players weapon choice
     var playerWeapon = ""
+    // Invulnerable right after getting hit
+    var playerTempInvulnerable = false
     // The number of fireRate upgrades
     private var fireRateUpgradeNumber = 0
     // All the possible upgrades
@@ -403,7 +404,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100 + 50 * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100000 + 50 * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -411,7 +412,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
-        alien.size = CGSize(width: 32.76, height: 45)
+        alien.size = CGSize(width: 35, height: 39.4)
         alien.userData = NSMutableDictionary()
         setAlienHealth(alien: alien)
         
@@ -434,7 +435,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addAlienLaser(alien: SKSpriteNode, offset: CGFloat) {
-        let alienLaser = SKSpriteNode(color: SKColor.blue, size: CGSize(width: 2, height: 16))
+        let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 12))
         alienLaser.name = kAlienLaserName
         alienLaser.zPosition = 4
         
@@ -943,6 +944,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func playPowerUpSound() {
+        let audioNode = SKAudioNode(fileNamed: "powerUp")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+    }
+    
     func firePlayerWeapon(){
         if(playerWeapon == kLaserName){
             firePlayerLaser(offset: 0.0)
@@ -1429,7 +1438,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func playerTakesDamage(damage: Int, view: UIView) {
+        if playerTempInvulnerable {
+            return
+        }
         GameData.shared.playerHealth = GameData.shared.playerHealth - damage
+        playerTempInvulnerable = true
+        let audioNode = SKAudioNode(fileNamed: "playerHit")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         // If the player has 0 or less health, go to GameOverScene
         if (GameData.shared.playerHealth <= 0) {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
@@ -1603,6 +1621,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
+        playerTempInvulnerable = false
         
         // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
         if !eyeBossSpawned && (currentTime - startTime) >= timeToSpawnNextBoss  {
@@ -1725,19 +1744,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
-            //TODO: Heal sound effect
+            playPowerUpSound()
             ob2.removeFromParent()
             GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
         if ob1.name == kPlayerName && ob2.name == kFireRateUpgradeName {
-            //TODO: reloading sound effect
+            playPowerUpSound()
             ob2.removeFromParent()
             fireRateUpgradeNumber = fireRateUpgradeNumber + 1
             setupWeapon()
         }
         
         if ob1.name == kPlayerName && ob2.name == kThreeShotUpgradeName {
+            playPowerUpSound()
             ob2.removeFromParent()
             if threeShotUpgrade {
                 fiveShotUpgrade = true
@@ -1746,6 +1766,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
+            playPowerUpSound()
             ob2.removeFromParent()
             if !protectiveShieldActive {
                 addProtectiveShield()
@@ -1755,6 +1776,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kHomingMissileUpgradeName {
+            playPowerUpSound()
             ob2.removeFromParent()
             setUpHomingMissile()
         }

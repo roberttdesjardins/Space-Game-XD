@@ -12,8 +12,11 @@
 		55050FF72053528F002E3B20 /* StoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55050FF62053528F002E3B20 /* StoreScene.swift */; };
 		55050FF9205701FD002E3B20 /* menu.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55050FF8205701FD002E3B20 /* menu.wav */; };
 		55050FFB2057028D002E3B20 /* Race to Mars.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55050FFA2057028D002E3B20 /* Race to Mars.mp3 */; };
-		55050FFD20570630002E3B20 /* in-the-wreckage.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55050FFC20570630002E3B20 /* in-the-wreckage.wav */; };
 		55050FFF205706C0002E3B20 /* battle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55050FFE205706C0002E3B20 /* battle.wav */; };
+		5505100120572208002E3B20 /* gameover.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5505100020572208002E3B20 /* gameover.wav */; };
+		5505100320572258002E3B20 /* powerUp.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5505100220572258002E3B20 /* powerUp.wav */; };
+		5505100520572345002E3B20 /* playerHit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5505100420572345002E3B20 /* playerHit.wav */; };
+		550510072057259F002E3B20 /* laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 550510062057259F002E3B20 /* laser.mp3 */; };
 		55075B90204B7CAB006D656F /* WeaponScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55075B8F204B7CAB006D656F /* WeaponScene.swift */; };
 		55075B92204B8FA9006D656F /* missile.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55075B91204B8FA9006D656F /* missile.wav */; };
 		55075B94204B9F03006D656F /* explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55075B93204B9F03006D656F /* explosion.wav */; };
@@ -27,7 +30,6 @@
 		5592286520523884002836CA /* boss2explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5592286420523884002836CA /* boss2explosion.wav */; };
 		55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */; };
 		55978A1F2048912F00CA8AC6 /* HighScoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */; };
-		55978A242048B61500CA8AC6 /* laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55978A232048B61500CA8AC6 /* laser.mp3 */; };
 		55C18353204C9BB300747F00 /* warningBeep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55C18352204C9BB300747F00 /* warningBeep.wav */; };
 		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
@@ -43,8 +45,11 @@
 		55050FF62053528F002E3B20 /* StoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreScene.swift; sourceTree = "<group>"; };
 		55050FF8205701FD002E3B20 /* menu.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = menu.wav; sourceTree = "<group>"; };
 		55050FFA2057028D002E3B20 /* Race to Mars.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Race to Mars.mp3"; sourceTree = "<group>"; };
-		55050FFC20570630002E3B20 /* in-the-wreckage.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "in-the-wreckage.wav"; sourceTree = "<group>"; };
 		55050FFE205706C0002E3B20 /* battle.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = battle.wav; sourceTree = "<group>"; };
+		5505100020572208002E3B20 /* gameover.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = gameover.wav; sourceTree = "<group>"; };
+		5505100220572258002E3B20 /* powerUp.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = powerUp.wav; sourceTree = "<group>"; };
+		5505100420572345002E3B20 /* playerHit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = playerHit.wav; sourceTree = "<group>"; };
+		550510062057259F002E3B20 /* laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = laser.mp3; sourceTree = "<group>"; };
 		55075B8F204B7CAB006D656F /* WeaponScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeaponScene.swift; sourceTree = "<group>"; };
 		55075B91204B8FA9006D656F /* missile.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = missile.wav; sourceTree = "<group>"; };
 		55075B93204B9F03006D656F /* explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = explosion.wav; sourceTree = "<group>"; };
@@ -58,7 +63,6 @@
 		5592286420523884002836CA /* boss2explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = boss2explosion.wav; sourceTree = "<group>"; };
 		55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultExt.swift; sourceTree = "<group>"; };
 		55978A1E2048912F00CA8AC6 /* HighScoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighScoreScene.swift; sourceTree = "<group>"; };
-		55978A232048B61500CA8AC6 /* laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = laser.mp3; sourceTree = "<group>"; };
 		55C18352204C9BB300747F00 /* warningBeep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = warningBeep.wav; sourceTree = "<group>"; };
 		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,13 +92,15 @@
 				55601DEE205067F400DB6491 /* laserchargesound.wav */,
 				55601DF02050697E00DB6491 /* laserbeamsound.wav */,
 				55C18352204C9BB300747F00 /* warningBeep.wav */,
-				55978A232048B61500CA8AC6 /* laser.mp3 */,
 				55075B91204B8FA9006D656F /* missile.wav */,
 				55075B93204B9F03006D656F /* explosion.wav */,
 				55050FF8205701FD002E3B20 /* menu.wav */,
 				55050FFA2057028D002E3B20 /* Race to Mars.mp3 */,
-				55050FFC20570630002E3B20 /* in-the-wreckage.wav */,
+				550510062057259F002E3B20 /* laser.mp3 */,
 				55050FFE205706C0002E3B20 /* battle.wav */,
+				5505100020572208002E3B20 /* gameover.wav */,
+				5505100220572258002E3B20 /* powerUp.wav */,
+				5505100420572345002E3B20 /* playerHit.wav */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -204,6 +210,7 @@
 				55050FFB2057028D002E3B20 /* Race to Mars.mp3 in Resources */,
 				55075B9A204C66F3006D656F /* AlienExplosionParticle.sks in Resources */,
 				55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */,
+				550510072057259F002E3B20 /* laser.mp3 in Resources */,
 				55075B96204C5BC2006D656F /* MissileExplosionParticle.sks in Resources */,
 				55050FFF205706C0002E3B20 /* battle.wav in Resources */,
 				5592286520523884002836CA /* boss2explosion.wav in Resources */,
@@ -211,9 +218,10 @@
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
 				55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */,
 				55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */,
-				55050FFD20570630002E3B20 /* in-the-wreckage.wav in Resources */,
+				5505100320572258002E3B20 /* powerUp.wav in Resources */,
+				5505100520572345002E3B20 /* playerHit.wav in Resources */,
 				55075B94204B9F03006D656F /* explosion.wav in Resources */,
-				55978A242048B61500CA8AC6 /* laser.mp3 in Resources */,
+				5505100120572208002E3B20 /* gameover.wav in Resources */,
 				55075B92204B8FA9006D656F /* missile.wav in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
 				55050FF9205701FD002E3B20 /* menu.wav in Resources */,
