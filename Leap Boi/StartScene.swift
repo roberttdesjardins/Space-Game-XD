@@ -9,6 +9,7 @@
 import SpriteKit
 import GameplayKit
 import CoreMotion
+import AVFoundation
 
 class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
@@ -27,6 +28,9 @@ class StartScene: SKScene {
         GameData.shared.shieldAmount = 100 + 50 * GameData.shared.numberOfShieldHealthUpgrades
         GameData.shared.shieldTime = TimeInterval(10 + 5 * GameData.shared.numberOfShieldDurationUpgrades)
         createBackground()
+        if !GameData.shared.playingMenuMusic {
+            setupMusic()
+        }
         createGameNameLabel()
         createStartButton()
         createCreditsLabel()
@@ -41,6 +45,20 @@ class StartScene: SKScene {
         background.size = CGSize(width: background.size.width, height: frame.size.height)
         background.position = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
         addChild(background)
+    }
+    
+    func setupMusic() {
+        let path = Bundle.main.path(forResource: "menu", ofType: "wav")!
+        let url = URL(fileURLWithPath: path)
+        do {
+            GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            GameData.shared.bgMusicPlayer.numberOfLoops = -1
+            GameData.shared.bgMusicPlayer.prepareToPlay()
+        } catch let error as NSError {
+            print(error.description)
+        }
+        GameData.shared.bgMusicPlayer.play()
+        GameData.shared.playingMenuMusic = true
     }
     
     func createGameNameLabel() {

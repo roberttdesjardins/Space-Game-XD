@@ -24,6 +24,7 @@ class GameData {
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
     var bgMusicPlayer: AVAudioPlayer!
+    var playingMenuMusic = false
     
     private init() { }
 }

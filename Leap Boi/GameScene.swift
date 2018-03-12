@@ -6,10 +6,10 @@
 //  Copyright © 2018 Robert Desjardins. All rights reserved.
 //  Icon made by Becris from www.flaticon.com
 //  Icon made by Freepik from www.flaticon.com
-//  Royalty Free Music from Bensound
+//  Music from: 
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, music changes
+// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, Some nodes not removing...physics body? something? when dying..., Acceleromater has stoped sometimes.
 // Centre eyeBossLaster better..
 // Pulsing Start button
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -43,6 +43,8 @@
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // Shield: display shield amount?
 // credit sprites and music creators
+// Music from https://itch.io/game-assets/tag-music
+
 
 import SpriteKit
 import GameplayKit
@@ -256,14 +258,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scene?.scaleMode = .aspectFit
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
-        self.physicsBody!.usesPreciseCollisionDetection = true
+        //self.physicsBody!.usesPreciseCollisionDetection = true
         self.physicsBody!.categoryBitMask = PhysicsCategory.Edge
         self.physicsBody?.contactTestBitMask = PhysicsCategory.None
         self.physicsBody?.collisionBitMask = PhysicsCategory.Player
     }
     
     func setupMusic() {
-        let path = Bundle.main.path(forResource: "bensound-deepblue", ofType: "mp3")!
+        let path = Bundle.main.path(forResource: "Race to Mars", ofType: "mp3")!
         let url = URL(fileURLWithPath: path)
         do {
             GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
@@ -273,6 +275,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print(error.description)
         }
         GameData.shared.bgMusicPlayer.play()
+        GameData.shared.playingMenuMusic = false
+    }
+    
+    func setupBossMusic() {
+        let path = Bundle.main.path(forResource: "battle", ofType: "wav")!
+        let url = URL(fileURLWithPath: path)
+        do {
+            GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            GameData.shared.bgMusicPlayer.numberOfLoops = -1
+            GameData.shared.bgMusicPlayer.prepareToPlay()
+        } catch let error as NSError {
+            print(error.description)
+        }
+        GameData.shared.bgMusicPlayer.play()
+        GameData.shared.playingMenuMusic = false
     }
     
     func setupPlayer() {
@@ -393,7 +410,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
         alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
-        alienLaser.physicsBody?.usesPreciseCollisionDetection = true
+        //alienLaser.physicsBody?.usesPreciseCollisionDetection = true
         
         let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
         alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
@@ -570,14 +587,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    // TODO: Change rotation to face closest enemy, apply impulse based on rotation : https://stackoverflow.com/questions/25628811/spritekit-move-rotated-physicsbody-with-applyimpulse
     func processAlienMissileMovement() {
         for alienMissile in alienMissileArray {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x >= alienMissile.position.x {
-                    alienMissile.physicsBody?.velocity.dx = CGFloat(60)
+                    //alienMissile.physicsBody?.velocity.dx = CGFloat(60)
+                    alienMissile.physicsBody?.applyForce(CGVector(dx: 1, dy: 0))
                 } else if player.position.x < alienMissile.position.x {
-                    alienMissile.physicsBody?.velocity.dx = CGFloat(-60)
+                    //alienMissile.physicsBody?.velocity.dx = CGFloat(-60)
+                    alienMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
                 }
             }
             if alienMissile.position.y <= (0 - alienMissile.size.height) {
@@ -646,6 +664,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func processHomingMissileMovement() {
         for homingMissile in homingMissileArray {
             if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
+                if closestEnemy.isHidden == true {
+                    setClosestNode(node: homingMissile)
+                }
                 if homingMissile.position.x > closestEnemy.position.x {
                     homingMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
                 } else {
@@ -1040,8 +1061,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // Spawns the first boss- eyeBoss
-    // TODO: Play boss music
     func spawnEyeBoss() {
+        setupBossMusic()
         let eyeBoss = SKSpriteNode(imageNamed: "eyeBoss1")
         eyeBoss.userData = NSMutableDictionary()
         setEyeBossHealth(eyeBoss: eyeBoss)
@@ -1159,6 +1180,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func eyeBossMultiLaserAttack() {
         //TODO: Do this. Shoot a laser from each vein - they all converge on a single point and move outwards
+        
     }
     
     
@@ -1290,6 +1312,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func spawnBoss2() {
+        setupBossMusic()
         let boss2 = SKSpriteNode(imageNamed: "boss2")
         boss2.userData = NSMutableDictionary()
         setBoss2Health(boss2: boss2)
@@ -1316,31 +1339,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.velocity.dx = CGFloat(40)
     }
     
-    // Move boss2 back and forth, always facing towards the player
+    // Move boss2 back and forth
     func processBoss2Movement() {
         if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
-            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-                if boss2.position.x >= size.width - boss2.size.width {
-                    boss2.physicsBody?.velocity.dx = CGFloat(-40)
-                } else if boss2.position.x <= 0 + boss2.size.width {
-                    boss2.physicsBody?.velocity.dx = CGFloat(40)
-                }
-                boss2.zPosition = faceTowards(sprite1: boss2, sprite2: player)
+            if boss2.position.x >= size.width - boss2.size.width {
+                boss2.physicsBody?.velocity.dx = CGFloat(-40)
+            } else if boss2.position.x <= 0 + boss2.size.width {
+                boss2.physicsBody?.velocity.dx = CGFloat(40)
             }
         }
     }
     // TODO: Make attacks
-//    func processBoss2Attacks(attackChosen: Int) {
-//        switch attackChosen {
-//        case 1:
-//            boss2Attack1()
-//        case 2:
-//            boss2Attack2()
-//        default:
-//            return
-//        }
-//    }
+    func processBoss2Attacks(attackChosen: Int) {
+        switch attackChosen {
+        case 1:
+            boss2Attack1()
+        case 2:
+            boss2Attack2()
+        default:
+            return
+        }
+    }
     
+    func boss2Attack1() {
+        
+    }
+    
+    func boss2Attack2() {
+        
+    }
     
     // Called when boss2 is killed
     func setUpBoss2Explosion(boss2: SKNode) {
@@ -1364,7 +1391,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
     }
     
-    //TODO: Make second boss move and attack
     
     
     func playerTakesDamage(damage: Int, view: UIView) {
@@ -1403,6 +1429,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Handles when an emeny has less than 0 health (Hint: it dies)
     func enemyDead(sprite: SKNode){
+        sprite.isHidden = true
         if(sprite.name == kProtectiveShieldName) {
             protectiveShieldActive = false
             sprite.removeFromParent()

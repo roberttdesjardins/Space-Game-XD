@@ -9,6 +9,7 @@
 import SpriteKit
 import GameplayKit
 import CoreMotion
+import AVFoundation
 
 class GameOverScene: SKScene {
     var restartButton: SKNode! = nil
@@ -16,6 +17,7 @@ class GameOverScene: SKScene {
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
         GameData.shared.creditsEarned = GameData.shared.creditsEarned + Int(round(Double(GameData.shared.playerScore/250)))
+        setupMusic()
         createGameOverLabel()
         createScoreLabel()
         createCreditsEarnedLabel()
@@ -28,6 +30,20 @@ class GameOverScene: SKScene {
         print("Credits Earned = \(GameData.shared.creditsEarned)")
         print("Total Credits = \(UserDefaults.standard.getUserCredits())")
         resetGameData()
+    }
+    
+    func setupMusic() {
+        let path = Bundle.main.path(forResource: "in-the-wreckage", ofType: "wav")!
+        let url = URL(fileURLWithPath: path)
+        do {
+            GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            GameData.shared.bgMusicPlayer.numberOfLoops = -1
+            GameData.shared.bgMusicPlayer.prepareToPlay()
+        } catch let error as NSError {
+            print(error.description)
+        }
+        GameData.shared.bgMusicPlayer.play()
+        GameData.shared.playingMenuMusic = false
     }
     
     func createGameOverLabel() {
