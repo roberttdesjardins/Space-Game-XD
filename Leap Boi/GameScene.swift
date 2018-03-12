@@ -9,9 +9,9 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky, Some nodes not removing...physics body? something? when dying..., Acceleromater has stoped sometimes.
+// TOP PRIORITY: Finish boss2, in-app payments, littleEyeLasers sometimes act a little funky
 // Centre eyeBossLaster better..
-// Pulsing Start button
+// Pulsing Start button - Completly change menu-
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
 // Add more background music
@@ -159,6 +159,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
     var healthLabel = SKLabelNode(fontNamed: "Avenir")
     
+    // Background
+    let background1 = SKSpriteNode(imageNamed: "bg1")
+    let background2 = SKSpriteNode(imageNamed: "bg2")
+    
+    
     // Player Weapon Variables
     // Starts with the screen not being pressed
     private var touchingScreen = false
@@ -232,13 +237,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         setUpDamageArrays()
         setupScreen()
+        setupBackground()
         setupMusic()
         setupPlayer()
         setupWeapon()
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
-        addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/5))
+        //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/5))
         //setUpEyeBoss()
         //setUpBoss2()
         //setUpAlienCruisers(min: 1, max: 5)
@@ -262,6 +268,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsBody!.categoryBitMask = PhysicsCategory.Edge
         self.physicsBody?.contactTestBitMask = PhysicsCategory.None
         self.physicsBody?.collisionBitMask = PhysicsCategory.Player
+    }
+    
+    func setupBackground() {
+        background1.anchorPoint = CGPoint(x: 0, y: 0)
+        background1.position = CGPoint(x: 0, y: 0)
+        background1.zPosition = -15
+        self.addChild(background1)
+        
+        background2.anchorPoint = CGPoint(x: 0, y: 0)
+        background2.position = CGPoint(x: 0, y: background1.size.height - 1)
+        background2.zPosition = -15
+        self.addChild(background2)
+    }
+    
+    func updateBackground() {
+        background1.position = CGPoint(x: background1.position.x, y: background1.position.y - 1)
+        background2.position = CGPoint(x: background2.position.x, y: background2.position.y - 1)
+        
+        if(background1.position.y < 0 - background1.size.height)
+        {
+            background1.position = CGPoint(x: background2.position.x, y: background2.position.y + background2.size.height )
+        }
+        
+        if(background2.position.y < 0 - background2.size.height)
+        {
+            background2.position = CGPoint(x: background1.position.x, y: background1.position.y + background1.size.height)
+        }
     }
     
     func setupMusic() {
@@ -934,7 +967,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func firePlayerLaser(offset: CGFloat) {
         
-        let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
+        //let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
+        let laser = SKSpriteNode(imageNamed: "playerLaser")
+        laser.size = CGSize(width: 2, height: 9.6)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
         }
@@ -1550,7 +1585,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             startTime = currentTime
             setStartBool = false
         }
-        
+        updateBackground()
         processUserMotion(forUpdate: currentTime)
         GameData.shared.playerScore = GameData.shared.playerScore + 1
         updateHud()
