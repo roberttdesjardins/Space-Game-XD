@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?
+// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?, Pause screen- pause when minimized, make homing missiles explode after (10?) seconds
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -29,7 +29,6 @@
 // Spacestation boss
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
 // Make aliens fire aoe
-// Make laser sound better
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?
 // Attack upgrade that turns lasers a different colour?
 // Swipe up, move forward fixed amount, so two different y axis positions
@@ -37,6 +36,7 @@
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // Shield: display shield amount?
+// Make player hit sound louder
 // credit sprites and music creators
 // Music from https://itch.io/game-assets/tag-music
 
@@ -95,7 +95,7 @@ public extension CGFloat {
 }
 
 // Collision bitmasks for all objects
-// TODO: Combine stuff into stuff like Enemies, projectiles, etc.
+// TODO: Combine into stuff like Enemies, projectiles, etc.
 struct PhysicsCategory {
     static let None: UInt32 = 0
     static let Player: UInt32 = 0x1 << 1
@@ -116,7 +116,7 @@ struct PhysicsCategory {
     static let Shield: UInt32 = 0x1 << 16
     static let Plasma: UInt32 = 0x1 << 17
     static let HeavyAlien: UInt32 = 0x1 << 18
-    static let boss3: UInt32 = 0x1 << 19
+    static let Boss3: UInt32 = 0x1 << 19
     
     static let Edge: UInt32 = 0x1 << 20
     static let All: UInt32 = UInt32.max
@@ -1235,7 +1235,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func eyeBossChargeAttack() {
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
             eyeBoss.texture = SKTexture(imageNamed: "eyeBoss2")
-            let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 2.0)
+            let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 1.5)
             
             eyeBoss.run(actionMove, completion: {
                 eyeBoss.position = CGPoint(x: eyeBoss.position.x, y: self.size.height + eyeBoss.size.height)
@@ -1378,7 +1378,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2Spawned = true
     }
     
-    //TODO: Spawn 2 heavyenemy on each side of the boss
     func spawnBoss2() {
         setupBossMusic()
         addHeavyAlien(position: CGPoint(x: size.width/4, y: size.height), initialDelay: 0)
@@ -1450,7 +1449,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let fireRight = SKAction.run {
             self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: 18)
         }
-        //heavyAlien.run(SKAction.repeatForever(SKAction.sequence([wait, fireLeft, wait, fireRight])))
         heavyAlien.run(SKAction.sequence([initialWait, SKAction.repeatForever(SKAction.sequence([wait, fireLeft, wait, fireRight]))]))
     }
     
@@ -1584,9 +1582,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
     }
     
-    //TODO: This..
     func setUpBoss3PhysicsBody(boss3: SKSpriteNode) {
-        
+        boss3.physicsBody = SKPhysicsBody(texture: boss3.texture!, size: boss3.size)
+        boss3.physicsBody?.isDynamic = true
+        boss3.physicsBody?.affectedByGravity = false
+        boss3.physicsBody?.categoryBitMask = PhysicsCategory.Boss3
+        boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        boss3.physicsBody?.collisionBitMask = PhysicsCategory.None
+        boss3.physicsBody?.usesPreciseCollisionDetection = true
     }
     
     
@@ -1801,7 +1804,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processEyeBossMovement(forUpdate: currentTime)
             if(currentTime - timeEyeBossAttack) >= eyeBossAttackRate {
                 timeEyeBossAttack = currentTime
-                processEyeBossAttacks(attackChosen: Int(arc4random_uniform(3) + 1))
+                processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
         }
         if !playerAlive {
@@ -2063,6 +2066,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kHeavyAlienName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kHeavyAlienName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kBoss3Name {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kBoss3Name {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
     }
