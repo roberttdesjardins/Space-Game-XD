@@ -98,6 +98,7 @@ public extension CGFloat {
 }
 
 // Collision bitmasks for all objects
+// TODO: Combine stuff into stuff like Enemies, projectiles, etc.
 struct PhysicsCategory {
     static let None: UInt32 = 0
     static let Player: UInt32 = 0x1 << 1
@@ -117,6 +118,7 @@ struct PhysicsCategory {
     static let LittleEye: UInt32 = 0x1 << 15
     static let Shield: UInt32 = 0x1 << 16
     static let Plasma: UInt32 = 0x1 << 17
+    static let HeavyAlien: UInt32 = 0x1 << 18
     
     static let Edge: UInt32 = 0x1 << 20
     static let All: UInt32 = UInt32.max
@@ -154,6 +156,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kLittleEyeName = "littleEye"
     let kBoss2Name = "boss2"
     let kPlasmaName = "plasma"
+    let kHeavyAlienName = "heavyAlien"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -224,6 +227,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let eyeBossKillScore = 5000 // Boss1
     let littleEyeKillScore = 50
     let boss2killscore = 10000 // Boss2
+    let heavyAlienKillScore = 2500
     
     
     var damagedByPlayerLaserArray: [String] = []
@@ -255,11 +259,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName]
         
-        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name]
+        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName]
     }
     
     func setupScreen() {
@@ -1366,6 +1370,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //TODO: Spawn 2 heavyenemy on each side of the boss
     func spawnBoss2() {
         setupBossMusic()
+        addHeavyAlien(position: CGPoint(x: size.width/4, y: size.height))
+        addHeavyAlien(position: CGPoint(x: size.width * (3/4), y: size.height))
         let boss2 = SKSpriteNode(imageNamed: "boss2")
         boss2.userData = NSMutableDictionary()
         setBoss2Health(boss2: boss2)
@@ -1380,7 +1386,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         
         addChild(boss2)
-        boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height), duration: 10.0), completion: { () -> Void in
+        boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height/2 - 20), duration: 10.0), completion: { () -> Void in
             self.setUpBoss2PhysicsBody(boss2: boss2)
             self.boss2FullySpawned = true
         })
@@ -1397,6 +1403,44 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.velocity.dx = CGFloat(40)
     }
     
+    func addHeavyAlien(position: CGPoint) {
+        let heavyAlien = SKSpriteNode(imageNamed: "heavyenemy")
+        heavyAlien.userData = NSMutableDictionary()
+        setHeavyAlienHealth(heavyAlien: heavyAlien)
+        heavyAlien.size = CGSize(width: 80, height: 80)
+        heavyAlien.position = position + CGPoint(x: 0, y: heavyAlien.size.height/2)
+        heavyAlien.name = kHeavyAlienName
+        heavyAlien.zPosition = 4
+        
+        
+        addChild(heavyAlien)
+        heavyAlien.run(SKAction.move(to: position - CGPoint(x: 0, y: heavyAlien.size.height + 152), duration: 10.0), completion: { () -> Void in
+            self.setUpHeavyAlienPhysicsBody(heavyAlien: heavyAlien)
+            self.setUpHeavyAlienBehaviour(heavyAlien: heavyAlien)
+        })
+    }
+    
+    func setUpHeavyAlienPhysicsBody(heavyAlien: SKSpriteNode) {
+        heavyAlien.physicsBody = SKPhysicsBody(texture: heavyAlien.texture!, size: heavyAlien.size)
+        heavyAlien.physicsBody?.isDynamic = true
+        heavyAlien.physicsBody?.affectedByGravity = false
+        heavyAlien.physicsBody?.categoryBitMask = PhysicsCategory.HeavyAlien
+        heavyAlien.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        heavyAlien.physicsBody?.collisionBitMask = PhysicsCategory.None
+        heavyAlien.physicsBody?.usesPreciseCollisionDetection = true
+    }
+    
+    func setUpHeavyAlienBehaviour(heavyAlien: SKSpriteNode) {
+        let wait = SKAction.wait(forDuration: 0.1)
+        let fireLeft = SKAction.run {
+            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: -20)
+        }
+        let fireRight = SKAction.run {
+            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: 20)
+        }
+        heavyAlien.run(SKAction.repeatForever(SKAction.sequence([wait, fireLeft, wait, fireRight])))
+    }
+    
     // Move boss2 back and forth
     func processBoss2Movement() {
         if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
@@ -1407,7 +1451,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-    // TODO: Make attacks
+    
     func processBoss2Attacks(attackChosen: Int) {
         switch attackChosen {
         case 1:
@@ -1635,6 +1679,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setUpAlienCruisers(min: 5, max: 10)
             }
             run(SKAction.sequence([wait,action]))
+        }
+        if(sprite.name == kHeavyAlienName){
+            // TODO: Make heavyAlien Explode
+            GameData.shared.playerScore = GameData.shared.playerScore + heavyAlienKillScore
+            spawnRandomPowerUp(position: sprite.position, percentChance: 50.0)
+            sprite.removeFromParent()
         }
     }
 
@@ -1956,6 +2006,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeA.name == kBoss2Name {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kBoss2Name {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kHeavyAlienName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kHeavyAlienName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
     }
