@@ -57,6 +57,10 @@ func setHeavyAlienHealth(heavyAlien: SKSpriteNode) {
     heavyAlien.userData?.setValue(400, forKey: "health")
 }
 
+func setBoss3Health(boss3: SKSpriteNode) {
+    boss3.userData?.setValue(1600, forKey: "health")
+}
+
 func setShieldHealth(shield: SKSpriteNode) {
     shield.userData?.setValue(GameData.shared.shieldAmount, forKey: "health")
 }

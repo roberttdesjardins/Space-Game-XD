@@ -33,7 +33,7 @@ class GameOverScene: SKScene {
     }
     
     func setupMusic() {
-        let path = Bundle.main.path(forResource: "in-the-wreckage", ofType: "wav")!
+        let path = Bundle.main.path(forResource: "gameover", ofType: "wav")!
         let url = URL(fileURLWithPath: path)
         do {
             GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
