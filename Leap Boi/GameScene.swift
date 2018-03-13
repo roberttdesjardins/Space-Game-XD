@@ -116,6 +116,7 @@ struct PhysicsCategory {
     static let AlienMissile: UInt32 = 0x1 << 14
     static let LittleEye: UInt32 = 0x1 << 15
     static let Shield: UInt32 = 0x1 << 16
+    static let Plasma: UInt32 = 0x1 << 17
     
     static let Edge: UInt32 = 0x1 << 20
     static let All: UInt32 = UInt32.max
@@ -152,6 +153,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
     let kLittleEyeName = "littleEye"
     let kBoss2Name = "boss2"
+    let kPlasmaName = "plasma"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -246,7 +248,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
         //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/5))
         //setUpEyeBoss()
-        //setUpBoss2()
+        setUpBoss2()
         //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
@@ -335,10 +337,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupWeapon() {
         switch GameData.shared.weaponChosen {
         case "laser":
-            fireRate = BaseFireRate.Laser * pow(0.8, min(Double(fireRateUpgradeNumber), 5))
+            fireRate = BaseFireRate.Laser * pow(0.9, min(Double(fireRateUpgradeNumber), 7))
             playerWeapon = kLaserName
         case "missile":
-            fireRate = BaseFireRate.Missile * pow(0.8, min(Double(fireRateUpgradeNumber), 5))
+            fireRate = BaseFireRate.Missile * pow(0.9, min(Double(fireRateUpgradeNumber), 7))
             playerWeapon = kMissileName
         default:
             fireRate = 1
@@ -420,6 +422,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.physicsBody?.categoryBitMask = PhysicsCategory.Alien
         alien.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
         alien.physicsBody?.collisionBitMask = PhysicsCategory.None
+        alien.zPosition = 1
         
         let actualX = random(min: alien.size.width/2, max: size.width - alien.size.width/2)
         alien.position = CGPoint(x: actualX, y: size.height + alien.size.height/2)
@@ -640,7 +643,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func setUpHomingMissile() {
-        let wait = SKAction.wait(forDuration: 2.0)
+        let wait = SKAction.wait(forDuration: 5.0)
         let audioNode = SKAudioNode(fileNamed: "missile")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
@@ -691,7 +694,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         homingMissileArray.append(missile)
     }
     
-    // TODO: Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
+    // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
     // Finds the closest enemy node when the missile is created, constantly moves towards that node.
     // If node it is tracking is destroyed, make a new node to track
     func processHomingMissileMovement() {
@@ -844,18 +847,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate
     func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
         if playerWeapon == kLaserName {
-            spawnHealthRandom(position: position, percentChance: percentChance/3)
-            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/2)
-            spawnFireRateRandom(position: position, percentChance: percentChance/5)
-            spawnThreeShotRandom(position: position, percentChance: percentChance/4)
+            spawnHealthRandom(position: position, percentChance: percentChance/4)
+            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
+            if fireRateUpgradeNumber < 7 {
+                spawnFireRateRandom(position: position, percentChance: percentChance/7)
+            }
+            if !fiveShotUpgrade {
+                spawnThreeShotRandom(position: position, percentChance: percentChance/10)
+            }
             spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
             
         }
         if playerWeapon == kMissileName {
-            spawnHealthRandom(position: position, percentChance: percentChance/3)
-            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/2)
-            spawnFireRateRandom(position: position, percentChance: percentChance/5)
-            spawnHomingMissileRandom(position: position, percentChance: percentChance/4)
+            spawnHealthRandom(position: position, percentChance: percentChance/4)
+            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
+            if fireRateUpgradeNumber < 7 {
+                spawnFireRateRandom(position: position, percentChance: percentChance/5)
+            }
+            spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
         }
     }
     
@@ -1354,6 +1363,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2Spawned = true
     }
     
+    //TODO: Spawn 2 heavyenemy on each side of the boss
     func spawnBoss2() {
         setupBossMusic()
         let boss2 = SKSpriteNode(imageNamed: "boss2")
@@ -1412,6 +1422,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // shoots a volley of plasma attacks
     func boss2Attack1() {
+        if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
+            let wait = SKAction.wait(forDuration: 0.2)
+            let leftAttack = SKAction.run {
+                self.addBoss2PlasmaAttack(position: boss2.position - CGPoint(x: boss2.size.width/6, y: boss2.size.height/2), rotation: boss2.zRotation)
+            }
+            let rightAttack = SKAction.run {
+                self.addBoss2PlasmaAttack(position: boss2.position - CGPoint(x: -boss2.size.width/6, y: boss2.size.height/2), rotation: boss2.zRotation)
+            }
+            let oneAttack = SKAction.sequence([wait, leftAttack, wait, rightAttack])
+            boss2.run(SKAction.repeat(oneAttack, count: 10))
+        }
+        
+    }
+    
+    func addBoss2PlasmaAttack(position: CGPoint, rotation: CGFloat) {
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            print(rotation * RadiansToDegrees)
+            let plasma = SKSpriteNode(imageNamed: "plasma")
+            plasma.name = kPlasmaName
+            plasma.zPosition = 4
+            plasma.physicsBody = SKPhysicsBody(texture: plasma.texture!, size: plasma.size - CGSize(width: 20, height: 20))
+            plasma.physicsBody?.isDynamic = false
+            plasma.physicsBody?.categoryBitMask = PhysicsCategory.Plasma
+            plasma.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            plasma.physicsBody?.collisionBitMask = PhysicsCategory.None
+            plasma.physicsBody?.usesPreciseCollisionDetection = true
+            
+            let rotationInDegrees = rotation * RadiansToDegrees
+            if rotationInDegrees >= 180 {
+                plasma.position = position - CGPoint(x: pow((360 - rotationInDegrees), 1.1), y: 0)
+            } else {
+                plasma.position = position + CGPoint(x: pow(rotationInDegrees, 1.1), y: 0)
+            }
+            
+            let adjacent = player.position.y - position.y
+            let opposite = player.position.x - position.x
+            let angle = tan(opposite/adjacent)
+            let newAdjacent = adjacent - 100
+            let newOpposite = tan(angle) * newAdjacent
+            let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
+            let newX = position.x + newOpposite
+            plasma.zRotation = faceTowards(sprite1: plasma, sprite2: player)
+            let actualDuration = newHypotenuse / 245
+            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let actionMoveDone = SKAction.removeFromParent()
+            plasma.run(SKAction.sequence([actionMove, actionMoveDone]))
+            addChild(plasma)
+        }
         
     }
     
@@ -1578,7 +1636,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             run(SKAction.sequence([wait,action]))
         }
-        
     }
 
     
@@ -1653,8 +1710,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processBoss2Movement()
             if(currentTime - timeBoss2Attack) >= boss2AttackRate {
                 timeBoss2Attack = currentTime
-                //TODO: Boss2 attack
-                //processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
+                processBoss2Attacks(attackChosen: Int(arc4random_uniform(1) + 1))
             }
         }
         if !alienMissileArray.isEmpty {
@@ -1712,6 +1768,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if ob1.name == kPlayerName && ob2.name == kEyeBossName {
                 playerTakesDamage(damage: 80, view: view!)
             }
+            if ob1.name == kPlayerName && ob2.name == kPlasmaName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 35, view: view!)
+            }
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kAlienName {
             ob2.removeFromParent()
@@ -1747,6 +1807,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossName {
             subtractHealth(sprite: ob1, damage: 80)
+        }
+        if ob1.name == kProtectiveShieldName && ob2.name == kPlasmaName {
+            ob2.removeFromParent()
+            subtractHealth(sprite: ob1, damage: 70)
         }
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
