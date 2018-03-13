@@ -187,19 +187,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var homingMissileArray: [SKSpriteNode] = []
     
     
-    // Time since gameScene started
-    private var sinceStart: CFTimeInterval = 0
-    // Is called in update only the first time
-    private var setStartBool = true
-    private var startTime: CFTimeInterval = 0
+
+    // Timer for the game- is the number of seconds * 60
+    private var timeCounter = 0.0
     
     // Enemy Variables
     private var alienTriShotActive = false
     private var alienMissileArray: [SKSpriteNode] = []
     
     // BossVariables
-    // How long a player must play before each boss spawns
-    private var timeToSpawnNextBoss = 100.0
+    // How long a player must play before each boss spawns in seconds * 60
+    private var timeToSpawnNextBoss = 6000.0 // 100 Seconds
     // When each boss is defeated
     private var timeEyeBossDefeated: TimeInterval = 0.0
     private var timeBoss2Defeated: TimeInterval = 0.0
@@ -243,6 +241,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var allPossibleEnemies: [String] = []
     
+    
+    static var sharedInstance = GameScene()
     let motionManager = CMMotionManager()
     
     // Called on Scene load
@@ -263,6 +263,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
+        GameScene.sharedInstance = self
     }
     
     func setUpDamageArrays(){
@@ -1687,7 +1688,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
             eyeBossFullySpawned = false
             alienTriShotActive = true
-            self.timeEyeBossDefeated = sinceStart
+            self.timeEyeBossDefeated = timeCounter
             eyeBossDefeated = true
             print("EyeBoss defeated at: \(self.timeEyeBossDefeated)")
             spawnRandomPowerUp(position: sprite.position, percentChance: 150.0)
@@ -1710,7 +1711,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(sprite.name == kBoss2Name){
             GameData.shared.playerScore = GameData.shared.playerScore + boss2killScore
             boss2FullySpawned = false
-            self.timeBoss2Defeated = sinceStart
+            self.timeBoss2Defeated = timeCounter
             boss2Defeated = true
             print("Boss2 defeated at: \(self.timeBoss2Defeated)")
             let tempSprite = SKSpriteNode()
@@ -1737,10 +1738,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnRandomPowerUp(position: sprite.position, percentChance: 50.0)
             sprite.removeFromParent()
         }
+        if(sprite.name == kBoss3Name){
+            //TODO: This
+            GameData.shared.playerScore = GameData.shared.playerScore + boss3KillScore
+            boss3FullySpawned = false
+            self.timeBoss3Defeated = timeCounter
+            boss3Defeated = true
+            print("Boss3 defeated at: \(self.timeEyeBossDefeated)")
+            spawnRandomPowerUp(position: sprite.position, percentChance: 350.0)
+            let wait = SKAction.wait(forDuration:2.5)
+            let action = SKAction.run {
+                self.setupMusic()
+                self.setUpAliens(min: 0.1, max: 0.4)
+                self.setUpAsteroids(min: 4, max: 10)
+                self.setUpAlienCruisers(min: 5, max: 10)
+            }
+            run(SKAction.sequence([wait,action]))
+            sprite.removeFromParent()
+        }
     }
 
     
-    func processUserMotion(forUpdate currentTime: CFTimeInterval) {
+    func processUserMotion() {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if let data = motionManager.accelerometerData {
                 if data.acceleration.x > 0.001 {
@@ -1763,12 +1782,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        if setStartBool {
-            startTime = currentTime
-            setStartBool = false
-        }
+        timeCounter = timeCounter + 1
+        print(timeCounter / 60)
         updateBackground()
-        processUserMotion(forUpdate: currentTime)
+        processUserMotion()
         GameData.shared.playerScore = GameData.shared.playerScore + 1
         updateHud()
         let timeSinceLastFired = currentTime - lastFiredTime
@@ -1787,15 +1804,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         playerTempInvulnerable = false
         
-        // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed
-        if !eyeBossSpawned && (currentTime - startTime) >= timeToSpawnNextBoss  {
+        // Spawns the first boss eyeBoss, if it hasn't been spawned before and enough time has passed - 100 seconds
+        if !eyeBossSpawned && timeCounter >= timeToSpawnNextBoss  {
             setUpEyeBoss()
         }
-        // Spawns the second boss if it hasen't been spawned before, eyeBoss has been killed and enought time has passed
-        if !boss2Spawned && eyeBossDefeated && (currentTime - startTime) >= (timeToSpawnNextBoss + timeEyeBossDefeated) {
+        // Spawns the second boss if it hasen't been spawned before, eyeBoss has been killed and enought time has passed - 100 seconds
+        if !boss2Spawned && eyeBossDefeated && timeCounter >= (timeToSpawnNextBoss + timeEyeBossDefeated) {
             setUpBoss2()
         }
-        if !boss3Spawned && boss2Defeated && eyeBossDefeated && (currentTime - startTime) >= (timeToSpawnNextBoss + timeBoss2Defeated) {
+        if !boss3Spawned && boss2Defeated && eyeBossDefeated && timeCounter >= (timeToSpawnNextBoss + timeBoss2Defeated) {
             setUpBoss3()
         }
         
@@ -1823,7 +1840,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !homingMissileArray.isEmpty {
             processHomingMissileMovement()
         }
-        sinceStart = currentTime - startTime
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
