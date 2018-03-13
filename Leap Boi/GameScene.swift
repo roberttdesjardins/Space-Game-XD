@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?, Pause screen- pause when minimized, make homing missiles explode after (10?) seconds
+// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -117,8 +117,9 @@ struct PhysicsCategory {
     static let Plasma: UInt32 = 0x1 << 17
     static let HeavyAlien: UInt32 = 0x1 << 18
     static let Boss3: UInt32 = 0x1 << 19
+    static let Harvester: UInt32 = 0x1 << 20
     
-    static let Edge: UInt32 = 0x1 << 20
+    static let Edge: UInt32 = 0x1 << 21
     static let All: UInt32 = UInt32.max
 }
 
@@ -155,7 +156,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kBoss2Name = "boss2"
     let kPlasmaName = "plasma"
     let kHeavyAlienName = "heavyAlien"
-    let kBoss3Name = "boss3"
+    let kBoss3Phase1Name = "boss3phase1"
+    let kBoss3Phase2Name = "boss3phase2"
+    let kHarvesterName = "harvester"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -213,6 +216,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var boss3Spawned = false
     private var boss3FullySpawned = false
     private var boss3Defeated = false
+    private var boss3Phase1 = false
+    private var boss3Phase2 = false
     // Attack rate of each boss- seconds between each attack
     private var eyeBossAttackRate = 5.0
     private var boss2AttackRate = 5.0
@@ -257,9 +262,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
-        //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/5))
+        //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/1))
         //setUpEyeBoss()
         //setUpBoss2()
+        //setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
@@ -267,11 +273,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Name]
+        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
+        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
         
-        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Name]
+        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
     }
     
     func setupScreen() {
@@ -460,7 +466,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
         alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
-        //alienLaser.physicsBody?.usesPreciseCollisionDetection = true
         
         let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
         alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
@@ -706,6 +711,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setClosestNode(node: missile)
         missile.physicsBody?.velocity.dy = 5
         homingMissileArray.append(missile)
+        let wait = SKAction.wait(forDuration:15.0)
+        let action = SKAction.removeFromParent()
+        missile.run(SKAction.sequence([wait,action]))
     }
     
     // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
@@ -1236,7 +1244,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func eyeBossChargeAttack() {
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
             eyeBoss.texture = SKTexture(imageNamed: "eyeBoss2")
-            let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 1.5)
+            let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 1.2)
             
             eyeBoss.run(actionMove, completion: {
                 eyeBoss.position = CGPoint(x: eyeBoss.position.x, y: self.size.height + eyeBoss.size.height)
@@ -1568,18 +1576,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func spawnBoss3() {
         setupBossMusic()
-        let boss3 = SKSpriteNode(imageNamed: "")
+        let boss3 = SKSpriteNode(imageNamed: "boss3-1")
         boss3.userData = NSMutableDictionary()
-        setBoss3Health(boss3: boss3)
-        boss3.size = CGSize(width: 0, height: 0)
+        setBoss3Phase1Health(boss3: boss3)
+        boss3.size = CGSize(width: 256, height: 320)
         boss3.position = CGPoint(x: size.width/2, y: size.height + boss3.size.height)
-        boss3.name = kBoss3Name
+        boss3.name = kBoss3Phase1Name
         boss3.zPosition = 3
         
         addChild(boss3)
-        boss3.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss3.size.height), duration: 10.0), completion: { () -> Void in
+        boss3.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss3.size.height/2), duration: 10.0), completion: { () -> Void in
             self.setUpBoss3PhysicsBody(boss3: boss3)
             self.boss3FullySpawned = true
+            self.boss3Phase1 = true
+            self.setUpBoss3HarvesterSpawn()
         })
     }
     
@@ -1591,6 +1601,55 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
         boss3.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss3.physicsBody?.usesPreciseCollisionDetection = true
+    }
+    
+    func setUpBoss3HarvesterSpawn() {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addBoss3Harvester),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(3), max: CGFloat(4))))
+                ])
+        ))
+    }
+    
+    func addBoss3Harvester() {
+        let harvester = SKSpriteNode(imageNamed: "boss3-harvester")
+        harvester.name = kHarvesterName
+        harvester.size = CGSize(width: 64, height: 64)
+        harvester.userData = NSMutableDictionary()
+        setHarvesterHealth(harvester: harvester)
+        
+        harvester.physicsBody = SKPhysicsBody(texture: harvester.texture!, size: harvester.size)
+        harvester.physicsBody?.isDynamic = false
+        harvester.physicsBody?.categoryBitMask = PhysicsCategory.Harvester
+        harvester.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        harvester.physicsBody?.collisionBitMask = PhysicsCategory.None
+        harvester.zPosition = 1
+        if let boss3 = childNode(withName: kBoss3Phase1Name) as? SKSpriteNode {
+            harvester.position = boss3.position - CGPoint(x: 0, y: boss3.size.height/2)
+        }
+        addChild(harvester)
+        setUpHarvesterBehaviour(harvester: harvester)
+    }
+    
+    func setUpHarvesterBehaviour(harvester: SKSpriteNode){
+        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(3))))
+        let randomX = random(min: harvester.size.width/2, max: size.width - harvester.size.width/2)
+        let randomY = random(min: size.height/5, max: size.height * (5/8))
+        let locationToMoveTo = CGPoint(x: randomX, y: randomY)
+        let opposite = (locationToMoveTo.y - harvester.position.y)
+        let adjacent = (locationToMoveTo.x - harvester.position.x)
+        let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
+        let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
+        let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 0.5)
+        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/180))
+        let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
+        let fire = SKAction.run {
+            //TODO: Some attack
+        }
+        harvester.run(SKAction.sequence([wait, turn1, move, turn2, fire]), completion: { () -> Void in
+            self.setUpHarvesterBehaviour(harvester: harvester)
+        })
     }
     
     
@@ -1623,7 +1682,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 gameOver(view: view)
             }
             run(SKAction.sequence([wait,action]))
-            
         }
     }
     
@@ -1738,8 +1796,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnRandomPowerUp(position: sprite.position, percentChance: 50.0)
             sprite.removeFromParent()
         }
-        if(sprite.name == kBoss3Name){
-            //TODO: This
+        if(sprite.name == kBoss3Phase1Name){
+            stopSpawns()
+            //TODO: Boss3Phase1 explosion and sound
+            let wait = SKAction.wait(forDuration:2.5)
+            let action = SKAction.run {
+                //TODO: SpawnBoss3Phase2
+                self.playerAlive = false // Delet this
+            }
+            run(SKAction.sequence([wait,action]))
+            sprite.removeFromParent()
+        }
+        if(sprite.name == kBoss3Phase2Name){
+            // TODO: Boss3 explosion and sound
             GameData.shared.playerScore = GameData.shared.playerScore + boss3KillScore
             boss3FullySpawned = false
             self.timeBoss3Defeated = timeCounter
@@ -1748,6 +1817,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnRandomPowerUp(position: sprite.position, percentChance: 350.0)
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
+                //TODO: change up spawns
                 self.setupMusic()
                 self.setUpAliens(min: 0.1, max: 0.4)
                 self.setUpAsteroids(min: 4, max: 10)
@@ -1762,17 +1832,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func processUserMotion() {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if let data = motionManager.accelerometerData {
-                if data.acceleration.x > 0.001 {
+                if data.acceleration.x > 0.01 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
                     //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * 1.25)))
                     // Disabled Acceleration
                     player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10))
                 }
-                if data.acceleration.x < -0.001 {
+                if data.acceleration.x < -0.01 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
                     //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * -1.25)))
                     // Disabled Acceleration
                     player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10))
+                }
+                if data.acceleration.x < 0.01 && data.acceleration.x > -0.01 {
+                    player.physicsBody?.velocity.dx = 0.0
                 }
             }
             if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
@@ -1783,7 +1856,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         timeCounter = timeCounter + 1
-        print(timeCounter / 60)
         updateBackground()
         processUserMotion()
         GameData.shared.playerScore = GameData.shared.playerScore + 1
@@ -1812,6 +1884,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !boss2Spawned && eyeBossDefeated && timeCounter >= (timeToSpawnNextBoss + timeEyeBossDefeated) {
             setUpBoss2()
         }
+        // Spawns the third boss if it hasen't been spawned before, eyeBoss has been killed, boss2 has been killed, and enought time has passed - 100 seconds
         if !boss3Spawned && boss2Defeated && eyeBossDefeated && timeCounter >= (timeToSpawnNextBoss + timeBoss2Defeated) {
             setUpBoss3()
         }
@@ -1825,7 +1898,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         if !playerAlive {
-            //TODO: Should probably do something with this
+            let wait = SKAction.wait(forDuration:2.6)
+            let action = SKAction.run {
+                gameOver(view: self.view!)
+            }
+            run(SKAction.sequence([wait,action]))
         }
         if boss2FullySpawned {
             processBoss2Movement()
@@ -2085,9 +2162,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         
-        if nodeA.name == kBoss3Name {
+        if nodeA.name == kBoss3Phase1Name {
             collisionBetween(ob1: nodeA, ob2: nodeB)
-        } else if nodeB.name == kBoss3Name {
+        } else if nodeB.name == kBoss3Phase1Name {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kHarvesterName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kHarvesterName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
     }
