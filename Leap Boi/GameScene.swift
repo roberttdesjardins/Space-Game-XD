@@ -181,7 +181,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // The number of fireRate upgrades
     private var fireRateUpgradeNumber = 0
     // All the possible upgrades
+    private var twoShotUpgrade = false
     private var threeShotUpgrade = false
+    private var fourShotUpgrade = false
     private var fiveShotUpgrade = false
     private var protectiveShieldActive = false
     // Time since last fired
@@ -872,10 +874,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnHealthRandom(position: position, percentChance: percentChance/4)
             spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
             if fireRateUpgradeNumber < 7 {
-                spawnFireRateRandom(position: position, percentChance: percentChance/7)
+                spawnFireRateRandom(position: position, percentChance: percentChance/6)
             }
             if !fiveShotUpgrade {
-                spawnThreeShotRandom(position: position, percentChance: percentChance/10)
+                spawnThreeShotRandom(position: position, percentChance: percentChance/5)
             }
             spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
             
@@ -984,20 +986,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func firePlayerWeapon(){
         if(playerWeapon == kLaserName){
-            firePlayerLaser(offset: 0.0)
             let audioNode = SKAudioNode(fileNamed: "laser")
             audioNode.autoplayLooped = false
             self.addChild(audioNode)
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
-        }
-        if(playerWeapon == kLaserName) && threeShotUpgrade {
-            firePlayerLaser(offset: -8.0)
-            firePlayerLaser(offset: 8.0)
-        }
-        if(playerWeapon == kLaserName) && fiveShotUpgrade {
-            firePlayerLaser(offset: -16.0)
-            firePlayerLaser(offset: 16.0)
+            if fiveShotUpgrade {
+                firePlayerLaser(offset: 0)
+                firePlayerLaser(offset: -8.0)
+                firePlayerLaser(offset: 8.0)
+                firePlayerLaser(offset: -16.0)
+                firePlayerLaser(offset: 16.0)
+            } else if fourShotUpgrade {
+                firePlayerLaser(offset: -4.0)
+                firePlayerLaser(offset: 4.0)
+                firePlayerLaser(offset: -12.0)
+                firePlayerLaser(offset: 12.0)
+            } else if threeShotUpgrade {
+                firePlayerLaser(offset: 0)
+                firePlayerLaser(offset: -8.0)
+                firePlayerLaser(offset: 8.0)
+            } else if twoShotUpgrade {
+                firePlayerLaser(offset: -4.0)
+                firePlayerLaser(offset: 4.0)
+            } else {
+                firePlayerLaser(offset: 0)
+            }
         }
         if(playerWeapon == kMissileName){
             firePlayerMissile()
@@ -1646,12 +1660,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
         let fire = SKAction.run {
             //TODO: Some attack
+            
         }
         harvester.run(SKAction.sequence([wait, turn1, move, turn2, fire]), completion: { () -> Void in
             self.setUpHarvesterBehaviour(harvester: harvester)
         })
     }
     
+    // TODO:
+    func addHarvesterAttack(harvester: SKSpriteNode) {
+        let projectile = SKSpriteNode(imageNamed: "")
+        projectile.size = CGSize(width: 0, height: 0)
+        
+    }
     
     
     func playerTakesDamage(damage: Int, view: UIView) {
@@ -2026,10 +2047,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ob1.name == kPlayerName && ob2.name == kThreeShotUpgradeName {
             playPowerUpSound()
             ob2.removeFromParent()
-            if threeShotUpgrade {
+            if fourShotUpgrade {
                 fiveShotUpgrade = true
             }
-            threeShotUpgrade = true
+            if threeShotUpgrade {
+                fourShotUpgrade = true
+            }
+            if twoShotUpgrade {
+                threeShotUpgrade = true
+            }
+            twoShotUpgrade = true
         }
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
