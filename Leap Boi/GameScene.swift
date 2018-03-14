@@ -1111,109 +1111,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // Enemy death effects
-    // TODO: Add sounds
-    func asteroidExplosionEffect(position: CGPoint) {
-        let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionParticle.sks")
-        asteroidExplosion?.particlePosition = position
-        addChild(asteroidExplosion!)
-        asteroidExplosion?.run(SKAction.wait(forDuration: 1), completion: { asteroidExplosion?.removeFromParent() })
+    func explosionEffect(position: CGPoint, fileName: String, score: Int, sound: String) {
+        if sound != "" {
+            let audioNode = SKAudioNode(fileNamed: sound)
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+        }
+        let explosionEffect = SKEmitterNode(fileNamed: fileName)
+        explosionEffect?.particlePosition = position
+        addChild(explosionEffect!)
+        explosionEffect?.run(SKAction.wait(forDuration: 1), completion: { explosionEffect?.removeFromParent() })
         
-        let asteroidScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        asteroidScoreEffect.fontSize = 20
-        asteroidScoreEffect.fontColor = SKColor.white
-        asteroidScoreEffect.text = "+\(asteroidKillScore)"
-        asteroidScoreEffect.position = position
-        asteroidScoreEffect.zPosition = 5
-        addChild(asteroidScoreEffect)
-        asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
+        let scoreEffect = SKLabelNode(fontNamed: "Avenir")
+        scoreEffect.fontSize = 20
+        scoreEffect.fontColor = SKColor.white
+        scoreEffect.text = "+\(score)"
+        scoreEffect.position = position
+        scoreEffect.zPosition = 5
+        addChild(scoreEffect)
+        scoreEffect.run(SKAction.wait(forDuration: 1), completion: { scoreEffect.removeFromParent() })
     }
-    
-    func asteroidExplosionMediumEffect(position: CGPoint) {
-        let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionMediumParticle.sks")
-        asteroidExplosion?.particlePosition = position
-        addChild(asteroidExplosion!)
-        asteroidExplosion?.run(SKAction.wait(forDuration: 1), completion: { asteroidExplosion?.removeFromParent() })
-        
-        let asteroidScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        asteroidScoreEffect.fontSize = 20
-        asteroidScoreEffect.fontColor = SKColor.white
-        asteroidScoreEffect.text = "+\(mediumAsteroidKillScore)"
-        asteroidScoreEffect.position = position
-        asteroidScoreEffect.zPosition = 5
-        addChild(asteroidScoreEffect)
-        asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
-    }
-    
-    func asteroidExplosionSmallEffect(position: CGPoint) {
-        let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionSmallParticle.sks")
-        asteroidExplosion?.particlePosition = position
-        addChild(asteroidExplosion!)
-        asteroidExplosion?.run(SKAction.wait(forDuration: 1), completion: { asteroidExplosion?.removeFromParent() })
-        
-        let asteroidScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        asteroidScoreEffect.fontSize = 20
-        asteroidScoreEffect.fontColor = SKColor.white
-        asteroidScoreEffect.text = "+\(smallAsteroidKillScore)"
-        asteroidScoreEffect.position = position
-        asteroidScoreEffect.zPosition = 5
-        addChild(asteroidScoreEffect)
-        asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
-    }
-    
-    
-    func alienExplosionEffect(position: CGPoint) {
-        let alienExplosion = SKEmitterNode(fileNamed: "AlienExplosionParticle.sks")
-        alienExplosion?.particlePosition = position
-        addChild(alienExplosion!)
-        alienExplosion?.run(SKAction.wait(forDuration: 1), completion: { alienExplosion?.removeFromParent() })
-        
-        let alienScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        alienScoreEffect.fontSize = 20
-        alienScoreEffect.fontColor = SKColor.white
-        alienScoreEffect.text = "+\(alienKillScore)"
-        alienScoreEffect.position = position
-        alienScoreEffect.zPosition = 5
-        addChild(alienScoreEffect)
-        alienScoreEffect.run(SKAction.wait(forDuration: 1), completion: { alienScoreEffect.removeFromParent() })
-    }
-    
-    func eyeBossExplosionEffect(position: CGPoint) {
-        let eyeBossExplosion = SKEmitterNode(fileNamed: "EyeBossExplosionParticle.sks")
-        eyeBossExplosion?.particlePosition = position
-        addChild(eyeBossExplosion!)
-        eyeBossExplosion?.run(SKAction.wait(forDuration: 1), completion: { eyeBossExplosion?.removeFromParent() })
-        
-        let eyeBossScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        eyeBossScoreEffect.fontSize = 20
-        eyeBossScoreEffect.fontColor = SKColor.white
-        eyeBossScoreEffect.text = "+\(eyeBossKillScore)"
-        eyeBossScoreEffect.position = position
-        eyeBossScoreEffect.zPosition = 5
-        addChild(eyeBossScoreEffect)
-        eyeBossScoreEffect.run(SKAction.wait(forDuration: 1), completion: { eyeBossScoreEffect.removeFromParent() })
-    }
-    
-    func littleEyeExplosionEffect(position: CGPoint) {
-        let littleEyeExplosion = SKEmitterNode(fileNamed: "LittleEyeExplosionParticle.sks")
-        littleEyeExplosion?.particlePosition = position
-        addChild(littleEyeExplosion!)
-        littleEyeExplosion?.run(SKAction.wait(forDuration: 1), completion: { littleEyeExplosion?.removeFromParent() })
-        
-        let littleEyeScoreEffect = SKLabelNode(fontNamed: "Avenir")
-        littleEyeScoreEffect.fontSize = 20
-        littleEyeScoreEffect.fontColor = SKColor.white
-        littleEyeScoreEffect.text = "+\(littleEyeKillScore)"
-        littleEyeScoreEffect.position = position
-        littleEyeScoreEffect.zPosition = 5
-        addChild(littleEyeScoreEffect)
-        littleEyeScoreEffect.run(SKAction.wait(forDuration: 1), completion: { littleEyeScoreEffect.removeFromParent() })
-    }
-    
-    // TODO:
-    func alienCruiserExplosionEffect(position: CGPoint) {
-        
-    }
-    
     
     
     func stopSpawns() {
@@ -1808,13 +1727,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if(sprite.name == kAlienName){
-            alienExplosionEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "AlienExplosionParticle.sks", score: alienKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + alienKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             sprite.removeFromParent()
         }
         if(sprite.name == kAsteroidName){
-            asteroidExplosionEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: asteroidKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 4.0)
             self.addMediumAsteroid(position: sprite.position, xoffset: -10)
@@ -1822,7 +1741,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kMediumAsteroidName){
-            asteroidExplosionMediumEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionMediumParticle.sks", score: mediumAsteroidKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + mediumAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             self.addSmallAsteroid(position: sprite.position, xoffset: -5)
@@ -1830,13 +1749,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kSmallAsteroidName){
-            asteroidExplosionSmallEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionSmallParticle.sks", score: smallAsteroidKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + smallAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
         }
         if(sprite.name == kAlienCruiserName){
-            // TODO: make alienCruiser explode
+            explosionEffect(position: sprite.position, fileName: "MissileExplosionParticle.sks", score: alienCruiserKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + alienCruiserKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 10.0)
             sprite.removeFromParent()
@@ -1848,12 +1767,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if let laserCharge = childNode(withName: kEyeBossLaserChargeName) {
                 laserCharge.removeFromParent()
             }
-            let audioNode = SKAudioNode(fileNamed: "pop")
-            audioNode.autoplayLooped = false
-            self.addChild(audioNode)
-            let playAction = SKAction.play()
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-            eyeBossExplosionEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "EyeBossExplosionParticle.sks", score: eyeBossKillScore, sound: "pop")
             GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
             eyeBossFullySpawned = false
             alienTriShotActive = true
@@ -1873,12 +1787,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kLittleEyeName){
-            let audioNode = SKAudioNode(fileNamed: "littleEyePop")
-            audioNode.autoplayLooped = false
-            self.addChild(audioNode)
-            let playAction = SKAction.play()
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-            littleEyeExplosionEffect(position: sprite.position)
+            explosionEffect(position: sprite.position, fileName: "LittleEyeExplosionParticle.sks", score: littleEyeKillScore, sound: "littleEyePop")
             GameData.shared.playerScore = GameData.shared.playerScore + littleEyeKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
@@ -1908,7 +1817,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             run(SKAction.sequence([wait,action]))
         }
         if(sprite.name == kHeavyAlienName){
-            // TODO: Make heavyAlien Explode
+            explosionEffect(position: sprite.position, fileName: "MissileExplosionParticle", score: heavyAlienKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + heavyAlienKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 50.0)
             sprite.removeFromParent()
@@ -1925,6 +1834,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if (sprite.name == kHarvesterName) {
+            explosionEffect(position: sprite.position, fileName: "AlienExplosionParticle.sks", score: harvesterKillScore, sound: "")
             GameData.shared.playerScore = GameData.shared.playerScore + harvesterKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
@@ -2081,9 +1991,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 75, view: view!)
+                //TODO: Make small explosion
             }
             if ob1.name == kPlayerName && ob2.name == kEyeBossLaserName {
-                playerTakesDamage(damage: 10, view: view!)
+                playerTakesDamage(damage: 25, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kEyeBossName {
                 playerTakesDamage(damage: 80, view: view!)
@@ -2091,6 +2002,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if ob1.name == kPlayerName && ob2.name == kPlasmaName {
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 35, view: view!)
+                //TODO: Make small explosion
             }
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kAlienName {
@@ -2123,7 +2035,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             subtractHealth(sprite: ob1, damage: 75)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossLaserName {
-            subtractHealth(sprite: ob1, damage: 10)
+            subtractHealth(sprite: ob1, damage: 25)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossName {
             subtractHealth(sprite: ob1, damage: 80)

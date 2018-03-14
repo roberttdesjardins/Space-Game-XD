@@ -38,7 +38,7 @@ func setSmallAsteroidHealth(asteroid: SKSpriteNode) {
 }
 
 func setAlienCruiserHealth(alienCruiser: SKSpriteNode) {
-    alienCruiser.userData?.setValue(45, forKey: "health")
+    alienCruiser.userData?.setValue(90, forKey: "health")
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
