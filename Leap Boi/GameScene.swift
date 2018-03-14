@@ -186,6 +186,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var fourShotUpgrade = false
     private var fiveShotUpgrade = false
     private var protectiveShieldActive = false
+    private var numberOfHomingMissileUpgrades = 0
     // Time since last fired
     private var lastFiredTime: CFTimeInterval = 0
     // Array of homingMissiles
@@ -665,7 +666,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func setUpHomingMissile() {
-        let wait = SKAction.wait(forDuration: 5.0)
+        let wait = SKAction.wait(forDuration: 5.0/Double(numberOfHomingMissileUpgrades))
         let audioNode = SKAudioNode(fileNamed: "missile")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
@@ -880,8 +881,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if !fiveShotUpgrade {
                 spawnThreeShotRandom(position: position, percentChance: percentChance/5)
             }
-            spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
-            
+            if numberOfHomingMissileUpgrades <= 5 {
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
+            }
         }
         if playerWeapon == kMissileName {
             spawnHealthRandom(position: position, percentChance: percentChance/4)
@@ -889,7 +891,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if fireRateUpgradeNumber < 7 {
                 spawnFireRateRandom(position: position, percentChance: percentChance/5)
             }
-            spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
+            if numberOfHomingMissileUpgrades <= 5 {
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
+            }
         }
     }
     
@@ -1107,6 +1111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // Enemy death effects
+    // TODO: Add sounds
     func asteroidExplosionEffect(position: CGPoint) {
         let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionParticle.sks")
         asteroidExplosion?.particlePosition = position
@@ -1171,6 +1176,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(alienScoreEffect)
         alienScoreEffect.run(SKAction.wait(forDuration: 1), completion: { alienScoreEffect.removeFromParent() })
     }
+    
+    func eyeBossExplosionEffect(position: CGPoint) {
+        let eyeBossExplosion = SKEmitterNode(fileNamed: "EyeBossExplosionParticle.sks")
+        eyeBossExplosion?.particlePosition = position
+        addChild(eyeBossExplosion!)
+        eyeBossExplosion?.run(SKAction.wait(forDuration: 1), completion: { eyeBossExplosion?.removeFromParent() })
+        
+        let eyeBossScoreEffect = SKLabelNode(fontNamed: "Avenir")
+        eyeBossScoreEffect.fontSize = 20
+        eyeBossScoreEffect.fontColor = SKColor.white
+        eyeBossScoreEffect.text = "+\(eyeBossKillScore)"
+        eyeBossScoreEffect.position = position
+        eyeBossScoreEffect.zPosition = 5
+        addChild(eyeBossScoreEffect)
+        eyeBossScoreEffect.run(SKAction.wait(forDuration: 1), completion: { eyeBossScoreEffect.removeFromParent() })
+    }
+    
+    func littleEyeExplosionEffect(position: CGPoint) {
+        let littleEyeExplosion = SKEmitterNode(fileNamed: "LittleEyeExplosionParticle.sks")
+        littleEyeExplosion?.particlePosition = position
+        addChild(littleEyeExplosion!)
+        littleEyeExplosion?.run(SKAction.wait(forDuration: 1), completion: { littleEyeExplosion?.removeFromParent() })
+        
+        let littleEyeScoreEffect = SKLabelNode(fontNamed: "Avenir")
+        littleEyeScoreEffect.fontSize = 20
+        littleEyeScoreEffect.fontColor = SKColor.white
+        littleEyeScoreEffect.text = "+\(littleEyeKillScore)"
+        littleEyeScoreEffect.position = position
+        littleEyeScoreEffect.zPosition = 5
+        addChild(littleEyeScoreEffect)
+        littleEyeScoreEffect.run(SKAction.wait(forDuration: 1), completion: { littleEyeScoreEffect.removeFromParent() })
+    }
+    
+    // TODO:
+    func alienCruiserExplosionEffect(position: CGPoint) {
+        
+    }
+    
+    
     
     func stopSpawns() {
         removeAllActions()
@@ -1798,10 +1842,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kEyeBossName){
-            //TODO: Make eyeBoss explosion and sound- like an eyeball poping
             if let laserBeam = childNode(withName: kEyeBossLaserName) {
                 laserBeam.removeFromParent()
             }
+            if let laserCharge = childNode(withName: kEyeBossLaserChargeName) {
+                laserCharge.removeFromParent()
+            }
+            let audioNode = SKAudioNode(fileNamed: "pop")
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+            eyeBossExplosionEffect(position: sprite.position)
             GameData.shared.playerScore = GameData.shared.playerScore + eyeBossKillScore
             eyeBossFullySpawned = false
             alienTriShotActive = true
@@ -1821,6 +1873,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kLittleEyeName){
+            let audioNode = SKAudioNode(fileNamed: "littleEyePop")
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+            littleEyeExplosionEffect(position: sprite.position)
             GameData.shared.playerScore = GameData.shared.playerScore + littleEyeKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
@@ -2114,6 +2172,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kHomingMissileUpgradeName {
+            if numberOfHomingMissileUpgrades < 5 {
+                numberOfHomingMissileUpgrades = numberOfHomingMissileUpgrades + 1
+            }
             playPowerUpSound()
             ob2.removeFromParent()
             setUpHomingMissile()

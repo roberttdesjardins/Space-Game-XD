@@ -26,6 +26,10 @@
 		550902F92045FB8E0035C65D /* Healpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550902F82045FB8E0035C65D /* Healpers.swift */; };
 		552C6A642059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */; };
 		552C6A662059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */; };
+		552C6A682059ACF50070DE0E /* LittleEyeExplosionParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A672059ACF50070DE0E /* LittleEyeExplosionParticle.sks */; };
+		552C6A6A2059AEAA0070DE0E /* pop.wav in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A692059AEAA0070DE0E /* pop.wav */; };
+		552C6A6C2059B0B70070DE0E /* EyeBossExplosionParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A6B2059B0B60070DE0E /* EyeBossExplosionParticle.sks */; };
+		552C6A6E2059B1CA0070DE0E /* littleEyePop.wav in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A6D2059B1CA0070DE0E /* littleEyePop.wav */; };
 		55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DEE205067F400DB6491 /* laserchargesound.wav */; };
 		55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DF02050697E00DB6491 /* laserbeamsound.wav */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
@@ -61,6 +65,10 @@
 		550902F82045FB8E0035C65D /* Healpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Healpers.swift; sourceTree = "<group>"; };
 		552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AsteroidExplosionMediumParticle.sks; sourceTree = "<group>"; };
 		552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AsteroidExplosionSmallParticle.sks; sourceTree = "<group>"; };
+		552C6A672059ACF50070DE0E /* LittleEyeExplosionParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = LittleEyeExplosionParticle.sks; sourceTree = "<group>"; };
+		552C6A692059AEAA0070DE0E /* pop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = pop.wav; sourceTree = "<group>"; };
+		552C6A6B2059B0B60070DE0E /* EyeBossExplosionParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = EyeBossExplosionParticle.sks; sourceTree = "<group>"; };
+		552C6A6D2059B1CA0070DE0E /* littleEyePop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = littleEyePop.wav; sourceTree = "<group>"; };
 		55601DEE205067F400DB6491 /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55601DF02050697E00DB6491 /* laserbeamsound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserbeamsound.wav; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
@@ -105,6 +113,8 @@
 				5505100020572208002E3B20 /* gameover.wav */,
 				5505100220572258002E3B20 /* powerUp.wav */,
 				5505100420572345002E3B20 /* playerHit.wav */,
+				552C6A6D2059B1CA0070DE0E /* littleEyePop.wav */,
+				552C6A692059AEAA0070DE0E /* pop.wav */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -149,6 +159,8 @@
 				552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */,
 				552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */,
 				55075B99204C66F3006D656F /* AlienExplosionParticle.sks */,
+				552C6A672059ACF50070DE0E /* LittleEyeExplosionParticle.sks */,
+				552C6A6B2059B0B60070DE0E /* EyeBossExplosionParticle.sks */,
 			);
 			path = "Leap Boi";
 			sourceTree = "<group>";
@@ -220,14 +232,18 @@
 				55075B96204C5BC2006D656F /* MissileExplosionParticle.sks in Resources */,
 				55050FFF205706C0002E3B20 /* battle.wav in Resources */,
 				5592286520523884002836CA /* boss2explosion.wav in Resources */,
+				552C6A6A2059AEAA0070DE0E /* pop.wav in Resources */,
+				552C6A6E2059B1CA0070DE0E /* littleEyePop.wav in Resources */,
 				55C18353204C9BB300747F00 /* warningBeep.wav in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
 				552C6A662059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks in Resources */,
 				55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */,
 				55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */,
+				552C6A682059ACF50070DE0E /* LittleEyeExplosionParticle.sks in Resources */,
 				5505100320572258002E3B20 /* powerUp.wav in Resources */,
 				5505100520572345002E3B20 /* playerHit.wav in Resources */,
 				55075B94204B9F03006D656F /* explosion.wav in Resources */,
+				552C6A6C2059B0B70070DE0E /* EyeBossExplosionParticle.sks in Resources */,
 				5505100120572208002E3B20 /* gameover.wav in Resources */,
 				55075B92204B8FA9006D656F /* missile.wav in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
