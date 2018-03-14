@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?
+// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transp arent?
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -240,6 +240,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let boss2killScore = 10000 // Boss2
     let heavyAlienKillScore = 2500
     let boss3KillScore = 20000 // Boss3
+    let harvesterKillScore = 30
     
     
     var damagedByPlayerLaserArray: [String] = []
@@ -1094,6 +1095,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
     }
     
+    
+    
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
         missileExplosionEffect?.particlePosition = position
@@ -1102,6 +1105,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missileExplosionEffect?.run(SKAction.wait(forDuration: 2), completion: { missileExplosionEffect?.removeFromParent() })
     }
     
+    
+    // Enemy death effects
     func asteroidExplosionEffect(position: CGPoint) {
         let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionParticle.sks")
         asteroidExplosion?.particlePosition = position
@@ -1117,6 +1122,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(asteroidScoreEffect)
         asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
     }
+    
+    func asteroidExplosionMediumEffect(position: CGPoint) {
+        let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionMediumParticle.sks")
+        asteroidExplosion?.particlePosition = position
+        addChild(asteroidExplosion!)
+        asteroidExplosion?.run(SKAction.wait(forDuration: 1), completion: { asteroidExplosion?.removeFromParent() })
+        
+        let asteroidScoreEffect = SKLabelNode(fontNamed: "Avenir")
+        asteroidScoreEffect.fontSize = 20
+        asteroidScoreEffect.fontColor = SKColor.white
+        asteroidScoreEffect.text = "+\(mediumAsteroidKillScore)"
+        asteroidScoreEffect.position = position
+        asteroidScoreEffect.zPosition = 5
+        addChild(asteroidScoreEffect)
+        asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
+    }
+    
+    func asteroidExplosionSmallEffect(position: CGPoint) {
+        let asteroidExplosion = SKEmitterNode(fileNamed: "AsteroidExplosionSmallParticle.sks")
+        asteroidExplosion?.particlePosition = position
+        addChild(asteroidExplosion!)
+        asteroidExplosion?.run(SKAction.wait(forDuration: 1), completion: { asteroidExplosion?.removeFromParent() })
+        
+        let asteroidScoreEffect = SKLabelNode(fontNamed: "Avenir")
+        asteroidScoreEffect.fontSize = 20
+        asteroidScoreEffect.fontColor = SKColor.white
+        asteroidScoreEffect.text = "+\(smallAsteroidKillScore)"
+        asteroidScoreEffect.position = position
+        asteroidScoreEffect.zPosition = 5
+        addChild(asteroidScoreEffect)
+        asteroidScoreEffect.run(SKAction.wait(forDuration: 1), completion: { asteroidScoreEffect.removeFromParent() })
+    }
+    
     
     func alienExplosionEffect(position: CGPoint) {
         let alienExplosion = SKEmitterNode(fileNamed: "AlienExplosionParticle.sks")
@@ -1662,7 +1700,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //TODO: Some attack
             
         }
-        harvester.run(SKAction.sequence([wait, turn1, move, turn2, fire]), completion: { () -> Void in
+        harvester.run(SKAction.sequence([turn1, move, turn2, wait, fire]), completion: { () -> Void in
             self.setUpHarvesterBehaviour(harvester: harvester)
         })
     }
@@ -1740,7 +1778,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kMediumAsteroidName){
-            // TODO: Make medium asteroid explosion effect
+            asteroidExplosionMediumEffect(position: sprite.position)
             GameData.shared.playerScore = GameData.shared.playerScore + mediumAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             self.addSmallAsteroid(position: sprite.position, xoffset: -5)
@@ -1748,7 +1786,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kSmallAsteroidName){
-            // TODO: Make small asteroid explosion effect
+            asteroidExplosionSmallEffect(position: sprite.position)
             GameData.shared.playerScore = GameData.shared.playerScore + smallAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
             sprite.removeFromParent()
@@ -1828,6 +1866,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()
         }
+        if (sprite.name == kHarvesterName) {
+            GameData.shared.playerScore = GameData.shared.playerScore + harvesterKillScore
+            spawnRandomPowerUp(position: sprite.position, percentChance: 1.0)
+            sprite.removeFromParent()
+        }
+        
         if(sprite.name == kBoss3Phase2Name){
             // TODO: Boss3 explosion and sound
             GameData.shared.playerScore = GameData.shared.playerScore + boss3KillScore

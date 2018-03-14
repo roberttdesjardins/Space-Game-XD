@@ -24,6 +24,8 @@
 		55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 55075B97204C642E006D656F /* AsteroidExplosionParticle.sks */; };
 		55075B9A204C66F3006D656F /* AlienExplosionParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 55075B99204C66F3006D656F /* AlienExplosionParticle.sks */; };
 		550902F92045FB8E0035C65D /* Healpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550902F82045FB8E0035C65D /* Healpers.swift */; };
+		552C6A642059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */; };
+		552C6A662059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */; };
 		55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DEE205067F400DB6491 /* laserchargesound.wav */; };
 		55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DF02050697E00DB6491 /* laserbeamsound.wav */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
@@ -57,6 +59,8 @@
 		55075B97204C642E006D656F /* AsteroidExplosionParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AsteroidExplosionParticle.sks; sourceTree = "<group>"; };
 		55075B99204C66F3006D656F /* AlienExplosionParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AlienExplosionParticle.sks; sourceTree = "<group>"; };
 		550902F82045FB8E0035C65D /* Healpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Healpers.swift; sourceTree = "<group>"; };
+		552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AsteroidExplosionMediumParticle.sks; sourceTree = "<group>"; };
+		552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AsteroidExplosionSmallParticle.sks; sourceTree = "<group>"; };
 		55601DEE205067F400DB6491 /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55601DF02050697E00DB6491 /* laserbeamsound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserbeamsound.wav; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
@@ -142,6 +146,8 @@
 				55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */,
 				55075B95204C5BC2006D656F /* MissileExplosionParticle.sks */,
 				55075B97204C642E006D656F /* AsteroidExplosionParticle.sks */,
+				552C6A632059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks */,
+				552C6A652059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks */,
 				55075B99204C66F3006D656F /* AlienExplosionParticle.sks */,
 			);
 			path = "Leap Boi";
@@ -216,6 +222,7 @@
 				5592286520523884002836CA /* boss2explosion.wav in Resources */,
 				55C18353204C9BB300747F00 /* warningBeep.wav in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
+				552C6A662059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks in Resources */,
 				55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */,
 				55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */,
 				5505100320572258002E3B20 /* powerUp.wav in Resources */,
@@ -225,6 +232,7 @@
 				55075B92204B8FA9006D656F /* missile.wav in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
 				55050FF9205701FD002E3B20 /* menu.wav in Resources */,
+				552C6A642059A52A0070DE0E /* AsteroidExplosionMediumParticle.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
