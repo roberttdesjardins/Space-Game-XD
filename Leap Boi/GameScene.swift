@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transp arent?
+// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -35,7 +35,8 @@
 // Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
-// Shield: display shield amount?
+// Damage upgrade, change colour of laser and missile.
+// Coin Chest drop which grants a lot of credits?
 // Make player hit sound louder
 // credit sprites and music creators
 // Music from https://itch.io/game-assets/tag-music
@@ -118,8 +119,9 @@ struct PhysicsCategory {
     static let HeavyAlien: UInt32 = 0x1 << 18
     static let Boss3: UInt32 = 0x1 << 19
     static let Harvester: UInt32 = 0x1 << 20
+    static let BloodProjectile: UInt32 = 0x1 << 21
     
-    static let Edge: UInt32 = 0x1 << 21
+    static let Edge: UInt32 = 0x1 << 22
     static let All: UInt32 = UInt32.max
 }
 
@@ -159,6 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kBoss3Phase1Name = "boss3phase1"
     let kBoss3Phase2Name = "boss3phase2"
     let kHarvesterName = "harvester"
+    let kBloodProjectileName = "bloodProjectile"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
@@ -257,26 +260,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Called on Scene load
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
-        setUpDamageArrays()
+        setupDamageArrays()
         setupScreen()
         setupBackground()
         setupMusic()
         setupPlayer()
         setupWeapon()
-        setUpAliens(min: 0.2, max: 0.8)
-        setUpAsteroids(min: 4, max: 12)
+        setupStartEnemies()
         //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
         //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/1))
-        //setUpEyeBoss()
-        //setUpBoss2()
-        //setUpBoss3()
-        //setUpAlienCruisers(min: 1, max: 5)
         setupHud()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
     }
     
-    func setUpDamageArrays(){
+    func setupDamageArrays(){
         damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
         damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
         damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName]
@@ -369,22 +367,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func setUpAliens(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(addAlien),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
-                ])
-        ))
-    }
-    
-    func setUpAsteroids(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(addBigAsteroid),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(4), max: CGFloat(12))))
-                ])
-        ))
+    func setupStartEnemies() {
+        setUpAliens(min: 0.2, max: 0.8)
+        setUpAsteroids(min: 4, max: 12)
+        //setUpEyeBoss()
+        //setUpBoss2()
+        setUpBoss3()
+        //setUpAlienCruisers(min: 1, max: 5)
     }
     
     func setupHud() {
@@ -434,6 +423,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return player
     }
 
+    
+    // Basic Enemies
+    func setUpAliens(min: CGFloat, max: CGFloat) {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addAlien),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
+                ])
+        ))
+    }
+    
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
@@ -491,6 +491,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
     }
 
+    func setUpAsteroids(min: CGFloat, max: CGFloat) {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addBigAsteroid),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(4), max: CGFloat(12))))
+                ])
+        ))
+    }
     
     func addBigAsteroid() {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
@@ -519,7 +527,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
-    
     
     func addMediumAsteroid(position: CGPoint, xoffset: CGFloat) {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Medium")
@@ -573,7 +580,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
-    
     func setUpAlienCruisers(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
             SKAction.sequence([
@@ -625,7 +631,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
     }
 
-    
     func addAlienCruiserMissile(alienCruiser: SKSpriteNode, offset: CGFloat) {
         let alienMissile = SKSpriteNode(imageNamed: "alienMissile")
         alienMissile.size = CGSize(width: 11, height: 11)
@@ -645,7 +650,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienMissileArray.append(alienMissile)
     }
     
-    
     func processAlienMissileMovement() {
         for alienMissile in alienMissileArray {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
@@ -662,481 +666,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 alienMissile.removeFromParent()
             }
         }
-    }
-    
-    
-    func setUpHomingMissile() {
-        let wait = SKAction.wait(forDuration: 5.0/Double(numberOfHomingMissileUpgrades))
-        let audioNode = SKAudioNode(fileNamed: "missile")
-        audioNode.autoplayLooped = false
-        self.addChild(audioNode)
-        let playAction = SKAction.play()
-        let playSound = SKAction.run {
-            audioNode.run(playAction)
-        }
-        let stopSound = SKAction.run {
-            audioNode.run(SKAction.stop())
-        }
-        let fire = SKAction.run {
-            self.addHomingMissile(direction: "Left")
-            self.addHomingMissile(direction: "Right")
-        }
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            player.run(SKAction.repeatForever(SKAction.sequence([wait, stopSound, fire, playSound])))
-        }
-    }
-    
-    func addHomingMissile(direction: String) {
-        let missile = SKSpriteNode(imageNamed: "homingMissile")
-        missile.size = CGSize(width: 7, height: 20)
-        missile.name = kHomingMissileName
-        missile.zPosition = 5
-        missile.userData = NSMutableDictionary()
-        missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
-        missile.physicsBody?.isDynamic = true
-        missile.physicsBody?.affectedByGravity = false
-        missile.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
-        missile.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
-        missile.physicsBody?.collisionBitMask = PhysicsCategory.None
-        missile.physicsBody?.usesPreciseCollisionDetection = true
-        missile.physicsBody?.allowsRotation = false
-        
-        addChild(missile)
-        
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            if direction == "Left" {
-                missile.physicsBody?.velocity.dx = -10
-                missile.position = player.position + CGPoint(x: -20, y: 0)
-            } else if direction == "Right" {
-                missile.physicsBody?.velocity.dx = 10
-                missile.position = player.position + CGPoint(x: 20, y: 0)
-            }
-        }
-        setClosestNode(node: missile)
-        missile.physicsBody?.velocity.dy = 5
-        homingMissileArray.append(missile)
-        let wait = SKAction.wait(forDuration:15.0)
-        let action = SKAction.removeFromParent()
-        missile.run(SKAction.sequence([wait,action]))
-    }
-    
-    // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
-    // Finds the closest enemy node when the missile is created, constantly moves towards that node.
-    // If node it is tracking is destroyed, make a new node to track
-    func processHomingMissileMovement() {
-        for homingMissile in homingMissileArray {
-            if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
-                if closestEnemy.isHidden == true {
-                    setClosestNode(node: homingMissile)
-                }
-                if homingMissile.position.x > closestEnemy.position.x {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
-                } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 1, dy: 0))
-                }
-                if homingMissile.position.y > closestEnemy.position.y {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -1))
-                } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 1))
-                }
-                let positionToRotateTo = atan2((homingMissile.physicsBody?.velocity.dy)!, (homingMissile.physicsBody?.velocity.dx)!)
-                homingMissile.zRotation = CGFloat(positionToRotateTo) - 90 * DegreesToRadians
-            } else {
-                setClosestNode(node: homingMissile)
-            }
-        }
-    }
-    
-    func setClosestNode(node: SKSpriteNode) {
-        var closestNode: CGFloat = 0
-        for child in children {
-            if child.name != nil && allPossibleEnemies.contains(child.name!) {
-                let tempDistance = calculateDistanceBetween(node1: node, node2: child as! SKSpriteNode)
-                if tempDistance > closestNode {
-                    closestNode = tempDistance
-                    node.userData?.setValue(child, forKey: "closest")
-                }
-            }
-        }
-    }
-    
-    // TODO: Use this for other fuctions
-    func calculateDistanceBetween(node1: SKSpriteNode, node2: SKSpriteNode) -> CGFloat {
-        let adjacent = node1.position.y - node2.position.y
-        let opposite = node1.position.x - node2.position.x
-        return sqrt(pow(adjacent, 2.0) + pow(opposite, 2.0))
-    }
-    
-    
-    func addHealthPowerup(position: CGPoint) {
-        let healthPack = SKSpriteNode(imageNamed: "healthpack")
-        healthPack.name = kHealthPackName
-        healthPack.size = CGSize(width: 20, height: 20)
-        healthPack.physicsBody = SKPhysicsBody(rectangleOf: healthPack.size)
-        healthPack.physicsBody?.isDynamic = false
-        healthPack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
-        healthPack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        healthPack.physicsBody?.collisionBitMask = PhysicsCategory.None
-        healthPack.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
-        healthPack.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: healthPack.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        healthPack.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(healthPack)
-    }
-    
-    func addFireRatePowerup(position: CGPoint) {
-        let fireRatePack = SKSpriteNode(imageNamed: "firerateupgrade")
-        fireRatePack.name = kFireRateUpgradeName
-        fireRatePack.size = CGSize(width: 20, height: 20)
-        fireRatePack.physicsBody = SKPhysicsBody(rectangleOf: fireRatePack.size)
-        fireRatePack.physicsBody?.isDynamic = false
-        fireRatePack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
-        fireRatePack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        fireRatePack.physicsBody?.collisionBitMask = PhysicsCategory.None
-        fireRatePack.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
-        fireRatePack.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: fireRatePack.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        fireRatePack.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(fireRatePack)
-    }
-    
-    func addThreeShotUpgradePowerUp(position: CGPoint) {
-        let threeShotUpgrade = SKSpriteNode(imageNamed: "threeshotupgrade")
-        threeShotUpgrade.name = kThreeShotUpgradeName
-        threeShotUpgrade.size = CGSize(width: 20, height: 20)
-        threeShotUpgrade.physicsBody = SKPhysicsBody(rectangleOf: threeShotUpgrade.size)
-        threeShotUpgrade.physicsBody?.isDynamic = false
-        threeShotUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
-        threeShotUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        threeShotUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
-        threeShotUpgrade.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
-        threeShotUpgrade.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: threeShotUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        threeShotUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(threeShotUpgrade)
-    }
-    
-    // Gives the player a shield that protects against up to GameData.shared.shieldAmount damage for a limited time
-    func addProtectiveShieldPowerUp(position: CGPoint) {
-        let protectiveShildUpgrade = SKSpriteNode(imageNamed: "protectiveShield")
-        protectiveShildUpgrade.name = kProtectiveShieldUpgradeName
-        protectiveShildUpgrade.size = CGSize(width: 20, height: 20)
-        protectiveShildUpgrade.physicsBody = SKPhysicsBody(rectangleOf: protectiveShildUpgrade.size)
-        protectiveShildUpgrade.physicsBody?.isDynamic = false
-        protectiveShildUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
-        protectiveShildUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        protectiveShildUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
-        protectiveShildUpgrade.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
-        protectiveShildUpgrade.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: protectiveShildUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        protectiveShildUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(protectiveShildUpgrade)
-    }
-    
-    func addHomingMissilePowerUp(position: CGPoint) {
-        let homingMissileUpgrade = SKSpriteNode(imageNamed: "homingMissileUpgrade")
-        homingMissileUpgrade.name = kHomingMissileUpgradeName
-        homingMissileUpgrade.size = CGSize(width: 20, height: 20)
-        homingMissileUpgrade.physicsBody = SKPhysicsBody(rectangleOf: homingMissileUpgrade.size)
-        homingMissileUpgrade.physicsBody?.isDynamic = false
-        homingMissileUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
-        homingMissileUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
-        homingMissileUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
-        homingMissileUpgrade.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
-        homingMissileUpgrade.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: homingMissileUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionMoveDone = SKAction.removeFromParent()
-        homingMissileUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(homingMissileUpgrade)
-    }
-    
-    
-    // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate
-    func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
-        if playerWeapon == kLaserName {
-            spawnHealthRandom(position: position, percentChance: percentChance/4)
-            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
-            if fireRateUpgradeNumber < 7 {
-                spawnFireRateRandom(position: position, percentChance: percentChance/6)
-            }
-            if !fiveShotUpgrade {
-                spawnThreeShotRandom(position: position, percentChance: percentChance/5)
-            }
-            if numberOfHomingMissileUpgrades <= 5 {
-                spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
-            }
-        }
-        if playerWeapon == kMissileName {
-            spawnHealthRandom(position: position, percentChance: percentChance/4)
-            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
-            if fireRateUpgradeNumber < 7 {
-                spawnFireRateRandom(position: position, percentChance: percentChance/5)
-            }
-            if numberOfHomingMissileUpgrades <= 5 {
-                spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
-            }
-        }
-    }
-    
-    // TODO: Refactor duplicate code into a switch statement which spawns the correct powerup
-    // chance to spawn a healthPowerUp
-    func spawnHealthRandom(position: CGPoint, percentChance: CGFloat) {
-        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
-        if(randomNum <= percentChance){
-            addHealthPowerup(position: position)
-        }
-    }
-    
-    // chance to spawn a fireRatePowerUp
-    func spawnFireRateRandom(position: CGPoint, percentChance: CGFloat) {
-        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
-        if(randomNum <= percentChance){
-            addFireRatePowerup(position: position)
-        }
-    }
-    
-    // chance to spawn a threeShotPowerUp
-    func spawnThreeShotRandom(position: CGPoint, percentChance: CGFloat) {
-        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
-        if(randomNum <= percentChance){
-            addThreeShotUpgradePowerUp(position: position)
-        }
-    }
-    
-    // chance to spawn a protective Shield
-    func spawnProtectiveShieldRandom(position: CGPoint, percentChance: CGFloat) {
-        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
-        if(randomNum <= percentChance){
-            addProtectiveShieldPowerUp(position: position)
-        }
-    }
-    
-    // Chance to spawn a homing missile upgrade
-    func spawnHomingMissileRandom(position: CGPoint, percentChance: CGFloat) {
-        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
-        if(randomNum <= percentChance){
-            addHomingMissilePowerUp(position: position)
-        }
-    }
-    
-    func addProtectiveShield() {
-        protectiveShieldActive = true
-        let shield = SKSpriteNode(imageNamed: "shield")
-        shield.name = kProtectiveShieldName
-        shield.size = CGSize(width: 40, height: 40)
-        shield.zPosition = 5
-        shield.userData = NSMutableDictionary()
-        setShieldHealth(shield: shield)
-        
-        shield.physicsBody = SKPhysicsBody(texture: shield.texture!, size: shield.size)
-        shield.physicsBody?.isDynamic = true
-        shield.physicsBody?.affectedByGravity = false
-        // TODO: everything that damages player should add shield to their contactBitMask
-        shield.physicsBody?.categoryBitMask = PhysicsCategory.Shield
-        shield.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
-        shield.physicsBody?.collisionBitMask = PhysicsCategory.None
-        
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            shield.position = player.position
-        }
-        addChild(shield)
-        
-        let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
-        let actionWaitDone = SKAction.removeFromParent()
-        let actionBool = SKAction.run {
-            self.protectiveShieldActive = false
-        }
-        shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
-    }
-    
-    func updateProtectiveShield() {
-        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
-            setShieldHealth(shield: shield)
-            shield.removeAllActions()
-            let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
-            let actionWaitDone = SKAction.removeFromParent()
-            let actionBool = SKAction.run {
-                self.protectiveShieldActive = false
-            }
-            shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
-        }
-    }
-    
-    func playPowerUpSound() {
-        let audioNode = SKAudioNode(fileNamed: "powerUp")
-        audioNode.autoplayLooped = false
-        self.addChild(audioNode)
-        let playAction = SKAction.play()
-        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-    }
-    
-    func firePlayerWeapon(){
-        if(playerWeapon == kLaserName){
-            let audioNode = SKAudioNode(fileNamed: "laser")
-            audioNode.autoplayLooped = false
-            self.addChild(audioNode)
-            let playAction = SKAction.play()
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
-            if fiveShotUpgrade {
-                firePlayerLaser(offset: 0)
-                firePlayerLaser(offset: -8.0)
-                firePlayerLaser(offset: 8.0)
-                firePlayerLaser(offset: -16.0)
-                firePlayerLaser(offset: 16.0)
-            } else if fourShotUpgrade {
-                firePlayerLaser(offset: -4.0)
-                firePlayerLaser(offset: 4.0)
-                firePlayerLaser(offset: -12.0)
-                firePlayerLaser(offset: 12.0)
-            } else if threeShotUpgrade {
-                firePlayerLaser(offset: 0)
-                firePlayerLaser(offset: -8.0)
-                firePlayerLaser(offset: 8.0)
-            } else if twoShotUpgrade {
-                firePlayerLaser(offset: -4.0)
-                firePlayerLaser(offset: 4.0)
-            } else {
-                firePlayerLaser(offset: 0)
-            }
-        }
-        if(playerWeapon == kMissileName){
-            firePlayerMissile()
-        }
-    }
-    
-    func firePlayerLaser(offset: CGFloat) {
-        
-        //let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
-        let laser = SKSpriteNode(imageNamed: "playerLaser")
-        laser.size = CGSize(width: 15, height: 15)
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
-        }
-        laser.name = kLaserName
-        laser.zPosition = 3
-        laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
-        laser.physicsBody?.isDynamic = true
-        laser.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
-        laser.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
-        laser.physicsBody?.collisionBitMask = PhysicsCategory.None
-        laser.physicsBody?.usesPreciseCollisionDetection = true
-        
-        addChild(laser)
-        let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
-        let actionMoveDone = SKAction.removeFromParent()
-        laser.run(SKAction.sequence([actionMove, actionMoveDone]))
-    }
-    
-    func firePlayerMissile() {
-        let audioNode = SKAudioNode(fileNamed: "missile")
-        audioNode.autoplayLooped = false
-        self.addChild(audioNode)
-        let playAction = SKAction.play()
-        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
-        
-        let missile = SKSpriteNode(imageNamed: "missile")
-        missile.size = CGSize(width: 20, height: 30)
-        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            missile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + missile.size.height/2)
-        }
-        missile.name = kMissileName
-        missile.zPosition = 5
-        missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
-        missile.physicsBody?.isDynamic = true
-        missile.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
-        missile.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
-        missile.physicsBody?.collisionBitMask = PhysicsCategory.None
-        missile.physicsBody?.usesPreciseCollisionDetection = true
-        missile.physicsBody?.allowsRotation = false
-        
-        addChild(missile)
-        let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: 3000), duration: 7.5)
-        let actionMoveDone = SKAction.removeFromParent()
-        missile.run(SKAction.sequence([actionMove, actionMoveDone]))
-    }
-    
-    func missileExplosion(missile: SKNode) {
-        let audioNode = SKAudioNode(fileNamed: "explosion")
-        audioNode.autoplayLooped = false
-        self.addChild(audioNode)
-        let playAction = SKAction.play()
-        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-        let missileExplosion = SKSpriteNode()
-        missileExplosion.alpha = 0.0
-        missileExplosion.size = CGSize(width: 70, height: 70)
-        missileExplosion.position = missile.position
-        missileExplosion.userData = NSMutableDictionary()
-
-        missileExplosion.name = kMissileExplosionName
-        missileExplosion.physicsBody = SKPhysicsBody(rectangleOf: missileExplosion.size)
-        missileExplosion.physicsBody?.isDynamic = true
-        missileExplosion.physicsBody?.categoryBitMask = PhysicsCategory.MissileExplosion
-        missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.EyeBoss
-        missileExplosion.physicsBody?.collisionBitMask = PhysicsCategory.None
-        missile.physicsBody?.usesPreciseCollisionDetection = true
-        missileExplosion.physicsBody?.allowsRotation = false
-
-        addChild(missileExplosion)
-        missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
-    }
-    
-    
-    
-    func missileExplosionEffect(position: CGPoint) {
-        let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
-        missileExplosionEffect?.particlePosition = position
-        missileExplosionEffect?.zPosition = 2
-        addChild(missileExplosionEffect!)
-        missileExplosionEffect?.run(SKAction.wait(forDuration: 2), completion: { missileExplosionEffect?.removeFromParent() })
-    }
-    
-    
-    // Enemy death effects
-    func explosionEffect(position: CGPoint, fileName: String, score: Int, sound: String) {
-        if sound != "" {
-            let audioNode = SKAudioNode(fileNamed: sound)
-            audioNode.autoplayLooped = false
-            self.addChild(audioNode)
-            let playAction = SKAction.play()
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-        }
-        let explosionEffect = SKEmitterNode(fileNamed: fileName)
-        explosionEffect?.particlePosition = position
-        addChild(explosionEffect!)
-        explosionEffect?.run(SKAction.wait(forDuration: 1), completion: { explosionEffect?.removeFromParent() })
-        
-        let scoreEffect = SKLabelNode(fontNamed: "Avenir")
-        scoreEffect.fontSize = 20
-        scoreEffect.fontColor = SKColor.white
-        scoreEffect.text = "+\(score)"
-        scoreEffect.position = position
-        scoreEffect.zPosition = 5
-        addChild(scoreEffect)
-        scoreEffect.run(SKAction.wait(forDuration: 1), completion: { scoreEffect.removeFromParent() })
-    }
-    
-    
-    func stopSpawns() {
-        removeAllActions()
     }
     
     
@@ -1273,8 +802,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //TODO: Do this. Shoot a laser from each vein - they all converge on a single point and move outwards
         
     }
-    
-    
     
     // adds little eyeballs only while eyeBoss is active
     func setUpSpawnLittleEyes(min: CGFloat, max: CGFloat) {
@@ -1417,7 +944,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let lookAtConstraint = SKConstraint.orient(to: player, offset: SKRange(constantValue: CGFloat.pi / 2))
             boss2.constraints = [lookAtConstraint]
         }
-
+        
         
         addChild(boss2)
         boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height/2 - 20), duration: 10.0), completion: { () -> Void in
@@ -1581,7 +1108,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    // BOSS 3
+    // THIRD BOSS
     func setUpBoss3() {
         stopSpawns()
         warningFlashing(scene: self.scene!)
@@ -1641,14 +1168,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         harvester.physicsBody?.collisionBitMask = PhysicsCategory.None
         harvester.zPosition = 1
         if let boss3 = childNode(withName: kBoss3Phase1Name) as? SKSpriteNode {
-            harvester.position = boss3.position - CGPoint(x: 0, y: boss3.size.height/2)
+            harvester.position = boss3.position - CGPoint(x: 0, y: boss3.size.height/4)
         }
         addChild(harvester)
-        setUpHarvesterBehaviour(harvester: harvester)
+        harvester.run(SKAction.move(to: harvester.position - CGPoint(x: 0, y: 100), duration: 1.0), completion: { () -> Void in self.setUpHarvesterBehaviour(harvester: harvester)})
     }
     
     func setUpHarvesterBehaviour(harvester: SKSpriteNode){
-        let wait = SKAction.wait(forDuration: Double(random(min: CGFloat(1), max: CGFloat(3))))
+        let wait1 = SKAction.wait(forDuration: Double(random(min: CGFloat(0.5), max: CGFloat(2))))
+        let wait2 = SKAction.wait(forDuration: Double(random(min: CGFloat(0.5), max: CGFloat(2))))
         let randomX = random(min: harvester.size.width/2, max: size.width - harvester.size.width/2)
         let randomY = random(min: size.height/5, max: size.height * (5/8))
         let locationToMoveTo = CGPoint(x: randomX, y: randomY)
@@ -1657,22 +1185,528 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
         let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
         let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 0.5)
-        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/180))
+        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/220))
         let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
         let fire = SKAction.run {
-            //TODO: Some attack
-            
+            self.addHarvesterAttack(harvester: harvester)
         }
-        harvester.run(SKAction.sequence([turn1, move, turn2, wait, fire]), completion: { () -> Void in
+        harvester.run(SKAction.sequence([turn1, move, turn2, wait1, fire, wait2]), completion: { () -> Void in
             self.setUpHarvesterBehaviour(harvester: harvester)
         })
     }
     
-    // TODO:
     func addHarvesterAttack(harvester: SKSpriteNode) {
-        let projectile = SKSpriteNode(imageNamed: "")
-        projectile.size = CGSize(width: 0, height: 0)
         
+        
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            let bloodProjectile = SKSpriteNode(imageNamed: "evilProjectile1")
+            bloodProjectile.size = CGSize(width: 33.5, height: 33.5)
+            bloodProjectile.name = kBloodProjectileName
+            bloodProjectile.zPosition = 4
+            bloodProjectile.physicsBody = SKPhysicsBody(texture: bloodProjectile.texture!, size: bloodProjectile.size)
+            bloodProjectile.physicsBody?.isDynamic = false
+            bloodProjectile.physicsBody?.categoryBitMask = PhysicsCategory.BloodProjectile
+            bloodProjectile.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            bloodProjectile.physicsBody?.collisionBitMask = PhysicsCategory.None
+            bloodProjectile.physicsBody?.usesPreciseCollisionDetection = true
+            
+            bloodProjectile.position = harvester.position - CGPoint(x: 0, y: harvester.size.height/2 + bloodProjectile.size.height/2)
+            
+            
+            let adjacent = player.position.y - harvester.position.y
+            let opposite = player.position.x - harvester.position.x
+            let angle = tan(opposite/adjacent)
+            let newAdjacent = adjacent - 100
+            let newOpposite = tan(angle) * newAdjacent
+            let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
+            let newX = harvester.position.x + newOpposite
+            let actualDuration = newHypotenuse / 200
+            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let actionMoveDone = SKAction.removeFromParent()
+            bloodProjectile.run(SKAction.sequence([actionMove, actionMoveDone]))
+            addChild(bloodProjectile)
+            
+            var gifBlood: [SKTexture] = []
+            for i in 1...7 {
+                gifBlood.append(SKTexture(imageNamed: "evilProjectile\(i)"))
+            }
+            bloodProjectile.run(SKAction.repeatForever(SKAction.animate(with: gifBlood, timePerFrame: 0.1)))
+        }
+    }
+    
+    
+    
+    
+    // POWERUPS
+    func addHealthPowerup(position: CGPoint) {
+        let healthPack = SKSpriteNode(imageNamed: "healthpack")
+        healthPack.name = kHealthPackName
+        healthPack.size = CGSize(width: 20, height: 20)
+        healthPack.physicsBody = SKPhysicsBody(rectangleOf: healthPack.size)
+        healthPack.physicsBody?.isDynamic = false
+        healthPack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        healthPack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        healthPack.physicsBody?.collisionBitMask = PhysicsCategory.None
+        healthPack.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        healthPack.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: healthPack.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        healthPack.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(healthPack)
+    }
+    
+    func addFireRatePowerup(position: CGPoint) {
+        let fireRatePack = SKSpriteNode(imageNamed: "firerateupgrade")
+        fireRatePack.name = kFireRateUpgradeName
+        fireRatePack.size = CGSize(width: 20, height: 20)
+        fireRatePack.physicsBody = SKPhysicsBody(rectangleOf: fireRatePack.size)
+        fireRatePack.physicsBody?.isDynamic = false
+        fireRatePack.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        fireRatePack.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        fireRatePack.physicsBody?.collisionBitMask = PhysicsCategory.None
+        fireRatePack.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        fireRatePack.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: fireRatePack.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        fireRatePack.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(fireRatePack)
+    }
+    
+    func addThreeShotUpgradePowerUp(position: CGPoint) {
+        let threeShotUpgrade = SKSpriteNode(imageNamed: "threeshotupgrade")
+        threeShotUpgrade.name = kThreeShotUpgradeName
+        threeShotUpgrade.size = CGSize(width: 20, height: 20)
+        threeShotUpgrade.physicsBody = SKPhysicsBody(rectangleOf: threeShotUpgrade.size)
+        threeShotUpgrade.physicsBody?.isDynamic = false
+        threeShotUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        threeShotUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        threeShotUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        threeShotUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        threeShotUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: threeShotUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        threeShotUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(threeShotUpgrade)
+    }
+    
+    // Gives the player a shield that protects against up to GameData.shared.shieldAmount damage for a limited time
+    func addProtectiveShieldPowerUp(position: CGPoint) {
+        let protectiveShildUpgrade = SKSpriteNode(imageNamed: "protectiveShield")
+        protectiveShildUpgrade.name = kProtectiveShieldUpgradeName
+        protectiveShildUpgrade.size = CGSize(width: 20, height: 20)
+        protectiveShildUpgrade.physicsBody = SKPhysicsBody(rectangleOf: protectiveShildUpgrade.size)
+        protectiveShildUpgrade.physicsBody?.isDynamic = false
+        protectiveShildUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        protectiveShildUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        protectiveShildUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        protectiveShildUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        protectiveShildUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: protectiveShildUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        protectiveShildUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(protectiveShildUpgrade)
+    }
+    
+    func addHomingMissilePowerUp(position: CGPoint) {
+        let homingMissileUpgrade = SKSpriteNode(imageNamed: "homingMissileUpgrade")
+        homingMissileUpgrade.name = kHomingMissileUpgradeName
+        homingMissileUpgrade.size = CGSize(width: 20, height: 20)
+        homingMissileUpgrade.physicsBody = SKPhysicsBody(rectangleOf: homingMissileUpgrade.size)
+        homingMissileUpgrade.physicsBody?.isDynamic = false
+        homingMissileUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        homingMissileUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        homingMissileUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        homingMissileUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        homingMissileUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: homingMissileUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        homingMissileUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(homingMissileUpgrade)
+    }
+    
+    
+    // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate
+    func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
+        if playerWeapon == kLaserName {
+            spawnHealthRandom(position: position, percentChance: percentChance/4)
+            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
+            if fireRateUpgradeNumber < 7 {
+                spawnFireRateRandom(position: position, percentChance: percentChance/6)
+            }
+            if !fiveShotUpgrade {
+                spawnThreeShotRandom(position: position, percentChance: percentChance/5)
+            }
+            if numberOfHomingMissileUpgrades <= 5 {
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
+            }
+        }
+        if playerWeapon == kMissileName {
+            spawnHealthRandom(position: position, percentChance: percentChance/4)
+            spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
+            if fireRateUpgradeNumber < 7 {
+                spawnFireRateRandom(position: position, percentChance: percentChance/5)
+            }
+            if numberOfHomingMissileUpgrades <= 5 {
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
+            }
+        }
+    }
+    
+    // TODO: Refactor duplicate code into a switch statement which spawns the correct powerup
+    func spawnHealthRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addHealthPowerup(position: position)
+        }
+    }
+    
+    func spawnFireRateRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addFireRatePowerup(position: position)
+        }
+    }
+    
+    func spawnThreeShotRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addThreeShotUpgradePowerUp(position: position)
+        }
+    }
+    
+    func spawnProtectiveShieldRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addProtectiveShieldPowerUp(position: position)
+        }
+    }
+    
+    func spawnHomingMissileRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addHomingMissilePowerUp(position: position)
+        }
+    }
+    
+    func addProtectiveShield() {
+        protectiveShieldActive = true
+        let shield = SKSpriteNode(imageNamed: "shield")
+        shield.name = kProtectiveShieldName
+        shield.size = CGSize(width: 40, height: 40)
+        shield.zPosition = 5
+        shield.userData = NSMutableDictionary()
+        setShieldHealth(shield: shield)
+        
+        shield.physicsBody = SKPhysicsBody(texture: shield.texture!, size: shield.size)
+        shield.physicsBody?.isDynamic = true
+        shield.physicsBody?.affectedByGravity = false
+        // TODO: everything that damages player should add shield to their contactBitMask
+        shield.physicsBody?.categoryBitMask = PhysicsCategory.Shield
+        shield.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.AlienLaser | PhysicsCategory.EyeBoss | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienCruiser | PhysicsCategory.AlienMissile
+        shield.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            shield.position = player.position
+        }
+        addChild(shield)
+        
+        let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
+        let actionWaitDone = SKAction.removeFromParent()
+        let actionBool = SKAction.run {
+            self.protectiveShieldActive = false
+        }
+        shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
+    }
+    
+    func updateProtectiveShield() {
+        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+            setShieldHealth(shield: shield)
+            shield.removeAllActions()
+            let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
+            let actionWaitDone = SKAction.removeFromParent()
+            let actionBool = SKAction.run {
+                self.protectiveShieldActive = false
+            }
+            shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
+        }
+    }
+    
+    func playPowerUpSound() {
+        let audioNode = SKAudioNode(fileNamed: "powerUp")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+    }
+    
+    
+    
+    
+    // Player Weapons
+    func firePlayerWeapon(){
+        if(playerWeapon == kLaserName){
+            let audioNode = SKAudioNode(fileNamed: "laser")
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
+            if fiveShotUpgrade {
+                firePlayerLaser(offset: 0)
+                firePlayerLaser(offset: -8.0)
+                firePlayerLaser(offset: 8.0)
+                firePlayerLaser(offset: -16.0)
+                firePlayerLaser(offset: 16.0)
+            } else if fourShotUpgrade {
+                firePlayerLaser(offset: -4.0)
+                firePlayerLaser(offset: 4.0)
+                firePlayerLaser(offset: -12.0)
+                firePlayerLaser(offset: 12.0)
+            } else if threeShotUpgrade {
+                firePlayerLaser(offset: 0)
+                firePlayerLaser(offset: -8.0)
+                firePlayerLaser(offset: 8.0)
+            } else if twoShotUpgrade {
+                firePlayerLaser(offset: -4.0)
+                firePlayerLaser(offset: 4.0)
+            } else {
+                firePlayerLaser(offset: 0)
+            }
+        }
+        if(playerWeapon == kMissileName){
+            firePlayerMissile()
+        }
+    }
+    
+    func firePlayerLaser(offset: CGFloat) {
+        
+        //let laser = SKSpriteNode(color: SKColor.red, size: CGSize(width: 2, height: 16))
+        let laser = SKSpriteNode(imageNamed: "playerLaser")
+        laser.size = CGSize(width: 15, height: 15)
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
+        }
+        laser.name = kLaserName
+        laser.zPosition = 3
+        laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
+        laser.physicsBody?.isDynamic = true
+        laser.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
+        laser.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        laser.physicsBody?.collisionBitMask = PhysicsCategory.None
+        laser.physicsBody?.usesPreciseCollisionDetection = true
+        
+        addChild(laser)
+        let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
+        let actionMoveDone = SKAction.removeFromParent()
+        laser.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func firePlayerMissile() {
+        let audioNode = SKAudioNode(fileNamed: "missile")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
+        
+        let missile = SKSpriteNode(imageNamed: "missile")
+        missile.size = CGSize(width: 20, height: 30)
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            missile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + missile.size.height/2)
+        }
+        missile.name = kMissileName
+        missile.zPosition = 5
+        missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
+        missile.physicsBody?.isDynamic = true
+        missile.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
+        missile.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        missile.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missile.physicsBody?.usesPreciseCollisionDetection = true
+        missile.physicsBody?.allowsRotation = false
+        
+        addChild(missile)
+        let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: 3000), duration: 7.5)
+        let actionMoveDone = SKAction.removeFromParent()
+        missile.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func missileExplosion(missile: SKNode) {
+        let audioNode = SKAudioNode(fileNamed: "explosion")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+        let missileExplosion = SKSpriteNode()
+        missileExplosion.alpha = 0.0
+        missileExplosion.size = CGSize(width: 70, height: 70)
+        missileExplosion.position = missile.position
+        missileExplosion.userData = NSMutableDictionary()
+
+        missileExplosion.name = kMissileExplosionName
+        missileExplosion.physicsBody = SKPhysicsBody(rectangleOf: missileExplosion.size)
+        missileExplosion.physicsBody?.isDynamic = true
+        missileExplosion.physicsBody?.categoryBitMask = PhysicsCategory.MissileExplosion
+        missileExplosion.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid | PhysicsCategory.EyeBoss
+        missileExplosion.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missile.physicsBody?.usesPreciseCollisionDetection = true
+        missileExplosion.physicsBody?.allowsRotation = false
+
+        addChild(missileExplosion)
+        missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
+    }
+    
+    func missileExplosionEffect(position: CGPoint) {
+        let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
+        missileExplosionEffect?.particlePosition = position
+        missileExplosionEffect?.zPosition = 2
+        addChild(missileExplosionEffect!)
+        missileExplosionEffect?.run(SKAction.wait(forDuration: 2), completion: { missileExplosionEffect?.removeFromParent() })
+    }
+    
+    
+    func setUpHomingMissile() {
+        let wait = SKAction.wait(forDuration: 5.0/Double(numberOfHomingMissileUpgrades))
+        let audioNode = SKAudioNode(fileNamed: "missile")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        let playSound = SKAction.run {
+            audioNode.run(playAction)
+        }
+        let stopSound = SKAction.run {
+            audioNode.run(SKAction.stop())
+        }
+        let fire = SKAction.run {
+            self.addHomingMissile(direction: "Left")
+            self.addHomingMissile(direction: "Right")
+        }
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            player.run(SKAction.repeatForever(SKAction.sequence([wait, stopSound, fire, playSound])))
+        }
+    }
+    
+    func addHomingMissile(direction: String) {
+        let missile = SKSpriteNode(imageNamed: "homingMissile")
+        missile.size = CGSize(width: 7, height: 20)
+        missile.name = kHomingMissileName
+        missile.zPosition = 5
+        missile.userData = NSMutableDictionary()
+        missile.physicsBody = SKPhysicsBody(rectangleOf: missile.size)
+        missile.physicsBody?.isDynamic = true
+        missile.physicsBody?.affectedByGravity = false
+        missile.physicsBody?.categoryBitMask = PhysicsCategory.PlayerProjectile
+        missile.physicsBody?.contactTestBitMask = PhysicsCategory.Alien | PhysicsCategory.Asteroid
+        missile.physicsBody?.collisionBitMask = PhysicsCategory.None
+        missile.physicsBody?.usesPreciseCollisionDetection = true
+        missile.physicsBody?.allowsRotation = false
+        
+        addChild(missile)
+        
+        if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            if direction == "Left" {
+                missile.physicsBody?.velocity.dx = -10
+                missile.position = player.position + CGPoint(x: -20, y: 0)
+            } else if direction == "Right" {
+                missile.physicsBody?.velocity.dx = 10
+                missile.position = player.position + CGPoint(x: 20, y: 0)
+            }
+        }
+        setClosestNode(node: missile)
+        missile.physicsBody?.velocity.dy = 5
+        homingMissileArray.append(missile)
+        let wait = SKAction.wait(forDuration:15.0)
+        let action = SKAction.removeFromParent()
+        missile.run(SKAction.sequence([wait,action]))
+    }
+    
+    // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
+    // Finds the closest enemy node when the missile is created, constantly moves towards that node.
+    // If node it is tracking is destroyed, make a new node to track
+    func processHomingMissileMovement() {
+        for homingMissile in homingMissileArray {
+            if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
+                if closestEnemy.isHidden == true {
+                    setClosestNode(node: homingMissile)
+                }
+                if homingMissile.position.x > closestEnemy.position.x {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
+                } else {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 1, dy: 0))
+                }
+                if homingMissile.position.y > closestEnemy.position.y {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -1))
+                } else {
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 1))
+                }
+                let positionToRotateTo = atan2((homingMissile.physicsBody?.velocity.dy)!, (homingMissile.physicsBody?.velocity.dx)!)
+                homingMissile.zRotation = CGFloat(positionToRotateTo) - 90 * DegreesToRadians
+            } else {
+                setClosestNode(node: homingMissile)
+            }
+        }
+    }
+    
+    func setClosestNode(node: SKSpriteNode) {
+        var closestNode: CGFloat = 0
+        for child in children {
+            if child.name != nil && allPossibleEnemies.contains(child.name!) {
+                let tempDistance = calculateDistanceBetween(node1: node, node2: child as! SKSpriteNode)
+                if tempDistance > closestNode {
+                    closestNode = tempDistance
+                    node.userData?.setValue(child, forKey: "closest")
+                }
+            }
+        }
+    }
+    
+    // TODO: Use this for other fuctions
+    func calculateDistanceBetween(node1: SKSpriteNode, node2: SKSpriteNode) -> CGFloat {
+        let adjacent = node1.position.y - node2.position.y
+        let opposite = node1.position.x - node2.position.x
+        return sqrt(pow(adjacent, 2.0) + pow(opposite, 2.0))
+    }
+    
+    
+    // Enemy death effects
+    func explosionEffect(position: CGPoint, fileName: String, score: Int, sound: String) {
+        if sound != "" {
+            let audioNode = SKAudioNode(fileNamed: sound)
+            audioNode.autoplayLooped = false
+            self.addChild(audioNode)
+            let playAction = SKAction.play()
+            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
+        }
+        let explosionEffect = SKEmitterNode(fileNamed: fileName)
+        explosionEffect?.particlePosition = position
+        addChild(explosionEffect!)
+        explosionEffect?.run(SKAction.wait(forDuration: 1), completion: { explosionEffect?.removeFromParent() })
+        
+        let scoreEffect = SKLabelNode(fontNamed: "Avenir")
+        scoreEffect.fontSize = 20
+        scoreEffect.fontColor = SKColor.white
+        scoreEffect.text = "+\(score)"
+        scoreEffect.position = position
+        scoreEffect.zPosition = 5
+        addChild(scoreEffect)
+        scoreEffect.run(SKAction.wait(forDuration: 1), completion: { scoreEffect.removeFromParent() })
+    }
+    
+    
+    func stopSpawns() {
+        removeAllActions()
     }
     
     
@@ -2004,6 +2038,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playerTakesDamage(damage: 35, view: view!)
                 //TODO: Make small explosion
             }
+            if ob1.name == kPlayerName && ob2.name == kBloodProjectileName {
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 90, view: view!)
+            }
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kAlienName {
             ob2.removeFromParent()
@@ -2043,6 +2081,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ob1.name == kProtectiveShieldName && ob2.name == kPlasmaName {
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 70)
+        }
+        if ob1.name == kProtectiveShieldName && ob2.name == kBloodProjectileName {
+            ob2.removeFromParent()
+            subtractHealth(sprite: ob1, damage: 90)
         }
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
