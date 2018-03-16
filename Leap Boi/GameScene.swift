@@ -9,7 +9,7 @@
 //  Music from: 
 
 //TODO:
-// TOP PRIORITY: In-app payments, littleEyeLasers sometimes act a little funky- shoot wrong direction, finish boss3, eyeBossLaser transparent?, make boss2 aggro after heavyAliens are killed
+// TOP PRIORITY: In-app payments, finish boss3, make boss2 aggro after heavyAliens are killed, UI changes
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -359,12 +359,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupStartEnemies() {
-        setUpAliens(min: 0.2, max: 0.8)
-        setUpAsteroids(min: 4, max: 12)
-        setUpEyeBoss()
+        //setUpAliens(min: 0.2, max: 0.8)
+        //setUpAsteroids(min: 4, max: 12)
+        //setUpEyeBoss()
         //setUpBoss2()
-        //setUpBoss3()
+        setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
+        //setUpSpawnLittleEyes(min: 1, max: 1)
     }
     
     func setupHud() {
@@ -409,7 +410,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100 + 50 * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100000 + 50 * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -766,7 +767,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy
             eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
             if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
-                eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2 - chargeLaser.size.height/2))
+                eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2))
             }
             chargeLaser.removeFromParent()
             self.addChild(eyeBossLaser)
@@ -879,16 +880,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             laser.position = littleEye.position - CGPoint(x: 0, y: littleEye.size.height/2 + laser.size.height/2)
             
             
-            let adjacent = player.position.y - littleEye.position.y
-            let opposite = player.position.x - littleEye.position.x
-            let angle = tan(opposite/adjacent)
-            let newAdjacent = adjacent - 100
-            let newOpposite = tan(angle) * newAdjacent
-            let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
-            let newX = littleEye.position.x + newOpposite
+            let xAndHypotenuse = shootTowardsPlayer(player: player, sprite: littleEye)
             laser.zRotation = faceTowards(sprite1: laser, sprite2: player)
-            let actualDuration = newHypotenuse / 245
-            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let actualDuration = xAndHypotenuse[1] / 245
+            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             laser.run(SKAction.sequence([actionMove, actionMoveDone]))
             addChild(laser)
@@ -1207,21 +1202,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bloodProjectile.physicsBody?.collisionBitMask = PhysicsCategory.None
             bloodProjectile.physicsBody?.usesPreciseCollisionDetection = true
             
-            bloodProjectile.position = harvester.position - CGPoint(x: 0, y: harvester.size.height/2 + bloodProjectile.size.height/2)
+            bloodProjectile.position = harvester.position - CGPoint(x: 0, y: harvester.size.height/2)
             
-            
-            let adjacent = player.position.y - harvester.position.y
-            let opposite = player.position.x - harvester.position.x
-            let angle = tan(opposite/adjacent)
-            let newAdjacent = adjacent - 100
-            let newOpposite = tan(angle) * newAdjacent
-            let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
-            let newX = harvester.position.x + newOpposite
-            let actualDuration = newHypotenuse / 200
-            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let xAndHypotenuse = shootTowardsPlayer(player: player, sprite: harvester)
+            bloodProjectile.zRotation = faceTowards(sprite1: bloodProjectile, sprite2: player)
+            let actualDuration = xAndHypotenuse[1] / 245
+            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             bloodProjectile.run(SKAction.sequence([actionMove, actionMoveDone]))
             addChild(bloodProjectile)
+            
             
             var gifBlood: [SKTexture] = []
             for i in 1...7 {
@@ -1702,6 +1692,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return sqrt(pow(adjacent, 2.0) + pow(opposite, 2.0))
     }
     
+    func shootTowardsPlayer(player: SKSpriteNode, sprite: SKSpriteNode) -> [CGFloat] {
+        let adjacent = player.position.y + player.size.height - (sprite.position.y - sprite.size.height/2)
+        let opposite = player.position.x - sprite.position.x
+        let angle = atan(opposite/adjacent)
+        let newAdjacent = adjacent - 100
+        let newOpposite = tan(angle) * newAdjacent
+        let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
+        let newX = sprite.position.x + newOpposite
+        return [newX, newHypotenuse]
+    }
     
     // Enemy death effects
     func explosionEffect(position: CGPoint, fileName: String, score: Int, sound: String) {
