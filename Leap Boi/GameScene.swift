@@ -10,6 +10,7 @@
 
 //TODO:
 // TOP PRIORITY: In-app payments, finish boss3, make boss2 aggro after heavyAliens are killed, UI changes
+// Make pause menu, with unpause, sound mute, sound unmute - remove pause button while pause menu up
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Pulsing Start button - Completly change menu-
@@ -19,11 +20,10 @@
 // Change eyeboss image..
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
 // Make better name
-// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades
+// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits
 // inapp purchases for cosmetics
 // inapp purchases to get credits
 // Add achievements
-// add pause button- Pause when minimized
 // Boss reverse controls- confusion
 // Spacestation boss
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
@@ -157,6 +157,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kHealthHudName = "healthHud"
     var scoreLabel = SKLabelNode(fontNamed: "Avenir")
     var healthLabel = SKLabelNode(fontNamed: "Avenir")
+    var pauseButton: SKSpriteNode! = nil
+    var pauseHolder: SKSpriteNode! = nil
+    var unpauseButton: SKSpriteNode! = nil
+    var muteButton: SKSpriteNode! = nil
+    var gameMuted = false
+    var retryButton: SKSpriteNode! = nil
+    var menuButton: SKSpriteNode! = nil
     
     // Background
     let background1 = SKSpriteNode(imageNamed: "bg1")
@@ -359,11 +366,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupStartEnemies() {
-        //setUpAliens(min: 0.2, max: 0.8)
-        //setUpAsteroids(min: 4, max: 12)
+        setUpAliens(min: 0.2, max: 0.8)
+        setUpAsteroids(min: 4, max: 12)
         //setUpEyeBoss()
         //setUpBoss2()
-        setUpBoss3()
+        //setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         //setUpSpawnLittleEyes(min: 1, max: 1)
     }
@@ -390,6 +397,73 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         )
         healthLabel.zPosition = 20
         addChild(healthLabel)
+        
+        createPauseButton()
+    }
+    
+    func createPauseButton() {
+        pauseButton = SKSpriteNode(imageNamed: "pause")
+        pauseButton.size = CGSize(width: 25, height: 25)
+        pauseButton.zPosition = 50
+        pauseButton.position = CGPoint(x: size.width - pauseButton.size.width, y: size.height - pauseButton.size.height)
+        addChild(pauseButton)
+    }
+    
+    func createPauseNode() {
+        pauseHolder = SKSpriteNode(imageNamed: "horizontal-fullscreen-button-holder-without-buttons")
+        pauseHolder.zPosition = 9
+        pauseHolder.size = CGSize(width: 333, height: 226.6)
+        pauseHolder.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        addChild(pauseHolder)
+        createUnpauseButton()
+        createMuteButton()
+        createRetryButton()
+        createMenuButton()
+    }
+    
+    func removePauseNode() {
+        pauseHolder.removeFromParent()
+        unpauseButton.removeFromParent()
+        muteButton.removeFromParent()
+        retryButton.removeFromParent()
+        menuButton.removeFromParent()
+    }
+    
+    func createUnpauseButton() {
+        unpauseButton = SKSpriteNode(imageNamed: "play")
+        unpauseButton.zPosition = 10
+        unpauseButton.size = CGSize(width: 51.2, height: 51.2)
+        unpauseButton.position = CGPoint(x: size.width * 0.5 - pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        addChild(unpauseButton)
+    }
+    
+    func createMuteButton() {
+        muteButton = SKSpriteNode(imageNamed: "")
+        if gameMuted {
+            muteButton.texture = SKTexture(imageNamed: "sound-off")
+        } else {
+            muteButton.texture = SKTexture(imageNamed: "sound-on")
+        }
+        muteButton.zPosition = 10
+        muteButton.size = CGSize(width: 51.2, height: 51.2)
+        muteButton.position = CGPoint(x: size.width * 0.5 - pauseHolder.size.width * 0.086786, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        addChild(muteButton)
+    }
+    
+    func createRetryButton() {
+        retryButton = SKSpriteNode(imageNamed: "retry")
+        retryButton.zPosition = 10
+        retryButton.size = CGSize(width: 51.2, height: 51.2)
+        retryButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        addChild(retryButton)
+    }
+    
+    func createMenuButton() {
+        menuButton = SKSpriteNode(imageNamed: "menu")
+        menuButton.zPosition = 10
+        menuButton.size = CGSize(width: 51.2, height: 51.2)
+        menuButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.086786, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        addChild(menuButton)
     }
     
     func updateHud(){
@@ -2029,6 +2103,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchingScreen = false
+        let touch = touches.first
+        let touchLocation = touch!.location(in: self)
+        if pauseButton.contains(touchLocation) {
+            // TODO: Create pause pop-up
+            createPauseNode()
+            GameScene.sharedInstance.isPaused = true
+        }
+        if unpauseButton != nil && unpauseButton.contains(touchLocation) {
+            removePauseNode()
+            GameScene.sharedInstance.isPaused = false
+        }
     }
     
     // Called when there is a collision between two nodes.
@@ -2211,7 +2296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ob2.removeFromParent()
         }
         if ob1.name == kEyeBossLaserName && ob2.name == kLittleEyeName {
-            //TODO: Make littleEye burn up
+            explosionEffect(position: ob2.position, fileName: "LittleEyeExplosionParticle.sks", score: 0, sound: "littleEyePop")
             ob2.removeFromParent()
         }
         
@@ -2311,4 +2396,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
     }
+    
 }
