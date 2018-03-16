@@ -318,6 +318,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupMusic() {
+        if gameMuted {
+            return
+        }
         let path = Bundle.main.path(forResource: "Race to Mars", ofType: "mp3")!
         let url = URL(fileURLWithPath: path)
         do {
@@ -332,6 +335,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupBossMusic() {
+        if gameMuted {
+            return
+        }
         let path = Bundle.main.path(forResource: "battle", ofType: "wav")!
         let url = URL(fileURLWithPath: path)
         do {
@@ -403,7 +409,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createPauseButton() {
         pauseButton = SKSpriteNode(imageNamed: "pause")
-        pauseButton.size = CGSize(width: 25, height: 25)
+        pauseButton.size = CGSize(width: 30, height: 30)
         pauseButton.zPosition = 50
         pauseButton.position = CGPoint(x: size.width - pauseButton.size.width, y: size.height - pauseButton.size.height)
         addChild(pauseButton)
@@ -454,7 +460,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         retryButton = SKSpriteNode(imageNamed: "retry")
         retryButton.zPosition = 10
         retryButton.size = CGSize(width: 51.2, height: 51.2)
-        retryButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        retryButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.086786, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
         addChild(retryButton)
     }
     
@@ -462,7 +468,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuButton = SKSpriteNode(imageNamed: "menu")
         menuButton.zPosition = 10
         menuButton.size = CGSize(width: 51.2, height: 51.2)
-        menuButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.086786, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
+        menuButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
         addChild(menuButton)
     }
     
@@ -484,7 +490,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100000 + 50 * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100 + 50 * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -2106,14 +2112,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if pauseButton.contains(touchLocation) {
-            // TODO: Create pause pop-up
+            pauseButton.removeFromParent()
             createPauseNode()
             GameScene.sharedInstance.isPaused = true
         }
         if unpauseButton != nil && unpauseButton.contains(touchLocation) {
             removePauseNode()
+            createPauseButton()
             GameScene.sharedInstance.isPaused = false
         }
+        
+        if muteButton != nil && muteButton.contains(touchLocation) {
+            gameMuted = !gameMuted
+            if gameMuted {
+                muteButton.texture = SKTexture(imageNamed: "sound-off")
+                GameData.shared.bgMusicPlayer.pause()
+            } else {
+                muteButton.texture = SKTexture(imageNamed: "sound-on")
+//                if eyeBossSpawned && !eyeBossDefeated || boss2Spawned && !boss2Defeated || boss3Spawned && !boss3Defeated {
+//                    setupBossMusic()
+//                } else {
+//                    setupMusic()
+//                }
+                GameData.shared.bgMusicPlayer.play()
+            }
+        }
+        
+        if retryButton != nil && retryButton.contains(touchLocation) {
+            resetGameData()
+            gameSceneLoad(view: view!)
+        }
+        if menuButton != nil && menuButton.contains(touchLocation) {
+            resetGameData()
+            startSceneLoad(view: view!)
+        }
+        
     }
     
     // Called when there is a collision between two nodes.
