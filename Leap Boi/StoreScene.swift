@@ -52,7 +52,7 @@ class StoreScene: SKScene {
     }
     
     func createCreditsLabel() {
-        creditsLabel = SKLabelNode(fontNamed: "Avenir")
+        creditsLabel = SKLabelNode(fontNamed: "SquareFont")
         creditsLabel.zPosition = 2
         creditsLabel.fontSize = 25
         creditsLabel.fontColor = SKColor.white

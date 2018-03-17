@@ -70,7 +70,7 @@ class StartScene: SKScene {
     }
     
     func createGameNameLabel() {
-        let gameNameLabel = SKLabelNode(fontNamed: "Avenir")
+        let gameNameLabel = SKLabelNode(fontNamed: "SquareFont")
         gameNameLabel.zPosition = 2
         gameNameLabel.fontSize = 55
         gameNameLabel.fontColor = SKColor.white
@@ -89,7 +89,7 @@ class StartScene: SKScene {
     }
     
     func createCreditsLabel() {
-        let creditsLabel = SKLabelNode(fontNamed: "Avenir")
+        let creditsLabel = SKLabelNode(fontNamed: "SquareFont")
         creditsLabel.zPosition = 2
         creditsLabel.fontSize = 35
         creditsLabel.fontColor = SKColor.white

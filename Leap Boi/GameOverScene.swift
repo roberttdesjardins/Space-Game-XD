@@ -12,7 +12,7 @@ import CoreMotion
 import AVFoundation
 
 class GameOverScene: SKScene {
-    var restartButton: SKNode! = nil
+    var restartButton: SKSpriteNode! = nil
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -47,7 +47,7 @@ class GameOverScene: SKScene {
     }
     
     func createGameOverLabel() {
-        let gameOverLabel = SKLabelNode(fontNamed: "Courier")
+        let gameOverLabel = SKLabelNode(fontNamed: "SquareFont")
         gameOverLabel.fontSize = 50
         gameOverLabel.fontColor = SKColor.red
         gameOverLabel.text = "You Died"
@@ -57,7 +57,7 @@ class GameOverScene: SKScene {
     }
     
     func createScoreLabel() {
-        let scoreLabel = SKLabelNode(fontNamed: "Avenir")
+        let scoreLabel = SKLabelNode(fontNamed: "SquareFont")
         scoreLabel.fontSize = 35
         scoreLabel.fontColor = SKColor.white
         scoreLabel.text = "Score: \(GameData.shared.playerScore)"
@@ -67,7 +67,7 @@ class GameOverScene: SKScene {
     }
     
     func createCreditsEarnedLabel() {
-        let creditsLabel = SKLabelNode(fontNamed: "Avenir")
+        let creditsLabel = SKLabelNode(fontNamed: "SquareFont")
         creditsLabel.fontSize = 35
         creditsLabel.fontColor = SKColor.white
         creditsLabel.text = "Credits Earned: \(GameData.shared.creditsEarned)"
@@ -77,9 +77,12 @@ class GameOverScene: SKScene {
     }
     
     func createRestartButton() {
-        restartButton = SKSpriteNode(imageNamed: "restartButton")
+        let buttonWidth = size.width - 80
+        let buttonHeight = buttonWidth * 0.2974683544
+        restartButton = SKSpriteNode(imageNamed: "button_restart")
         restartButton.zPosition = 2
-        restartButton.position = CGPoint(x: size.width/2, y: size.height/2 - 250)
+        restartButton.size = CGSize(width: buttonWidth, height: buttonHeight)
+        restartButton.position = CGPoint(x: size.width/2, y: restartButton.size.height + 10)
         addChild(restartButton)
     }
     

@@ -36,6 +36,7 @@
 		553DF731205B20C000D4183E /* BloodProjectileHitParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 553DF730205B20C000D4183E /* BloodProjectileHitParticle.sks */; };
 		55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DEE205067F400DB6491 /* laserchargesound.wav */; };
 		55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DF02050697E00DB6491 /* laserbeamsound.wav */; };
+		55642F62205DAAA0005DB271 /* Square.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55642F61205DAAA0005DB271 /* Square.ttf */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
 		5592286520523884002836CA /* boss2explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5592286420523884002836CA /* boss2explosion.wav */; };
 		55978A1D20488AB600CA8AC6 /* UserDefaultExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */; };
@@ -79,6 +80,7 @@
 		553DF730205B20C000D4183E /* BloodProjectileHitParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = BloodProjectileHitParticle.sks; sourceTree = "<group>"; };
 		55601DEE205067F400DB6491 /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55601DF02050697E00DB6491 /* laserbeamsound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserbeamsound.wav; sourceTree = "<group>"; };
+		55642F61205DAAA0005DB271 /* Square.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Square.ttf; path = ../../../../../Library/Fonts/Square.ttf; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
 		5592286420523884002836CA /* boss2explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = boss2explosion.wav; sourceTree = "<group>"; };
 		55978A1C20488AB600CA8AC6 /* UserDefaultExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultExt.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				553DF72C205B1BD900D4183E /* PlasmaExplosionParticle.sks */,
 				553DF72E205B1DAF00D4183E /* AlienLaserHitParticle.sks */,
 				553DF730205B20C000D4183E /* BloodProjectileHitParticle.sks */,
+				55642F61205DAAA0005DB271 /* Square.ttf */,
 			);
 			path = "Leap Boi";
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 				552C6A6C2059B0B70070DE0E /* EyeBossExplosionParticle.sks in Resources */,
 				5505100120572208002E3B20 /* gameover.wav in Resources */,
 				55075B92204B8FA9006D656F /* missile.wav in Resources */,
+				55642F62205DAAA0005DB271 /* Square.ttf in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
 				553DF72F205B1DAF00D4183E /* AlienLaserHitParticle.sks in Resources */,
 				55050FF9205701FD002E3B20 /* menu.wav in Resources */,

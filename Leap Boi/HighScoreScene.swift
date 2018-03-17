@@ -30,7 +30,7 @@ class HighScoreScene: SKScene {
     
     
     func createHighScoreTable() {
-        let highScoreTable = SKLabelNode(fontNamed: "Avenir")
+        let highScoreTable = SKLabelNode(fontNamed: "SquareFont")
         highScoreTable.fontSize = 35
         highScoreTable.fontColor = SKColor.white
         highScoreTable.numberOfLines = 11
