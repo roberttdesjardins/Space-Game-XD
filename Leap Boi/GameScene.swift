@@ -155,8 +155,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kBloodProjectileName = "bloodProjectile"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
-    var scoreLabel = SKLabelNode(fontNamed: "Avenir")
-    var healthLabel = SKLabelNode(fontNamed: "Avenir")
+    var scoreLabel = SKLabelNode(fontNamed: "SquareFont")
+    var healthLabel = SKLabelNode(fontNamed: "SquareFont")
     var pauseButton: SKSpriteNode! = nil
     var pauseHolder: SKSpriteNode! = nil
     var unpauseButton: SKSpriteNode! = nil
@@ -383,24 +383,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setupHud() {
         scoreLabel.name = kScoreHudName
+        scoreLabel.fontName = "SquareFont"
         scoreLabel.fontSize = 15
         scoreLabel.fontColor = SKColor.white
         scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
         scoreLabel.position = CGPoint(
-            x: scoreLabel.frame.size.width/2 + 15,
+            x: 0,
             y: size.height - scoreLabel.frame.size.height
         )
+        scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         scoreLabel.zPosition = 20
         addChild(scoreLabel)
         
         healthLabel.name = kHealthHudName
+        healthLabel.fontName = "SquareFont"
         healthLabel.fontSize = 15
         healthLabel.fontColor = SKColor.green
         healthLabel.text = String("Health: \(GameData.shared.playerHealth)%")
         healthLabel.position = CGPoint(
-            x: healthLabel.frame.size.width/2,
+            x: 0,
             y: size.height - (20 + healthLabel.frame.size.height/2)
         )
+        healthLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         healthLabel.zPosition = 20
         addChild(healthLabel)
         
@@ -1688,7 +1692,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.addHomingMissile(direction: "Right")
         }
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            player.run(SKAction.repeatForever(SKAction.sequence([wait, stopSound, fire, playSound])))
+            player.run(SKAction.repeatForever(SKAction.sequence([wait, stopSound, fire, playSound])), withKey: "missile")
         }
     }
     
@@ -2129,11 +2133,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 GameData.shared.bgMusicPlayer.pause()
             } else {
                 muteButton.texture = SKTexture(imageNamed: "sound-on")
-//                if eyeBossSpawned && !eyeBossDefeated || boss2Spawned && !boss2Defeated || boss3Spawned && !boss3Defeated {
-//                    setupBossMusic()
-//                } else {
-//                    setupMusic()
-//                }
                 GameData.shared.bgMusicPlayer.play()
             }
         }
@@ -2289,6 +2288,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kHomingMissileUpgradeName {
+            ob1.removeAction(forKey: "missile")
             if numberOfHomingMissileUpgrades < 5 {
                 numberOfHomingMissileUpgrades = numberOfHomingMissileUpgrades + 1
             }
