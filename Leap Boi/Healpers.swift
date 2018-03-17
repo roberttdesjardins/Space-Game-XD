@@ -22,51 +22,51 @@ func random(min: CGFloat, max: CGFloat) -> CGFloat {
 
 
 func setAlienHealth(alien: SKSpriteNode) {
-    alien.userData?.setValue(3, forKey: "health")
+    alien.userData?.setValue(3.0, forKey: "health")
 }
 
 func setLargeAsteroidHealth(asteroid: SKSpriteNode) {
-    asteroid.userData?.setValue(10, forKey: "health")
+    asteroid.userData?.setValue(10.0, forKey: "health")
 }
 
 func setMediumAsteroidHealth(asteroid: SKSpriteNode) {
-    asteroid.userData?.setValue(5, forKey: "health")
+    asteroid.userData?.setValue(5.0, forKey: "health")
 }
 
 func setSmallAsteroidHealth(asteroid: SKSpriteNode) {
-    asteroid.userData?.setValue(2, forKey: "health")
+    asteroid.userData?.setValue(2.0, forKey: "health")
 }
 
 func setAlienCruiserHealth(alienCruiser: SKSpriteNode) {
-    alienCruiser.userData?.setValue(90, forKey: "health")
+    alienCruiser.userData?.setValue(90.0, forKey: "health")
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
-    eyeBoss.userData?.setValue(400, forKey: "health")
+    eyeBoss.userData?.setValue(400.0, forKey: "health")
 }
 
 func setLittleEyeHealth(littleEye: SKSpriteNode) {
-    littleEye.userData?.setValue(8, forKey: "health")
+    littleEye.userData?.setValue(8.0, forKey: "health")
 }
 
 func setBoss2Health(boss2: SKSpriteNode) {
-    boss2.userData?.setValue(800, forKey: "health")
+    boss2.userData?.setValue(800.0, forKey: "health")
 }
 
 func setHeavyAlienHealth(heavyAlien: SKSpriteNode) {
-    heavyAlien.userData?.setValue(400, forKey: "health")
+    heavyAlien.userData?.setValue(400.0, forKey: "health")
 }
 
 func setBoss3Phase1Health(boss3: SKSpriteNode) {
-    boss3.userData?.setValue(1000, forKey: "health")
+    boss3.userData?.setValue(1000.0, forKey: "health")
 }
 
 func setHarvesterHealth(harvester: SKSpriteNode) {
-    harvester.userData?.setValue(80, forKey: "health")
+    harvester.userData?.setValue(80.0, forKey: "health")
 }
 
 func setBoss3Phase2Health(boss3: SKSpriteNode) {
-    boss3.userData?.setValue(1000, forKey: "health")
+    boss3.userData?.setValue(1000.0, forKey: "health")
 }
 
 func setShieldHealth(shield: SKSpriteNode) {

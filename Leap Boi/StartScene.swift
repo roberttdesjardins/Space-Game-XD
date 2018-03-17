@@ -25,7 +25,7 @@ class StartScene: SKScene {
         GameData.shared.numberOfHealthUpgrades = UserDefaults.standard.getUserHealthUpgrades()
         GameData.shared.numberOfShieldHealthUpgrades = UserDefaults.standard.getUserShieldHealthUpgrades()
         GameData.shared.numberOfShieldDurationUpgrades = UserDefaults.standard.getUserShieldDurationUpgrades()
-        GameData.shared.shieldAmount = 100 + 50 * GameData.shared.numberOfShieldHealthUpgrades
+        GameData.shared.shieldAmount = Double(100 + 50 * GameData.shared.numberOfShieldHealthUpgrades)
         GameData.shared.shieldTime = TimeInterval(10 + 5 * GameData.shared.numberOfShieldDurationUpgrades)
         createBackground()
         if !GameData.shared.playingMenuMusic {

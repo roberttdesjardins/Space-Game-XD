@@ -4,16 +4,12 @@
 //
 //  Created by Robert Desjardins on 2018-02-26.
 //  Copyright © 2018 Robert Desjardins. All rights reserved.
-//  Icon made by Becris from www.flaticon.com
-//  Icon made by Freepik from www.flaticon.com
 //  Music from: 
 
-//TODO:
-// TOP PRIORITY: In-app payments, finish boss3, make boss2 aggro after heavyAliens are killed, UI changes
-// Make pause menu, with unpause, sound mute, sound unmute - remove pause button while pause menu up
+// TODO:
+// TOP PRIORITY: In-app payments, finish boss3, make boss2 aggro after heavyAliens are killed
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
-// Pulsing Start button - Completly change menu-
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
 // Make upgrades "bounce up and out" when spawned
@@ -31,7 +27,6 @@
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?, Nuke
 // Power up icons: https://www.gamedevmarket.net/asset/asteroids-crusher-game-assets-3793/
 // Attack upgrade that turns lasers a different colour?
-// Swipe up, move forward fixed amount, so two different y axis positions
 // Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
@@ -142,6 +137,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kProtectiveShieldUpgradeName = "protectiveShieldUpgrade"
     let kProtectiveShieldName = "protectiveShield"
     let kHomingMissileUpgradeName = "homingMissileUpgrade"
+    let kLaserDamageUpgradeName = "laserDamageUpgrade"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
@@ -155,6 +151,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kBloodProjectileName = "bloodProjectile"
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
+    let kPauseHolderName = "pauseHolder"
+    let kUnpauseButtonName = "unpauseButton"
+    let kMuteButtonName = "muteButton"
+    let kRetryButtonName = "retryButton"
+    let kMenuButtonName = "menuButton"
     var scoreLabel = SKLabelNode(fontNamed: "SquareFont")
     var healthLabel = SKLabelNode(fontNamed: "SquareFont")
     var pauseButton: SKSpriteNode! = nil
@@ -177,10 +178,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var fireRate = 0.3
     // The players weapon choice
     var playerWeapon = ""
+    // Base damage of weapons
+    var laserBaseDamage = 1.0
+    var missileBaseDamage = 1.0
+    var homingMissileBaseDamage = 1.0
+    var missileExplosionBaseDamage = 4.0
     // Invulnerable right after getting hit
     var playerTempInvulnerable = false
     // The number of fireRate upgrades
     private var fireRateUpgradeNumber = 0
+    // The number of laserDamage upgrades
+    private var laserDamageUpgradeNumber = 0.0
+    // The number of missile explosion upgrades
+    private var missileExplosionDamageUpgradeNumber = 0.0
     // All the possible upgrades
     private var twoShotUpgrade = false
     private var threeShotUpgrade = false
@@ -421,6 +431,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createPauseNode() {
         pauseHolder = SKSpriteNode(imageNamed: "horizontal-fullscreen-button-holder-without-buttons")
+        pauseHolder.name = kPauseHolderName
         pauseHolder.zPosition = 9
         pauseHolder.size = CGSize(width: 333, height: 226.6)
         pauseHolder.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
@@ -432,15 +443,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func removePauseNode() {
-        pauseHolder.removeFromParent()
-        unpauseButton.removeFromParent()
-        muteButton.removeFromParent()
-        retryButton.removeFromParent()
-        menuButton.removeFromParent()
+        let nodesToRemove = [kPauseHolderName, kMenuButtonName, kUnpauseButtonName, kRetryButtonName, kMuteButtonName]
+        for child in children {
+            if child.name != nil && nodesToRemove.contains(child.name!) {
+                child.removeFromParent()
+            }
+        }
     }
     
     func createUnpauseButton() {
         unpauseButton = SKSpriteNode(imageNamed: "play")
+        unpauseButton.name = kUnpauseButtonName
         unpauseButton.zPosition = 10
         unpauseButton.size = CGSize(width: 51.2, height: 51.2)
         unpauseButton.position = CGPoint(x: size.width * 0.5 - pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
@@ -449,6 +462,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createMuteButton() {
         muteButton = SKSpriteNode(imageNamed: "")
+        muteButton.name = kMuteButtonName
         if gameMuted {
             muteButton.texture = SKTexture(imageNamed: "sound-off")
         } else {
@@ -462,6 +476,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createRetryButton() {
         retryButton = SKSpriteNode(imageNamed: "retry")
+        retryButton.name = kRetryButtonName
         retryButton.zPosition = 10
         retryButton.size = CGSize(width: 51.2, height: 51.2)
         retryButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.086786, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
@@ -470,6 +485,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createMenuButton() {
         menuButton = SKSpriteNode(imageNamed: "menu")
+        menuButton.name = kMenuButtonName
         menuButton.zPosition = 10
         menuButton.size = CGSize(width: 51.2, height: 51.2)
         menuButton.position = CGPoint(x: size.width * 0.5 + pauseHolder.size.width * 0.25975, y: size.height * 0.5 - pauseHolder.size.height/2 + 22)
@@ -520,7 +536,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.physicsBody = SKPhysicsBody(texture: alien.texture!, size: alien.size)
         alien.physicsBody?.isDynamic = false
         alien.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        alien.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        alien.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         alien.physicsBody?.collisionBitMask = PhysicsCategory.None
         alien.zPosition = 1
         
@@ -544,7 +560,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
         alienLaser.physicsBody?.isDynamic = false
         alienLaser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
-        alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        alienLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
         alienLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
@@ -586,7 +602,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
         asteroid.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 6, max: 10)))
@@ -614,7 +630,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
         asteroid.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 3, max: 5)))
         let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
@@ -640,7 +656,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
         asteroid.physicsBody?.isDynamic = false
         asteroid.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 1, max: 3)))
         let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
@@ -676,7 +692,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienCruiser.physicsBody = SKPhysicsBody(texture: alienCruiser.texture!, size: alienCruiser.size)
         alienCruiser.physicsBody?.isDynamic = false
         alienCruiser.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        alienCruiser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        alienCruiser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         alienCruiser.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualX = random(min: alienCruiser.size.width/2, max: size.width - alienCruiser.size.width/2)
@@ -716,7 +732,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienMissile.physicsBody?.isDynamic = true
         alienMissile.physicsBody?.affectedByGravity = false
         alienMissile.physicsBody?.categoryBitMask = PhysicsCategory.AlienMissile
-        alienMissile.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        alienMissile.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
         alienMissile.physicsBody?.collisionBitMask = PhysicsCategory.AlienMissile
         alienMissile.physicsBody?.usesPreciseCollisionDetection = true
 
@@ -779,7 +795,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBoss.physicsBody?.isDynamic = true
         eyeBoss.physicsBody?.affectedByGravity = false
         eyeBoss.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        eyeBoss.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        eyeBoss.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         eyeBoss.physicsBody?.collisionBitMask = PhysicsCategory.None
         eyeBoss.physicsBody?.usesPreciseCollisionDetection = true
     }
@@ -848,7 +864,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size - CGSize(width: 91, height: 0))
             eyeBossLaser.physicsBody?.isDynamic = false
             eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
-            eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy
+            eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy | PhysicsCategory.Shield
             eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
             if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
                 eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2))
@@ -908,7 +924,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         littleEye.physicsBody?.isDynamic = true
         littleEye.physicsBody?.affectedByGravity = false
         littleEye.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        littleEye.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.EyeBossLaserAttack
+        littleEye.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.Shield
         littleEye.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         let actualX = random(min: littleEye.size.width/2, max: size.width - littleEye.size.width/2)
@@ -957,7 +973,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
             laser.physicsBody?.isDynamic = false
             laser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
-            laser.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            laser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
             laser.physicsBody?.collisionBitMask = PhysicsCategory.None
             laser.physicsBody?.usesPreciseCollisionDetection = true
             
@@ -1035,7 +1051,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.isDynamic = true
         boss2.physicsBody?.affectedByGravity = false
         boss2.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        boss2.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        boss2.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         boss2.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss2.physicsBody?.usesPreciseCollisionDetection = true
         boss2.physicsBody?.velocity.dx = CGFloat(40)
@@ -1063,7 +1079,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         heavyAlien.physicsBody?.isDynamic = true
         heavyAlien.physicsBody?.affectedByGravity = false
         heavyAlien.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        heavyAlien.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        heavyAlien.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         heavyAlien.physicsBody?.collisionBitMask = PhysicsCategory.None
         heavyAlien.physicsBody?.usesPreciseCollisionDetection = true
     }
@@ -1128,7 +1144,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             plasma.physicsBody = SKPhysicsBody(texture: plasma.texture!, size: plasma.size - CGSize(width: 20, height: 20))
             plasma.physicsBody?.isDynamic = false
             plasma.physicsBody?.categoryBitMask = PhysicsCategory.Plasma
-            plasma.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            plasma.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
             plasma.physicsBody?.collisionBitMask = PhysicsCategory.None
             plasma.physicsBody?.usesPreciseCollisionDetection = true
             
@@ -1172,13 +1188,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let playAction = SKAction.play()
         audioNode1.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 4), SKAction.removeFromParent()]))
         boss2.run(SKAction.repeat(SKAction.animate(with: gifExplosion, timePerFrame: 0.04), count: 10), completion: {
-            let audioNode = SKAudioNode(fileNamed: "explosion")
-            audioNode.autoplayLooped = false
-            self.addChild(audioNode)
-            let playAction = SKAction.play()
-            audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
-            self.missileExplosionEffect(position: boss2.position)
-            // TODO: show boss2KillScore
+            self.explosionEffect(position: boss2.position, fileName: "MissileExplosionParticle.sks", score: self.boss2killScore, sound: "explosion")
+            GameData.shared.playerScore = GameData.shared.playerScore + self.boss2killScore
             boss2.removeFromParent()
         })
     }
@@ -1216,7 +1227,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.physicsBody?.isDynamic = true
         boss3.physicsBody?.affectedByGravity = false
         boss3.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         boss3.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss3.physicsBody?.usesPreciseCollisionDetection = true
     }
@@ -1240,7 +1251,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         harvester.physicsBody = SKPhysicsBody(texture: harvester.texture!, size: harvester.size)
         harvester.physicsBody?.isDynamic = false
         harvester.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        harvester.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion
+        harvester.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         harvester.physicsBody?.collisionBitMask = PhysicsCategory.None
         harvester.zPosition = 1
         if let boss3 = childNode(withName: kBoss3Phase1Name) as? SKSpriteNode {
@@ -1282,7 +1293,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bloodProjectile.physicsBody = SKPhysicsBody(texture: bloodProjectile.texture!, size: bloodProjectile.size)
             bloodProjectile.physicsBody?.isDynamic = false
             bloodProjectile.physicsBody?.categoryBitMask = PhysicsCategory.BloodProjectile
-            bloodProjectile.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+            bloodProjectile.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
             bloodProjectile.physicsBody?.collisionBitMask = PhysicsCategory.None
             bloodProjectile.physicsBody?.usesPreciseCollisionDetection = true
             
@@ -1319,7 +1330,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.physicsBody?.isDynamic = true
         boss3.physicsBody?.affectedByGravity = false
         boss3.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
-        boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player
+        boss3.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         boss3.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss3.physicsBody?.usesPreciseCollisionDetection = true
         
@@ -1437,6 +1448,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(homingMissileUpgrade)
     }
     
+    func addLaserDamagePowerUp(position: CGPoint) {
+        let damageUpgrade = SKSpriteNode(imageNamed: "Powerup_Red_Glow")
+        damageUpgrade.name = kLaserDamageUpgradeName
+        damageUpgrade.size = CGSize(width: 20, height: 20)
+        damageUpgrade.physicsBody = SKPhysicsBody(rectangleOf: damageUpgrade.size)
+        damageUpgrade.physicsBody?.isDynamic = false
+        damageUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        damageUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        damageUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        damageUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        damageUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: damageUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        damageUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(damageUpgrade)
+    }
+    
     
     // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate
     func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
@@ -1452,6 +1483,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if numberOfHomingMissileUpgrades <= 5 {
                 spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
             }
+            if laserDamageUpgradeNumber <= 5 {
+                spawnLaserDamageRandom(position: position, percentChance: percentChance/5)
+            }
         }
         if playerWeapon == kMissileName {
             spawnHealthRandom(position: position, percentChance: percentChance/4)
@@ -1462,6 +1496,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if numberOfHomingMissileUpgrades <= 5 {
                 spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
             }
+            //spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
         }
     }
     
@@ -1501,6 +1536,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func spawnLaserDamageRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addLaserDamagePowerUp(position: position)
+        }
+    }
+    
+    
     func addProtectiveShield() {
         protectiveShieldActive = true
         let shield = SKSpriteNode(imageNamed: "shield")
@@ -1513,7 +1556,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         shield.physicsBody = SKPhysicsBody(texture: shield.texture!, size: shield.size)
         shield.physicsBody?.isDynamic = true
         shield.physicsBody?.affectedByGravity = false
-        // TODO: everything that damages player should add shield to their contactBitMask
         shield.physicsBody?.categoryBitMask = PhysicsCategory.Shield
         shield.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         shield.physicsBody?.collisionBitMask = PhysicsCategory.None
@@ -1732,7 +1774,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
     // Finds the closest enemy node when the missile is created, constantly moves towards that node.
-    // If node it is tracking is destroyed, make a new node to track
+    // If node it is tracking is destroyed, find a new node to track
     func processHomingMissileMovement() {
         for homingMissile in homingMissileArray {
             if let closestEnemy: SKSpriteNode = homingMissile.userData?.value(forKey: "closest") as? SKSpriteNode {
@@ -1851,8 +1893,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // Removes health equal to damage from sprite
-    func subtractHealth(sprite: SKNode, damage: Int) {
-        let currentHealth: Int = sprite.userData?.value(forKey: "health") as! Int
+    func subtractHealth(sprite: SKNode, damage: CGFloat) {
+        let currentHealth: CGFloat = sprite.userData?.value(forKey: "health") as! CGFloat
         let newHealth = currentHealth - damage
         sprite.userData?.setValue(newHealth, forKey: "health")
         if (newHealth <= 0) {
@@ -1935,7 +1977,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kBoss2Name){
-            GameData.shared.playerScore = GameData.shared.playerScore + boss2killScore
             boss2FullySpawned = false
             self.timeBoss2Defeated = timeCounter
             boss2Defeated = true
@@ -1948,7 +1989,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
             spawnRandomPowerUp(position: tempSprite.position, percentChance: 200.0)
             setUpBoss2Explosion(boss2: tempSprite)
-            let wait = SKAction.wait(forDuration:5.0)
+            let wait = SKAction.wait(forDuration:7.0)
             let action = SKAction.run {
                 // Increase spawn and change spawns
                 self.setupMusic()
@@ -2297,8 +2338,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             setUpHomingMissile()
         }
         
+        if ob1.name == kPlayerName && ob2.name == kLaserDamageUpgradeName {
+            ob2.removeFromParent()
+            if laserDamageUpgradeNumber <= 5 {
+                laserDamageUpgradeNumber = laserDamageUpgradeNumber + 1
+                //TODO: Change laser colour
+            }
+        }
+        
         if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
-            subtractHealth(sprite: ob1, damage: 1)
+            subtractHealth(sprite: ob1, damage: CGFloat(laserBaseDamage * (1.0 + laserDamageUpgradeNumber * 0.2)))
             ob2.removeFromParent()
         }
         
@@ -2319,7 +2368,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if damagedByPlayerMissileExplosionArray.contains(ob1.name!) && ob2.name == kMissileExplosionName && ob1.userData?.value(forKey: "invulnerable") as? Bool != true {
             ob1.userData?.setValue(true, forKey: "invulnerable")
-            subtractHealth(sprite: ob1, damage: 4)
+            subtractHealth(sprite: ob1, damage: CGFloat(missileExplosionBaseDamage * (1.0 + missileExplosionDamageUpgradeNumber * 0.2)))
         }
         
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {
