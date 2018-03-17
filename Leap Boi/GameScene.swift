@@ -2001,6 +2001,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func processUserMotion() {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+                shield.position = player.position
+            }
             if let data = motionManager.accelerometerData {
                 if data.acceleration.x > 0.01 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
@@ -2017,9 +2020,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if data.acceleration.x < 0.01 && data.acceleration.x > -0.01 {
                     player.physicsBody?.velocity.dx = 0.0
                 }
-            }
-            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
-                shield.position = player.position
             }
         }
     }

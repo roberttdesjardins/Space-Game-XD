@@ -31,12 +31,7 @@ class StartScene: SKScene {
         if !GameData.shared.playingMenuMusic {
             setupMusic()
         }
-        createGameNameLabel()
-        createStartButton()
-        createCreditsLabel()
-        createStoreButton()
-        createHighScoreButton()
-        createChooseWeaponButton()
+        createUI()
     }
     
     func createBackground() {
@@ -61,6 +56,19 @@ class StartScene: SKScene {
         GameData.shared.playingMenuMusic = true
     }
     
+    func createUI() {
+        let shortButtonWidth = size.width - 80
+        let shortButtonHeight = shortButtonWidth * 0.2974683544
+        let mediumButtonWidth = size.width - 80
+        let mediumButtonHeight = mediumButtonWidth * 0.2206047032
+        createGameNameLabel()
+        createStartButton(width: shortButtonWidth, height: shortButtonHeight)
+        createCreditsLabel()
+        createStoreButton(width: shortButtonWidth, height: shortButtonHeight)
+        createHighScoreButton(width: mediumButtonWidth, height: mediumButtonHeight)
+        createChooseWeaponButton(width: mediumButtonWidth, height: mediumButtonHeight)
+    }
+    
     func createGameNameLabel() {
         let gameNameLabel = SKLabelNode(fontNamed: "Avenir")
         gameNameLabel.zPosition = 2
@@ -72,9 +80,10 @@ class StartScene: SKScene {
         self.addChild(gameNameLabel)
     }
     
-    func createStartButton() {
-        startButton = SKSpriteNode(imageNamed: "startButton")
+    func createStartButton(width: CGFloat, height: CGFloat) {
+        startButton = SKSpriteNode(imageNamed: "button_play")
         startButton.zPosition = 2
+        startButton.size = CGSize(width: width, height: height)
         startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (4.0/6.0))
         addChild(startButton)
     }
@@ -90,23 +99,26 @@ class StartScene: SKScene {
         self.addChild(creditsLabel)
     }
     
-    func createStoreButton() {
-        storeButton = SKSpriteNode(imageNamed: "storeButton")
+    func createStoreButton(width: CGFloat, height: CGFloat) {
+        storeButton = SKSpriteNode(imageNamed: "button_store")
         storeButton.zPosition = 2
+        storeButton.size = CGSize(width: width, height: height)
         storeButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/6.0))
         addChild(storeButton)
     }
     
-    func createHighScoreButton() {
-        highScoreButton = SKSpriteNode(imageNamed: "highScoresButton")
+    func createHighScoreButton(width: CGFloat, height: CGFloat) {
+        highScoreButton = SKSpriteNode(imageNamed: "button_high_scores")
         highScoreButton.zPosition = 2
+        highScoreButton.size = CGSize(width: width, height: height)
         highScoreButton.position = CGPoint(x: size.width * 0.5, y: size.height * (1.0/6.0))
         addChild(highScoreButton)
     }
     
-    func createChooseWeaponButton() {
-        chooseWeaponButton = SKSpriteNode(imageNamed: "chooseWeapon")
+    func createChooseWeaponButton(width: CGFloat, height: CGFloat) {
+        chooseWeaponButton = SKSpriteNode(imageNamed: "button_choose_weapon")
         chooseWeaponButton.zPosition = 2
+        chooseWeaponButton.size = CGSize(width: width, height: height)
         chooseWeaponButton.position = CGPoint(x: size.width * 0.5, y: 40)
         addChild(chooseWeaponButton)
     }

@@ -12,7 +12,7 @@ import CoreMotion
 
 
 class HighScoreScene: SKScene {
-    var backButton: SKNode! = nil
+    var backButton: SKSpriteNode! = nil
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -21,8 +21,9 @@ class HighScoreScene: SKScene {
     }
     
     func createBackButton() {
-        backButton = SKSpriteNode(imageNamed: "backButton")
+        backButton = SKSpriteNode(imageNamed: "back")
         backButton.zPosition = 2
+        backButton.size = CGSize(width: 64, height: 64)
         backButton.position = CGPoint(x: backButton.frame.size.width / 2 + 20, y: backButton.frame.size.height / 2 + 20)
         addChild(backButton)
     }

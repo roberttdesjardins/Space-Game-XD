@@ -13,21 +13,18 @@ import CoreMotion
 
 class StoreScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
-    var backButton: SKNode! = nil
-    var healthUpgradeButton: SKNode! = nil
-    var shieldHealthUpgradeButton: SKNode! = nil
-    var shieldDurationUpgradeButton: SKNode! = nil
+    var backButton: SKSpriteNode! = nil
+    var healthUpgradeButton: SKSpriteNode! = nil
+    var shieldHealthUpgradeButton: SKSpriteNode! = nil
+    var shieldDurationUpgradeButton: SKSpriteNode! = nil
     var creditsLabel: SKLabelNode! = nil
     
     override func didMove(to view: SKView) {
+        scene?.scaleMode = .aspectFit
         createBackground()
-        createBackButton()
-        createHealthUpgradeButton()
-        createShieldHealthUpgradeButton()
-        createShieldDurationUpgradeButton()
-        createCreditsLabel()
+        createUI()
     }
-    
+
     func createBackground() {
         let background = SKSpriteNode(imageNamed: "starbackground")
         background.zPosition = 1
@@ -36,9 +33,20 @@ class StoreScene: SKScene {
         addChild(background)
     }
     
+    func createUI() {
+        let upgradeButtonWidth = size.width - 30
+        let upgradeButtonHeight = upgradeButtonWidth * 0.1557496361
+        createBackButton()
+        createHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createShieldHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createShieldDurationUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createCreditsLabel()
+    }
+    
     func createBackButton() {
-        backButton = SKSpriteNode(imageNamed: "backButton")
+        backButton = SKSpriteNode(imageNamed: "back")
         backButton.zPosition = 2
+        backButton.size = CGSize(width: 64, height: 64)
         backButton.position = CGPoint(x: backButton.frame.size.width / 2 + 20, y: backButton.frame.size.height / 2 + 20)
         addChild(backButton)
     }
@@ -53,24 +61,27 @@ class StoreScene: SKScene {
         self.addChild(creditsLabel)
     }
     
-    func createHealthUpgradeButton() {
-        healthUpgradeButton = SKSpriteNode(imageNamed: "increaseMaxHpButton")
+    func createHealthUpgradeButton(width: CGFloat, height: CGFloat) {
+        healthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_max_hp")
         healthUpgradeButton.zPosition = 2
+        healthUpgradeButton.size = CGSize(width: width, height: height)
         healthUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (5/6))
         addChild(healthUpgradeButton)
     }
     
-    func createShieldHealthUpgradeButton() {
-        shieldHealthUpgradeButton = SKSpriteNode(imageNamed: "button_increase-shield-amount")
+    func createShieldHealthUpgradeButton(width: CGFloat, height: CGFloat) {
+        shieldHealthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_amount")
         shieldHealthUpgradeButton.zPosition = 2
-        shieldHealthUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (4/6))
+        shieldHealthUpgradeButton.size = CGSize(width: width, height: height)
+        shieldHealthUpgradeButton.position = healthUpgradeButton.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 25)
         addChild(shieldHealthUpgradeButton)
     }
     
-    func createShieldDurationUpgradeButton() {
-        shieldDurationUpgradeButton = SKSpriteNode(imageNamed: "button_increase-shield-duration")
+    func createShieldDurationUpgradeButton(width: CGFloat, height: CGFloat) {
+        shieldDurationUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_duration")
         shieldDurationUpgradeButton.zPosition = 2
-        shieldDurationUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (3/6))
+        shieldDurationUpgradeButton.size = CGSize(width: width, height: height)
+        shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height + 25)
         addChild(shieldDurationUpgradeButton)
     }
     
