@@ -11,6 +11,7 @@ import Foundation
 import AVFoundation
 
 private var warningPlayer: AVAudioPlayer!
+private var buttonSoundPlayer: AVAudioPlayer!
 
 func random() -> CGFloat {
     return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
@@ -185,6 +186,19 @@ func resetGameData() {
 func formatHighScores(arrayOfScores: [Int]) {
     GameData.shared.playerHighScore = quicksort(arrayOfScores)
     GameData.shared.playerHighScore = Array(GameData.shared.playerHighScore.prefix(5))
+}
+
+func playButtonPress() {
+    let path = Bundle.main.path(forResource: "Free-GUI-Buttons-039", ofType: "wav")!
+    let url = URL(fileURLWithPath: path)
+    do {
+        buttonSoundPlayer = try AVAudioPlayer(contentsOf: url)
+        buttonSoundPlayer.numberOfLoops = 0
+        buttonSoundPlayer.prepareToPlay()
+    } catch let error as NSError {
+        print(error.description)
+    }
+    buttonSoundPlayer.play()
 }
 
 func quicksort<T: Comparable>(_ a: [T]) -> [T] {

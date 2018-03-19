@@ -7,8 +7,9 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, change music inbetween bosses
+// TOP PRIORITY: In-app payments, change music inbetween bosses, fix for different size devices
 // Make missile explode when hit by eyeBossLaser
+// Change explosion sound, laser sound, add sounds to most enemies
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -181,6 +182,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var missileBaseDamage = 1.0
     var homingMissileBaseDamage = 1.0
     var missileExplosionBaseDamage = 6.0
+    // Health and Shield upgrade values
+    var healthPerHealthUpgrade = 20
+    var shieldHealthPerUpgrade = 20
     // Invulnerable right after getting hit
     var playerTempInvulnerable = false
     // player moves right when tilting right if direction is 1, vice versa
@@ -524,7 +528,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100 + 50 * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -1706,7 +1710,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func playPowerUpSound() {
-        let audioNode = SKAudioNode(fileNamed: "powerUp")
+        let audioNode = SKAudioNode(fileNamed: "Free-Power-Ups-Items-098")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
         let playAction = SKAction.play()
@@ -1719,7 +1723,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Player Weapons
     func firePlayerWeapon(){
         if(playerWeapon == kLaserName){
-            let audioNode = SKAudioNode(fileNamed: "laser")
+            let audioNode = SKAudioNode(fileNamed: "Free-Guns-Lasers-035")
             audioNode.autoplayLooped = false
             self.addChild(audioNode)
             let playAction = SKAction.play()
@@ -1803,7 +1807,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func missileExplosion(missile: SKNode) {
-        let audioNode = SKAudioNode(fileNamed: "explosion")
+        let audioNode = SKAudioNode(fileNamed: "Free-Explosions-046")
         audioNode.autoplayLooped = false
         self.addChild(audioNode)
         let playAction = SKAction.play()
@@ -2282,17 +2286,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if pauseButton.contains(touchLocation) {
+            playButtonPress()
             pauseButton.removeFromParent()
             createPauseNode()
             GameScene.sharedInstance.isPaused = true
         }
         if unpauseButton != nil && unpauseButton.contains(touchLocation) {
+            playButtonPress()
             removePauseNode()
             createPauseButton()
             GameScene.sharedInstance.isPaused = false
         }
         
         if muteButton != nil && muteButton.contains(touchLocation) {
+            playButtonPress()
             gameMuted = !gameMuted
             if gameMuted {
                 muteButton.texture = SKTexture(imageNamed: "sound-off")
@@ -2304,10 +2311,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if retryButton != nil && retryButton.contains(touchLocation) {
+            playButtonPress()
             resetGameData()
             gameSceneLoad(view: view!)
         }
         if menuButton != nil && menuButton.contains(touchLocation) {
+            playButtonPress()
             resetGameData()
             startSceneLoad(view: view!)
         }

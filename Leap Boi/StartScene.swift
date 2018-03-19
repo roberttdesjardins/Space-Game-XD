@@ -25,7 +25,7 @@ class StartScene: SKScene {
         GameData.shared.numberOfHealthUpgrades = UserDefaults.standard.getUserHealthUpgrades()
         GameData.shared.numberOfShieldHealthUpgrades = UserDefaults.standard.getUserShieldHealthUpgrades()
         GameData.shared.numberOfShieldDurationUpgrades = UserDefaults.standard.getUserShieldDurationUpgrades()
-        GameData.shared.shieldAmount = Double(100 + 50 * GameData.shared.numberOfShieldHealthUpgrades)
+        GameData.shared.shieldAmount = Double(100 + 20 * GameData.shared.numberOfShieldHealthUpgrades)
         GameData.shared.shieldTime = TimeInterval(10 + 5 * GameData.shared.numberOfShieldDurationUpgrades)
         createBackground()
         if !GameData.shared.playingMenuMusic {
@@ -127,15 +127,19 @@ class StartScene: SKScene {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if startButton.contains(touchLocation) {
+            playButtonPress()
             gameSceneLoad(view: view!)
         }
         if storeButton.contains(touchLocation) {
+            playButtonPress()
             storeSceneLoad(view: view!)
         }
         if highScoreButton.contains(touchLocation) {
+            playButtonPress()
             highScoreSceneLoad(view: view!)
         }
         if chooseWeaponButton.contains(touchLocation) {
+            playButtonPress()
             weaponSceneLoad(view: view!)
         }
     }

@@ -66,13 +66,16 @@ class WeaponScene: SKScene {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if backButton.contains(touchLocation) {
+            playButtonPress()
             startSceneLoad(view: view!)
         }
         if laserButton.contains(touchLocation) {
+            playButtonPress()
             GameData.shared.weaponChosen = "laser"
             startSceneLoad(view: view!)
         }
         if missileButton.contains(touchLocation) {
+            playButtonPress()
             GameData.shared.weaponChosen = "missile"
             startSceneLoad(view: view!)
         }

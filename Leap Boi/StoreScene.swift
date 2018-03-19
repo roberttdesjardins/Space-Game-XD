@@ -89,11 +89,13 @@ class StoreScene: SKScene {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if backButton.contains(touchLocation) {
+            playButtonPress()
             startSceneLoad(view: view!)
         }
         if healthUpgradeButton.contains(touchLocation) {
+            playButtonPress()
             let costToUpgrade = 1000 + GameData.shared.numberOfHealthUpgrades * 1000
-            let alert = UIAlertController(title: "Upgrade Max HP by 50?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Upgrade Max HP by 20?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
             }))
@@ -109,7 +111,7 @@ class StoreScene: SKScene {
                     UserDefaults.standard.setUserHealthUpgrades(numberOfHealthUpgrades: GameData.shared.numberOfHealthUpgrades)
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
-                    let newHealth = 100 + 50 * UserDefaults.standard.getUserHealthUpgrades()
+                    let newHealth = 100 + 20 * UserDefaults.standard.getUserHealthUpgrades()
                     let purchaseAlert = UIAlertController(title: "HP increased to \(newHealth)!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
                     purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
@@ -118,8 +120,9 @@ class StoreScene: SKScene {
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
         }
         if shieldHealthUpgradeButton.contains(touchLocation) {
+            playButtonPress()
             let costToUpgrade = 1000 + GameData.shared.numberOfShieldHealthUpgrades * 1000
-            let alert = UIAlertController(title: "Increase shield by 50?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Increase shield by 20?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
             }))
@@ -135,7 +138,7 @@ class StoreScene: SKScene {
                     UserDefaults.standard.setUserShieldHealthUpgrades(numberOfShieldHealthUpgrades: GameData.shared.numberOfShieldHealthUpgrades)
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
-                    let newShieldAmount = 100 + 50 * UserDefaults.standard.getUserShieldHealthUpgrades()
+                    let newShieldAmount = 100 + 20 * UserDefaults.standard.getUserShieldHealthUpgrades()
                     let purchaseAlert = UIAlertController(title: "Shield amount increased to \(newShieldAmount)!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
                     purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
@@ -144,6 +147,7 @@ class StoreScene: SKScene {
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
         }
         if shieldDurationUpgradeButton.contains(touchLocation) {
+            playButtonPress()
             let costToUpgrade = 1000 + GameData.shared.numberOfShieldDurationUpgrades * 1000
             let alert = UIAlertController(title: "Increase shield duration by 5 seconds?", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in

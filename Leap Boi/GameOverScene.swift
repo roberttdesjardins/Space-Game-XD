@@ -90,6 +90,7 @@ class GameOverScene: SKScene {
         let touch = touches.first
         let touchLocation = touch!.location(in: self)
         if restartButton.contains(touchLocation) {
+            playButtonPress()
             startSceneLoad(view: view!)
         }
     }
