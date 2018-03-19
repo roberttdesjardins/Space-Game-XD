@@ -7,7 +7,8 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, finish boss3
+// TOP PRIORITY: In-app payments, change music inbetween bosses
+// Make missile explode when hit by eyeBossLaser
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -20,17 +21,13 @@
 // inapp purchases for cosmetics
 // inapp purchases to get credits
 // Add achievements
-// Boss reverse controls- confusion
 // Spacestation boss
 // Cthulu boss- Final boss- defeating brings you to score screen- not you died though
-// Make aliens fire aoe
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?, Nuke
 // Power up icons: https://www.gamedevmarket.net/asset/asteroids-crusher-game-assets-3793/
-// Attack upgrade that turns lasers a different colour?
 // Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
-// Damage upgrade, change colour of laser and missile.
 // Coin Chest drop which grants a lot of credits?
 // credit sprites and music creators
 // Music from https://itch.io/game-assets/tag-music
@@ -183,7 +180,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var laserBaseDamage = 1.0
     var missileBaseDamage = 1.0
     var homingMissileBaseDamage = 1.0
-    var missileExplosionBaseDamage = 4.0
+    var missileExplosionBaseDamage = 6.0
     // Invulnerable right after getting hit
     var playerTempInvulnerable = false
     // player moves right when tilting right if direction is 1, vice versa
@@ -389,21 +386,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAsteroids(min: 4, max: 12)
         //setUpEyeBoss()
         //setUpBoss2()
-        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
-        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
-        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
-        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 200))
-        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
-        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
-        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
-        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
-        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
-        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        setUpBoss3()
+//        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+//        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+//        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+//        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 200))
+//        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+//        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+//        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+//        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+//        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+//        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+//        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+//        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+//        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+//        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+        //setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         //setUpSpawnLittleEyes(min: 1, max: 1)
     }
@@ -1396,7 +1393,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case 2:
             boss3Attack2()
         case 3:
-            print("attack3")
+            boss3Attack3()
         default:
             return
         }
@@ -1411,6 +1408,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
             let waitWithinVolley = SKAction.wait(forDuration: 0.2)
             let attackVolleyAttack = SKAction.run {
+                // TODO: Play shooting sound- shotgun type sound?
                 for _ in 0 ... 20 {
                     self.addAoeLaser(position: boss3.position - CGPoint(x: 0, y: boss3.size.height/2), rotation: DegreesToRadians * random(min: 180, max: 360), image: "Bullet_Orange_Sphere")
                 }
@@ -1418,11 +1416,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             let attackVolley = SKAction.sequence([attackVolleyAttack, waitWithinVolley, attackVolleyAttack, waitWithinVolley, attackVolleyAttack])
             let wait = SKAction.wait(forDuration: 1)
-            boss3.run(SKAction.sequence([attackVolley, wait, attackVolley, wait, attackVolley, wait, attackVolley, wait]))
+            boss3.run(SKAction.sequence([attackVolley, wait, attackVolley, wait, attackVolley, wait, attackVolley, wait, attackVolley, wait]))
         }
         
     }
     
+    func boss3Attack3() {
+        if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
+            let wait = SKAction.wait(forDuration: 0.1)
+            let fireLeft = SKAction.run {
+                self.addAlienCruiserMissile(alienCruiser: boss3, offset: -30)
+            }
+            let fireRight = SKAction.run {
+                self.addAlienCruiserMissile(alienCruiser: boss3, offset: 30)
+            }
+            boss3.run(SKAction.repeat(SKAction.sequence([wait, fireLeft, wait, fireRight]), count: 20))
+        }
+    }
     
     // POWERUPS
     func addHealthPowerup(position: CGPoint) {
@@ -2149,9 +2159,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let action = SKAction.run {
                 //TODO: change up spawns
                 self.setupMusic()
-                self.setUpAliens(min: 0.1, max: 0.4)
-                self.setUpAsteroids(min: 4, max: 10)
-                self.setUpAlienCruisers(min: 2, max: 8)
+                self.setUpAliens(min: 0.1, max: 0.3)
+                self.setUpAsteroids(min: 2, max: 5)
+                self.setUpAlienCruisers(min: 2, max: 4)
             }
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()

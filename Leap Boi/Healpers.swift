@@ -38,7 +38,7 @@ func setSmallAsteroidHealth(asteroid: SKSpriteNode) {
 }
 
 func setAlienCruiserHealth(alienCruiser: SKSpriteNode) {
-    alienCruiser.userData?.setValue(90.0, forKey: "health")
+    alienCruiser.userData?.setValue(200.0, forKey: "health")
 }
 
 func setEyeBossHealth(eyeBoss: SKSpriteNode) {
@@ -57,9 +57,8 @@ func setHeavyAlienHealth(heavyAlien: SKSpriteNode) {
     heavyAlien.userData?.setValue(400.0, forKey: "health")
 }
 
-// TODO: Change back to 1000.0
 func setBoss3Phase1Health(boss3: SKSpriteNode) {
-    boss3.userData?.setValue(10.0, forKey: "health")
+    boss3.userData?.setValue(1000.0, forKey: "health")
 }
 
 func setHarvesterHealth(harvester: SKSpriteNode) {
@@ -67,7 +66,7 @@ func setHarvesterHealth(harvester: SKSpriteNode) {
 }
 
 func setBoss3Phase2Health(boss3: SKSpriteNode) {
-    boss3.userData?.setValue(1000.0, forKey: "health")
+    boss3.userData?.setValue(1600.0, forKey: "health")
 }
 
 func setShieldHealth(shield: SKSpriteNode) {
