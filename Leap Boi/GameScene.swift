@@ -241,6 +241,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var timeBoss2Attack: CFTimeInterval = 0
     private var timeBoss3Attack: CFTimeInterval = 0
     
+    private var numberHeavyAlienKilled = 0
+    
     // Score for killing each enemy
     let alienKillScore = 30
     let asteroidKillScore = 90
@@ -275,8 +277,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupPlayer()
         setupWeapon()
         setupStartEnemies()
-        //addProtectiveShieldPowerUp(position: CGPoint(x: size.width/2, y: size.height))
-        //addHomingMissilePowerUp(position: CGPoint(x: size.width/2, y: size.height/1))
         setupHud()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
@@ -385,7 +385,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //setUpEyeBoss()
-        //setUpBoss2()
+        setUpBoss2()
+        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
+        addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 200))
+        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+        addLaserDamagePowerUp(position: CGPoint(x: size.width/2, y: 300))
+        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
+        addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
         //setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         //setUpSpawnLittleEyes(min: 1, max: 1)
@@ -531,6 +545,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alien.name = kAlienName
         alien.size = CGSize(width: 35, height: 39.4)
         alien.userData = NSMutableDictionary()
+        alien.userData?.setValue(false, forKey: "isDead")
         setAlienHealth(alien: alien)
         
         alien.physicsBody = SKPhysicsBody(texture: alien.texture!, size: alien.size)
@@ -582,6 +597,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         alien.run(SKAction.repeatForever(SKAction.sequence([wait, run])))
     }
+    
+    // Make a projectile which moves in the direction it is facing
+    func addAoeLaser(position: CGPoint, rotation: CGFloat, image: String) {
+        let laser = SKSpriteNode(imageNamed: image)
+        laser.name = kAlienLaserName
+        laser.zPosition = 4
+        laser.size = CGSize(width: 32, height: 32)
+        laser.position = position
+        laser.zRotation = rotation
+        
+        laser.physicsBody = SKPhysicsBody(texture: laser.texture!, size: laser.size - CGSize(width: 5, height: 5))
+        laser.physicsBody?.isDynamic = true
+        laser.physicsBody?.affectedByGravity = false
+        laser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
+        laser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
+        laser.physicsBody?.collisionBitMask = PhysicsCategory.None
+        laser.physicsBody?.usesPreciseCollisionDetection = true
+        laser.physicsBody?.velocity = CGVector(dx: 200 * cos(laser.zRotation), dy: 200 * sin(laser.zRotation))
+        
+        let actionWait = SKAction.wait(forDuration: 5)
+        let actionWaitDone = SKAction.removeFromParent()
+        laser.run(SKAction.sequence([actionWait, actionWaitDone]))
+        addChild(laser)
+    }
 
     func setUpAsteroids(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
@@ -597,6 +636,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.name = kAsteroidName
         asteroid.size = CGSize(width: 80, height: 80)
         asteroid.userData = NSMutableDictionary()
+        asteroid.userData?.setValue(false, forKey: "isDead")
         setLargeAsteroidHealth(asteroid: asteroid)
         
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
@@ -625,6 +665,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.name = kMediumAsteroidName
         asteroid.size = CGSize(width: 40, height: 40)
         asteroid.userData = NSMutableDictionary()
+        asteroid.userData?.setValue(false, forKey: "isDead")
         setMediumAsteroidHealth(asteroid: asteroid)
         
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
@@ -651,6 +692,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.name = kSmallAsteroidName
         asteroid.size = CGSize(width: 20, height: 20)
         asteroid.userData = NSMutableDictionary()
+        asteroid.userData?.setValue(false, forKey: "isDead")
         setSmallAsteroidHealth(asteroid: asteroid)
         
         asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
@@ -687,6 +729,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienCruiser.zPosition = 3
         alienCruiser.size = CGSize(width: 80, height: 100)
         alienCruiser.userData = NSMutableDictionary()
+        alienCruiser.userData?.setValue(false, forKey: "isDead")
         setAlienCruiserHealth(alienCruiser: alienCruiser)
         
         alienCruiser.physicsBody = SKPhysicsBody(texture: alienCruiser.texture!, size: alienCruiser.size)
@@ -775,6 +818,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupBossMusic()
         let eyeBoss = SKSpriteNode(imageNamed: "eyeBoss1")
         eyeBoss.userData = NSMutableDictionary()
+        eyeBoss.userData?.setValue(false, forKey: "isDead")
         setEyeBossHealth(eyeBoss: eyeBoss)
         eyeBoss.size = CGSize(width: 110, height: 152)
         eyeBoss.position = CGPoint(x: size.width/2, y: size.height + eyeBoss.size.height)
@@ -918,6 +962,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         littleEye.size = CGSize(width: 32, height: 32)
         littleEye.zPosition = 5
         littleEye.userData = NSMutableDictionary()
+        littleEye.userData?.setValue(false, forKey: "isDead")
         setLittleEyeHealth(littleEye: littleEye)
         
         littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size - CGSize(width: 12, height: 12))
@@ -1028,11 +1073,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addHeavyAlien(position: CGPoint(x: size.width * (3/4), y: size.height), initialDelay: 0.3)
         let boss2 = SKSpriteNode(imageNamed: "boss2")
         boss2.userData = NSMutableDictionary()
+        boss2.userData?.setValue(false, forKey: "isDead")
         setBoss2Health(boss2: boss2)
         boss2.size = CGSize(width: 110, height: 152)
         boss2.position = CGPoint(x: size.width/2, y: size.height + boss2.size.height)
         boss2.name = kBoss2Name
-        boss2.zPosition = 3
+        boss2.zPosition = 5
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             let lookAtConstraint = SKConstraint.orient(to: player, offset: SKRange(constantValue: CGFloat.pi / 2))
             boss2.constraints = [lookAtConstraint]
@@ -1060,6 +1106,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addHeavyAlien(position: CGPoint, initialDelay: CGFloat) {
         let heavyAlien = SKSpriteNode(imageNamed: "heavyenemy")
         heavyAlien.userData = NSMutableDictionary()
+        heavyAlien.userData?.setValue(false, forKey: "isDead")
         setHeavyAlienHealth(heavyAlien: heavyAlien)
         heavyAlien.size = CGSize(width: 80, height: 80)
         heavyAlien.position = position + CGPoint(x: 0, y: heavyAlien.size.height/2)
@@ -1108,20 +1155,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func processBoss2Attacks(attackChosen: Int) {
-        switch attackChosen {
-        case 1:
-            boss2Attack1()
-        case 2:
-            boss2Attack2()
-        default:
-            return
-        }
-    }
-    
-    
-    // shoots a volley of plasma attacks
-    func boss2Attack1() {
+    // shoots a volley of plasma attacks, aggros if both heavyAliens are dead
+    func boss2Attack() {
         if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
             let wait = SKAction.wait(forDuration: 0.2)
             let leftAttack = SKAction.run {
@@ -1132,8 +1167,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             let oneAttack = SKAction.sequence([wait, leftAttack, wait, rightAttack])
             boss2.run(SKAction.repeat(oneAttack, count: 10))
+            
+            if numberHeavyAlienKilled == 2 {
+                let aoeAttack = SKAction.run {
+                    self.addBoss2AoeAttack(position: boss2.position)
+                }
+                let aoeWait = SKAction.wait(forDuration: 0.4)
+                boss2.run(SKAction.repeat(SKAction.sequence([aoeAttack, aoeWait]), count: 12))
+            }
+            
         }
-        
     }
     
     func addBoss2PlasmaAttack(position: CGPoint, rotation: CGFloat) {
@@ -1169,11 +1212,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             plasma.run(SKAction.sequence([actionMove, actionMoveDone]))
             addChild(plasma)
         }
-        
     }
     
-    func boss2Attack2() {
-        
+    func addBoss2AoeAttack(position: CGPoint) {
+        for x in 0 ... 18 {
+            addAoeLaser(position: position, rotation: DegreesToRadians * CGFloat(180 + x * 10), image: "Bullet_Orange_Sphere_Glow")
+        }
     }
     
     // Called when boss2 is killed
@@ -1186,7 +1230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioNode1.autoplayLooped = true
         self.addChild(audioNode1)
         let playAction = SKAction.play()
-        audioNode1.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 4), SKAction.removeFromParent()]))
+        audioNode1.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 4.1), SKAction.removeFromParent()]))
         boss2.run(SKAction.repeat(SKAction.animate(with: gifExplosion, timePerFrame: 0.04), count: 10), completion: {
             self.explosionEffect(position: boss2.position, fileName: "MissileExplosionParticle.sks", score: self.boss2killScore, sound: "explosion")
             GameData.shared.playerScore = GameData.shared.playerScore + self.boss2killScore
@@ -1207,6 +1251,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupBossMusic()
         let boss3 = SKSpriteNode(imageNamed: "boss3-1")
         boss3.userData = NSMutableDictionary()
+        boss3.userData?.setValue(false, forKey: "isDead")
         setBoss3Phase1Health(boss3: boss3)
         boss3.size = CGSize(width: 256, height: 320)
         boss3.position = CGPoint(x: size.width/2, y: size.height + boss3.size.height)
@@ -1246,6 +1291,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         harvester.name = kHarvesterName
         harvester.size = CGSize(width: 64, height: 64)
         harvester.userData = NSMutableDictionary()
+        harvester.userData?.setValue(false, forKey: "isDead")
         setHarvesterHealth(harvester: harvester)
         
         harvester.physicsBody = SKPhysicsBody(texture: harvester.texture!, size: harvester.size)
@@ -1319,6 +1365,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func spawnBoss3Phase2 () {
         let boss3 = SKSpriteNode(imageNamed: "boss3-2")
         boss3.userData = NSMutableDictionary()
+        boss3.userData?.setValue(false, forKey: "isDead")
         setBoss3Phase2Health(boss3: boss3)
         boss3.size = CGSize(width: 256, height: 320)
         boss3.position = CGPoint(x: size.width/2, y: size.height - boss3.size.height/2)
@@ -1551,6 +1598,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         shield.size = CGSize(width: 40, height: 40)
         shield.zPosition = 5
         shield.userData = NSMutableDictionary()
+        shield.userData?.setValue(false, forKey: "isDead")
         setShieldHealth(shield: shield)
         
         shield.physicsBody = SKPhysicsBody(texture: shield.texture!, size: shield.size)
@@ -1905,6 +1953,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Handles when an emeny has less than 0 health (Hint: it dies)
     func enemyDead(sprite: SKNode){
         sprite.isHidden = true
+        if (sprite.userData?.value(forKey: "isDead") as? Bool)! {
+            return
+        }
+        sprite.userData?.setValue(true, forKey: "isDead")
         if(sprite.name == kProtectiveShieldName) {
             protectiveShieldActive = false
             sprite.removeFromParent()
@@ -2004,6 +2056,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             GameData.shared.playerScore = GameData.shared.playerScore + heavyAlienKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 50.0)
             sprite.removeFromParent()
+            numberHeavyAlienKilled = numberHeavyAlienKilled + 1
         }
         if(sprite.name == kBoss3Phase1Name){
             stopSpawns()
@@ -2023,7 +2076,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if(sprite.name == kBoss3Phase2Name){
-            // TODO: Boss3 explosion and sound
+            // TODO: Boss3Phase2 explosion and sound
             GameData.shared.playerScore = GameData.shared.playerScore + boss3KillScore
             boss3FullySpawned = false
             self.timeBoss3Defeated = timeCounter
@@ -2130,7 +2183,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processBoss2Movement()
             if(currentTime - timeBoss2Attack) >= boss2AttackRate {
                 timeBoss2Attack = currentTime
-                processBoss2Attacks(attackChosen: Int(arc4random_uniform(1) + 1))
+                //processBoss2Attacks(attackChosen: Int(arc4random_uniform(1) + 1))
+                boss2Attack()
             }
         }
         if boss3FullySpawned && boss3Phase2 {
@@ -2340,6 +2394,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kLaserDamageUpgradeName {
             ob2.removeFromParent()
+            playPowerUpSound()
             if laserDamageUpgradeNumber <= 5 {
                 laserDamageUpgradeNumber = laserDamageUpgradeNumber + 1
                 //TODO: Change laser colour
