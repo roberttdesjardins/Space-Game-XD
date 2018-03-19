@@ -7,7 +7,7 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, finish boss3, make boss2 aggro after heavyAliens are killed
+// TOP PRIORITY: In-app payments, finish boss3
 // Make shield track better - also change image?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -138,6 +138,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kProtectiveShieldName = "protectiveShield"
     let kHomingMissileUpgradeName = "homingMissileUpgrade"
     let kLaserDamageUpgradeName = "laserDamageUpgrade"
+    let kMissileExplosionDamageUpgradeName = "missileExplosionDamageUpgrade"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
@@ -185,6 +186,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var missileExplosionBaseDamage = 4.0
     // Invulnerable right after getting hit
     var playerTempInvulnerable = false
+    // player moves right when tilting right if direction is 1, vice versa
+    var playerMovingDirection = 1
     // The number of fireRate upgrades
     private var fireRateUpgradeNumber = 0
     // The number of laserDamage upgrades
@@ -385,7 +388,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
         //setUpEyeBoss()
-        setUpBoss2()
+        //setUpBoss2()
         addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
         addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
         addThreeShotUpgradePowerUp(position: CGPoint(x: size.width/2, y: 100))
@@ -400,7 +403,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
         addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
         addFireRatePowerup(position: CGPoint(x: size.width/2, y: 400))
-        //setUpBoss3()
+        setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         //setUpSpawnLittleEyes(min: 1, max: 1)
     }
@@ -1329,8 +1332,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addHarvesterAttack(harvester: SKSpriteNode) {
-        
-        
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             let bloodProjectile = SKSpriteNode(imageNamed: "evilProjectile1")
             bloodProjectile.size = CGSize(width: 33.5, height: 33.5)
@@ -1389,6 +1390,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func processBoss3Phase2Attacks(attackChosen: Int) {
+        switch attackChosen {
+        case 1:
+            boss3ReverseControls()
+        case 2:
+            boss3Attack2()
+        case 3:
+            print("attack3")
+        default:
+            return
+        }
+    }
+    
+    func boss3ReverseControls() {
+        // TODO: Make aoe shockwave effect and sound
+        playerMovingDirection = -playerMovingDirection
+    }
+    
+    func boss3Attack2() {
+        if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
+            let waitWithinVolley = SKAction.wait(forDuration: 0.2)
+            let attackVolleyAttack = SKAction.run {
+                for _ in 0 ... 20 {
+                    self.addAoeLaser(position: boss3.position - CGPoint(x: 0, y: boss3.size.height/2), rotation: DegreesToRadians * random(min: 180, max: 360), image: "Bullet_Orange_Sphere")
+                }
+                
+            }
+            let attackVolley = SKAction.sequence([attackVolleyAttack, waitWithinVolley, attackVolleyAttack, waitWithinVolley, attackVolleyAttack])
+            let wait = SKAction.wait(forDuration: 1)
+            boss3.run(SKAction.sequence([attackVolley, wait, attackVolley, wait, attackVolley, wait, attackVolley, wait]))
+        }
         
     }
     
@@ -1515,6 +1546,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(damageUpgrade)
     }
     
+    func addMissileExplosionDamagePowerUp(position: CGPoint) {
+        // TODO: Change image
+        let damageUpgrade = SKSpriteNode(imageNamed: "Powerup_Red_Glow")
+        damageUpgrade.name = kMissileExplosionDamageUpgradeName
+        damageUpgrade.size = CGSize(width: 20, height: 20)
+        damageUpgrade.physicsBody = SKPhysicsBody(rectangleOf: damageUpgrade.size)
+        damageUpgrade.physicsBody?.isDynamic = false
+        damageUpgrade.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
+        damageUpgrade.physicsBody?.contactTestBitMask = PhysicsCategory.Player
+        damageUpgrade.physicsBody?.collisionBitMask = PhysicsCategory.None
+        damageUpgrade.physicsBody?.usesPreciseCollisionDetection = true
+        
+        
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        damageUpgrade.position = position
+        let actionMove = SKAction.move(to: CGPoint(x: damageUpgrade.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        damageUpgrade.run(SKAction.sequence([actionMove, actionMoveDone]))
+        addChild(damageUpgrade)
+    }
+    
     
     // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate
     func spawnRandomPowerUp(position: CGPoint, percentChance: CGFloat) {
@@ -1543,7 +1595,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if numberOfHomingMissileUpgrades <= 5 {
                 spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
             }
-            //spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
+            if missileExplosionDamageUpgradeNumber <= 5 {
+                spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
+            }
         }
     }
     
@@ -1587,6 +1641,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
         if(randomNum <= percentChance){
             addLaserDamagePowerUp(position: position)
+        }
+    }
+    
+    func spawnMissileExplosionDamageRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addMissileExplosionDamagePowerUp(position: position)
         }
     }
     
@@ -2082,6 +2143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.timeBoss3Defeated = timeCounter
             boss3Defeated = true
             print("Boss3 defeated at: \(self.timeBoss3Defeated)")
+            playerMovingDirection = 1
             spawnRandomPowerUp(position: sprite.position, percentChance: 400.0)
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
@@ -2103,19 +2165,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 shield.position = player.position
             }
             if let data = motionManager.accelerometerData {
-                if data.acceleration.x > 0.01 {
+                if data.acceleration.x > 0.02 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
                     //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * 1.25)))
                     // Disabled Acceleration
-                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10))
+                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
                 }
-                if data.acceleration.x < -0.01 {
+                if data.acceleration.x < -0.02 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
                     //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * -1.25)))
                     // Disabled Acceleration
-                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10))
+                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
                 }
-                if data.acceleration.x < 0.01 && data.acceleration.x > -0.01 {
+                if data.acceleration.x < 0.02 && data.acceleration.x > -0.02 {
                     player.physicsBody?.velocity.dx = 0.0
                 }
             }
@@ -2183,7 +2245,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processBoss2Movement()
             if(currentTime - timeBoss2Attack) >= boss2AttackRate {
                 timeBoss2Attack = currentTime
-                //processBoss2Attacks(attackChosen: Int(arc4random_uniform(1) + 1))
                 boss2Attack()
             }
         }
@@ -2191,7 +2252,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             processBoss3Phase2Movement()
             if(currentTime - timeBoss3Attack) >= boss3AttackRate {
                 timeBoss3Attack = currentTime
-                processBoss3Phase2Attacks(attackChosen: Int(arc4random_uniform(1) + 1))
+                processBoss3Phase2Attacks(attackChosen: Int(arc4random_uniform(3) + 1))
             }
         }
         if !alienMissileArray.isEmpty {
@@ -2398,6 +2459,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if laserDamageUpgradeNumber <= 5 {
                 laserDamageUpgradeNumber = laserDamageUpgradeNumber + 1
                 //TODO: Change laser colour
+            }
+        }
+        
+        if ob1.name == kPlayerName && ob2.name == kMissileExplosionDamageUpgradeName {
+            ob2.removeFromParent()
+            playPowerUpSound()
+            if missileExplosionDamageUpgradeNumber <= 5 {
+                missileExplosionDamageUpgradeNumber = missileExplosionDamageUpgradeNumber + 1
+                // TODO: Change colour of explosion?
             }
         }
         

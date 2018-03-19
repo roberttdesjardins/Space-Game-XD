@@ -53,13 +53,13 @@ func setBoss2Health(boss2: SKSpriteNode) {
     boss2.userData?.setValue(800.0, forKey: "health")
 }
 
-// TODO: change back to 400.0
 func setHeavyAlienHealth(heavyAlien: SKSpriteNode) {
-    heavyAlien.userData?.setValue(4.0, forKey: "health")
+    heavyAlien.userData?.setValue(400.0, forKey: "health")
 }
 
+// TODO: Change back to 1000.0
 func setBoss3Phase1Health(boss3: SKSpriteNode) {
-    boss3.userData?.setValue(1000.0, forKey: "health")
+    boss3.userData?.setValue(10.0, forKey: "health")
 }
 
 func setHarvesterHealth(harvester: SKSpriteNode) {
