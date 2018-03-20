@@ -83,6 +83,14 @@ func gameOver(view: UIView) {
     skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
 }
 
+func winSceneLoad(view: UIView) {
+    let scene = WinGameOverScene(size: view.bounds.size)
+    let skView = view as! SKView
+    skView.ignoresSiblingOrder = true
+    scene.scaleMode = .resizeFill
+    skView.presentScene(scene, transition: SKTransition.doorsOpenHorizontal(withDuration: 1.0))
+}
+
 func startSceneLoad(view: UIView) {
     let scene = StartScene(size: view.bounds.size)
     let skView = view as! SKView

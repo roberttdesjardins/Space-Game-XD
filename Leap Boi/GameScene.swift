@@ -7,8 +7,9 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, change music inbetween bosses, fix for different size devices
-// Make shield track better - also change image?
+// TOP PRIORITY: In-app payments, change music inbetween bosses, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
+
+// Make shield track better - also change image? - USE CONSTRAINTS?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
@@ -292,16 +293,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Called on Scene load
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
+        let runStartSound = SKAction.run {
+            self.startSoundFile()
+        }
+        let wait = SKAction.wait(forDuration: 5.0)
+        let runMusic = SKAction.run {
+            self.setupMusic(music: "Race to Mars", type: "mp3")
+        }
+        run(SKAction.sequence([runStartSound, wait, runMusic]))
+        
         setupDamageArrays()
         setupScreen()
         setupBackground()
-        setupMusic()
         setupPlayer()
         setupWeapon()
         setupStartEnemies()
         setupHud()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
+    }
+    
+    func startSoundFile() {
+        let audioNode = SKAudioNode(fileNamed: "start-level")
+        audioNode.autoplayLooped = false
+        self.addChild(audioNode)
+        let playAction = SKAction.play()
+        audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 5), SKAction.removeFromParent()]))
     }
     
     func setupDamageArrays(){
@@ -349,28 +366,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func setupMusic() {
+    func setupMusic(music: String, type: String) {
         if gameMuted {
             return
         }
-        let path = Bundle.main.path(forResource: "Race to Mars", ofType: "mp3")!
-        let url = URL(fileURLWithPath: path)
-        do {
-            GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
-            GameData.shared.bgMusicPlayer.numberOfLoops = -1
-            GameData.shared.bgMusicPlayer.prepareToPlay()
-        } catch let error as NSError {
-            print(error.description)
-        }
-        GameData.shared.bgMusicPlayer.play()
-        GameData.shared.playingMenuMusic = false
-    }
-    
-    func setupBossMusic() {
-        if gameMuted {
-            return
-        }
-        let path = Bundle.main.path(forResource: "battle", ofType: "wav")!
+        let path = Bundle.main.path(forResource: music, ofType: type)!
         let url = URL(fileURLWithPath: path)
         do {
             GameData.shared.bgMusicPlayer = try AVAudioPlayer(contentsOf: url)
@@ -408,7 +408,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpAsteroids(min: 4, max: 12)
         //setUpEyeBoss()
         //setUpBoss2()
-        setUpBoss3()
+        //setUpBoss3()
         //setUpAlienCruisers(min: 1, max: 5)
         //setUpSpawnLittleEyes(min: 1, max: 1)
     }
@@ -532,7 +532,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100000 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -823,7 +823,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Spawns the first boss- eyeBoss
     func spawnEyeBoss() {
-        setupBossMusic()
+        setupMusic(music: "battle", type: "wav")
         let eyeBoss = SKSpriteNode(imageNamed: "eyeBoss1")
         eyeBoss.userData = NSMutableDictionary()
         eyeBoss.userData?.setValue(false, forKey: "isDead")
@@ -1076,7 +1076,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func spawnBoss2() {
-        setupBossMusic()
+        // TODO: Add music
+        setupMusic(music: "action", type: "mp3")
         addHeavyAlien(position: CGPoint(x: size.width/4, y: size.height), initialDelay: 0)
         addHeavyAlien(position: CGPoint(x: size.width * (3/4), y: size.height), initialDelay: 0.3)
         let boss2 = SKSpriteNode(imageNamed: "boss2")
@@ -1256,7 +1257,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func spawnBoss3() {
-        setupBossMusic()
+        setupMusic(music: "boss3", type: "wav")
         let boss3 = SKSpriteNode(imageNamed: "boss3-1")
         boss3.userData = NSMutableDictionary()
         boss3.userData?.setValue(false, forKey: "isDead")
@@ -1409,7 +1410,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func boss3ReverseControls() {
         if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
-            
             let audioNode = SKAudioNode(fileNamed: "laserchargesound")
             audioNode.autoplayLooped = false
             self.addChild(audioNode)
@@ -1652,7 +1652,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func firePlayerLaser(offset: CGFloat) {
-        //let laser = SKSpriteNode(imageNamed: "playerLaser")
         let laser = SKSpriteNode()
         if laserDamageUpgradeNumber >= 5 {
             laser.texture = SKTexture(imageNamed: "playerLaserRed")
@@ -2004,7 +2003,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             stopSpawns()
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
-                self.setupMusic()
+                self.setupMusic(music: "gameMusic2", type: "wav")
                 self.setUpAliens(min: 0.2, max: 0.6)
                 self.setUpAsteroids(min: 4, max: 10)
             }
@@ -2033,7 +2032,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let wait = SKAction.wait(forDuration:7.0)
             let action = SKAction.run {
                 // Increase spawn and change spawns
-                self.setupMusic()
+                self.setupMusic(music: "DOS-88 - City Stomper", type: "mp3")
                 self.setUpAliens(min: 0.1, max: 0.4)
                 self.setUpAsteroids(min: 4, max: 10)
                 self.setUpAlienCruisers(min: 5, max: 10)
@@ -2072,14 +2071,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             boss3Defeated = true
             print("Boss3 defeated at: \(self.timeBoss3Defeated)")
             playerMovingDirection = 1
-            spawnRandomPowerUp(position: sprite.position, percentChance: 400.0)
+            //spawnRandomPowerUp(position: sprite.position, percentChance: 400.0)
             let wait = SKAction.wait(forDuration:2.5)
             let action = SKAction.run {
-                //TODO: change up spawns
-                self.setupMusic()
-                self.setUpAliens(min: 0.1, max: 0.3)
-                self.setUpAsteroids(min: 2, max: 5)
-                self.setUpAlienCruisers(min: 2, max: 4)
+                winSceneLoad(view: self.view!)
             }
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()
