@@ -34,7 +34,6 @@
 		553DF72D205B1BD900D4183E /* PlasmaExplosionParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 553DF72C205B1BD900D4183E /* PlasmaExplosionParticle.sks */; };
 		553DF72F205B1DAF00D4183E /* AlienLaserHitParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 553DF72E205B1DAF00D4183E /* AlienLaserHitParticle.sks */; };
 		553DF731205B20C000D4183E /* BloodProjectileHitParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 553DF730205B20C000D4183E /* BloodProjectileHitParticle.sks */; };
-		55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DEE205067F400DB6491 /* laserchargesound.wav */; };
 		55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55601DF02050697E00DB6491 /* laserbeamsound.wav */; };
 		55642F62205DAAA0005DB271 /* Square.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55642F61205DAAA0005DB271 /* Square.ttf */; };
 		557306022044DF6500A9725C /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557306012044DF6500A9725C /* GameVC.swift */; };
@@ -45,6 +44,13 @@
 		55B2AC5720606CBB00D68BBF /* Free-Guns-Lasers-035.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC5620606CBB00D68BBF /* Free-Guns-Lasers-035.mp3 */; };
 		55B2AC5920606D2900D68BBF /* Free-Explosions-046.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC5820606D2900D68BBF /* Free-Explosions-046.wav */; };
 		55B2AC5B20606E9500D68BBF /* Free-GUI-Buttons-039.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC5A20606E9400D68BBF /* Free-GUI-Buttons-039.wav */; };
+		55B2AC5D2060A8F800D68BBF /* Free-Explosions-081.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC5C2060A8F800D68BBF /* Free-Explosions-081.mp3 */; };
+		55B2AC5F2060A95B00D68BBF /* Free-Explosions-096.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC5E2060A95B00D68BBF /* Free-Explosions-096.mp3 */; };
+		55B2AC612060A9A400D68BBF /* Free-Explosions-042.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC602060A9A400D68BBF /* Free-Explosions-042.mp3 */; };
+		55B2AC632060A9F000D68BBF /* Free-Explosions-023.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC622060A9F000D68BBF /* Free-Explosions-023.mp3 */; };
+		55B2AC652060AA1E00D68BBF /* Free-Power-Ups-Items-078.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC642060AA1D00D68BBF /* Free-Power-Ups-Items-078.mp3 */; };
+		55B2AC672060AAC500D68BBF /* Free-Explosions-093.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC662060AAC500D68BBF /* Free-Explosions-093.mp3 */; };
+		55B2AC692060B08D00D68BBF /* laserchargesound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC682060B08D00D68BBF /* laserchargesound.wav */; };
 		55C18353204C9BB300747F00 /* warningBeep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55C18352204C9BB300747F00 /* warningBeep.wav */; };
 		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
@@ -82,7 +88,6 @@
 		553DF72C205B1BD900D4183E /* PlasmaExplosionParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = PlasmaExplosionParticle.sks; sourceTree = "<group>"; };
 		553DF72E205B1DAF00D4183E /* AlienLaserHitParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AlienLaserHitParticle.sks; sourceTree = "<group>"; };
 		553DF730205B20C000D4183E /* BloodProjectileHitParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = BloodProjectileHitParticle.sks; sourceTree = "<group>"; };
-		55601DEE205067F400DB6491 /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55601DF02050697E00DB6491 /* laserbeamsound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserbeamsound.wav; sourceTree = "<group>"; };
 		55642F61205DAAA0005DB271 /* Square.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Square.ttf; path = ../../../../../Library/Fonts/Square.ttf; sourceTree = "<group>"; };
 		557306012044DF6500A9725C /* GameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
@@ -93,6 +98,13 @@
 		55B2AC5620606CBB00D68BBF /* Free-Guns-Lasers-035.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Guns-Lasers-035.mp3"; sourceTree = "<group>"; };
 		55B2AC5820606D2900D68BBF /* Free-Explosions-046.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Free-Explosions-046.wav"; sourceTree = "<group>"; };
 		55B2AC5A20606E9400D68BBF /* Free-GUI-Buttons-039.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Free-GUI-Buttons-039.wav"; sourceTree = "<group>"; };
+		55B2AC5C2060A8F800D68BBF /* Free-Explosions-081.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Explosions-081.mp3"; sourceTree = "<group>"; };
+		55B2AC5E2060A95B00D68BBF /* Free-Explosions-096.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Explosions-096.mp3"; sourceTree = "<group>"; };
+		55B2AC602060A9A400D68BBF /* Free-Explosions-042.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Explosions-042.mp3"; sourceTree = "<group>"; };
+		55B2AC622060A9F000D68BBF /* Free-Explosions-023.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Explosions-023.mp3"; sourceTree = "<group>"; };
+		55B2AC642060AA1D00D68BBF /* Free-Power-Ups-Items-078.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Power-Ups-Items-078.mp3"; sourceTree = "<group>"; };
+		55B2AC662060AAC500D68BBF /* Free-Explosions-093.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Explosions-093.mp3"; sourceTree = "<group>"; };
+		55B2AC682060B08D00D68BBF /* laserchargesound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = laserchargesound.wav; sourceTree = "<group>"; };
 		55C18352204C9BB300747F00 /* warningBeep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = warningBeep.wav; sourceTree = "<group>"; };
 		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,8 +130,8 @@
 		55978A202048B39F00CA8AC6 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
+				55B2AC682060B08D00D68BBF /* laserchargesound.wav */,
 				5592286420523884002836CA /* boss2explosion.wav */,
-				55601DEE205067F400DB6491 /* laserchargesound.wav */,
 				55601DF02050697E00DB6491 /* laserbeamsound.wav */,
 				55C18352204C9BB300747F00 /* warningBeep.wav */,
 				55075B91204B8FA9006D656F /* missile.wav */,
@@ -133,10 +145,16 @@
 				5505100020572208002E3B20 /* gameover.wav */,
 				5505100220572258002E3B20 /* powerUp.wav */,
 				55B2AC5420606C3E00D68BBF /* Free-Power-Ups-Items-098.mp3 */,
+				55B2AC642060AA1D00D68BBF /* Free-Power-Ups-Items-078.mp3 */,
 				552C6A6D2059B1CA0070DE0E /* littleEyePop.wav */,
 				552C6A692059AEAA0070DE0E /* pop.wav */,
 				553DF728205B18F200D4183E /* playerHit.wav */,
 				55B2AC5A20606E9400D68BBF /* Free-GUI-Buttons-039.wav */,
+				55B2AC5C2060A8F800D68BBF /* Free-Explosions-081.mp3 */,
+				55B2AC5E2060A95B00D68BBF /* Free-Explosions-096.mp3 */,
+				55B2AC602060A9A400D68BBF /* Free-Explosions-042.mp3 */,
+				55B2AC622060A9F000D68BBF /* Free-Explosions-023.mp3 */,
+				55B2AC662060AAC500D68BBF /* Free-Explosions-093.mp3 */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -253,25 +271,30 @@
 			files = (
 				55FFA84A204490E000A36E67 /* Main.storyboard in Resources */,
 				55050FFB2057028D002E3B20 /* Race to Mars.mp3 in Resources */,
+				55B2AC692060B08D00D68BBF /* laserchargesound.wav in Resources */,
 				55075B9A204C66F3006D656F /* AlienExplosionParticle.sks in Resources */,
-				55601DEF205067F400DB6491 /* laserchargesound.wav in Resources */,
 				550510072057259F002E3B20 /* laser.mp3 in Resources */,
 				553DF731205B20C000D4183E /* BloodProjectileHitParticle.sks in Resources */,
 				553DF72D205B1BD900D4183E /* PlasmaExplosionParticle.sks in Resources */,
 				55075B96204C5BC2006D656F /* MissileExplosionParticle.sks in Resources */,
+				55B2AC5F2060A95B00D68BBF /* Free-Explosions-096.mp3 in Resources */,
 				55050FFF205706C0002E3B20 /* battle.wav in Resources */,
 				553DF729205B18F200D4183E /* playerHit.wav in Resources */,
 				5592286520523884002836CA /* boss2explosion.wav in Resources */,
+				55B2AC652060AA1E00D68BBF /* Free-Power-Ups-Items-078.mp3 in Resources */,
 				552C6A6A2059AEAA0070DE0E /* pop.wav in Resources */,
 				552C6A6E2059B1CA0070DE0E /* littleEyePop.wav in Resources */,
 				55C18353204C9BB300747F00 /* warningBeep.wav in Resources */,
 				55FFA84C204490E000A36E67 /* Assets.xcassets in Resources */,
+				55B2AC632060A9F000D68BBF /* Free-Explosions-023.mp3 in Resources */,
 				552C6A662059A5DD0070DE0E /* AsteroidExplosionSmallParticle.sks in Resources */,
 				55601DF12050697E00DB6491 /* laserbeamsound.wav in Resources */,
 				55B2AC5B20606E9500D68BBF /* Free-GUI-Buttons-039.wav in Resources */,
 				55075B98204C642E006D656F /* AsteroidExplosionParticle.sks in Resources */,
+				55B2AC5D2060A8F800D68BBF /* Free-Explosions-081.mp3 in Resources */,
 				553DF72B205B194F00D4183E /* AlienMissileExplosionParticle.sks in Resources */,
 				55B2AC5720606CBB00D68BBF /* Free-Guns-Lasers-035.mp3 in Resources */,
+				55B2AC672060AAC500D68BBF /* Free-Explosions-093.mp3 in Resources */,
 				552C6A682059ACF50070DE0E /* LittleEyeExplosionParticle.sks in Resources */,
 				5505100320572258002E3B20 /* powerUp.wav in Resources */,
 				55B2AC5920606D2900D68BBF /* Free-Explosions-046.wav in Resources */,
@@ -279,6 +302,7 @@
 				552C6A6C2059B0B70070DE0E /* EyeBossExplosionParticle.sks in Resources */,
 				55B2AC5520606C3E00D68BBF /* Free-Power-Ups-Items-098.mp3 in Resources */,
 				5505100120572208002E3B20 /* gameover.wav in Resources */,
+				55B2AC612060A9A400D68BBF /* Free-Explosions-042.mp3 in Resources */,
 				55075B92204B8FA9006D656F /* missile.wav in Resources */,
 				55642F62205DAAA0005DB271 /* Square.ttf in Resources */,
 				55FFA84F204490E000A36E67 /* LaunchScreen.storyboard in Resources */,
