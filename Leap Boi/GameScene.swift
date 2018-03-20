@@ -9,6 +9,7 @@
 // TODO:
 // TOP PRIORITY: In-app payments, change music inbetween bosses, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
 
+// Make massive asteroid slower, reduce spawn for after boss1, create new perameter for y offset
 // Make shield track better - also change image? - USE CONSTRAINTS?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
@@ -156,6 +157,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kHomingMissileUpgradeName = "homingMissileUpgrade"
     let kLaserDamageUpgradeName = "laserDamageUpgrade"
     let kMissileExplosionDamageUpgradeName = "missileExplosionDamageUpgrade"
+    let kMissileExplosionSizeUpgradeName = "missileExplosionSizeUpgrade"
     let kEyeBossName = "eyeBoss"
     let kEyeBossLaserName = "eyeBossLaser"
     let kEyeBossLaserChargeName = "eyeBossLaserCharge"
@@ -197,8 +199,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // The players weapon choice
     var playerWeapon = ""
     // Base damage of weapons
-    // TODO: Change to 1.0
-    var laserBaseDamage = 100.0
+    var laserBaseDamage = 1.0
     var missileBaseDamage = 1.0
     var homingMissileBaseDamage = 1.0
     var missileExplosionBaseDamage = 6.0
@@ -215,6 +216,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var laserDamageUpgradeNumber = 0.0
     // The number of missile explosion upgrades
     private var missileExplosionDamageUpgradeNumber = 0.0
+    // The number of missile explosion size upgrades
+    private var largerExplosionUpgradeNumber = 0.0
     // All the possible upgrades
     private var twoShotUpgrade = false
     private var threeShotUpgrade = false
@@ -534,7 +537,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.AlienLaser | PhysicsCategory.EyeBossLaserAttack | PhysicsCategory.AlienMissile | PhysicsCategory.Enemy
         player.physicsBody?.collisionBitMask = PhysicsCategory.Edge
-        GameData.shared.maxPlayerHealth = 100000 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
+        GameData.shared.maxPlayerHealth = 100 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
     }
@@ -634,7 +637,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func setUpAsteroids(min: CGFloat, max: CGFloat) {
         let actionRun = SKAction.run {
-            self.addLargeAsteroid(position: CGPoint(x:random(min: 0, max: self.size.width), y: self.size.height * 1.2), xoffset: CGFloat(0))
+            self.addLargeAsteroid(position: CGPoint(x:random(min: 0, max: self.size.width), y: self.size.height * 1.2), xoffset: 0, yoffset: 0)
         }
         
         run(SKAction.repeatForever(
@@ -647,8 +650,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setUpMassiveAsteroids(min: CGFloat, max: CGFloat) {
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.run(addMassiveAsteroid),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max)))),
+                SKAction.run(addMassiveAsteroid)
                 ])
         ))
     }
@@ -656,7 +659,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addMassiveAsteroid() {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
         asteroid.name = kMassiveAsteroidName
-        asteroid.size = CGSize(width: 320, height: 320)
+        asteroid.size = CGSize(width: 280, height: 280)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
         setMassiveAsteroidHealth(asteroid: asteroid)
@@ -667,7 +670,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
         
-        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 10, max: 12)))
+        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 12, max: 14)))
         let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
         asteroid.run(repeatRotation)
         
@@ -675,14 +678,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
         addChild(asteroid)
         
-        let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
+        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(25.0))
         
         let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: -asteroid.size.height/2), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
         asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
-    func addLargeAsteroid(position: CGPoint, xoffset: CGFloat) {
+    func addLargeAsteroid(position: CGPoint, xoffset: CGFloat, yoffset: CGFloat) {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
         asteroid.name = kLargeAsteroidName
         asteroid.size = CGSize(width: 80, height: 80)
@@ -700,7 +703,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
         asteroid.run(repeatRotation)
         
-        asteroid.position = position + CGPoint(x: xoffset, y: 0)
+        asteroid.position = position + CGPoint(x: xoffset, y: yoffset)
         addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
@@ -1546,10 +1549,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 spawnFireRateRandom(position: position, percentChance: percentChance/5)
             }
             if numberOfHomingMissileUpgrades <= 5 {
-                spawnHomingMissileRandom(position: position, percentChance: percentChance/7)
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/6)
             }
             if missileExplosionDamageUpgradeNumber <= 5 {
                 spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
+            }
+            if largerExplosionUpgradeNumber <= 5 {
+                spawnLargerExplosionRandom(position: position, percentChance: percentChance/5)
             }
         }
     }
@@ -1600,6 +1606,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
         if(randomNum <= percentChance){
             addPowerUp(position: position, image: "Powerup_Red_Glow", name: kMissileExplosionDamageUpgradeName)
+        }
+    }
+    
+    func spawnLargerExplosionRandom(position: CGPoint, percentChance: CGFloat) {
+        let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
+        if(randomNum <= percentChance){
+            addPowerUp(position: position, image: "Powerup_Yellow_Glow", name: kMissileExplosionSizeUpgradeName)
         }
     }
     
@@ -1764,7 +1777,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         let missileExplosion = SKSpriteNode()
         missileExplosion.alpha = 0.0
-        missileExplosion.size = CGSize(width: 70, height: 70)
+        missileExplosion.size = CGSize(width: 70 * (1 + 0.2 * largerExplosionUpgradeNumber), height: 70 * (1 + 0.2 * largerExplosionUpgradeNumber))
         missileExplosion.position = missile.position
         missileExplosion.userData = NSMutableDictionary()
 
@@ -1783,6 +1796,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
+        missileExplosionEffect?.particleBirthRate = CGFloat(1000 + 200 * largerExplosionUpgradeNumber)
+        missileExplosionEffect?.particleSpeed = CGFloat(100 * largerExplosionUpgradeNumber)
         missileExplosionEffect?.particlePosition = position
         missileExplosionEffect?.zPosition = 2
         addChild(missileExplosionEffect!)
@@ -2002,17 +2017,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: massiveAsteroidKillScore, sound: "Free-Explosions-023")
             GameData.shared.playerScore = GameData.shared.playerScore + massiveAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 45.0)
-            self.addLargeAsteroid(position: sprite.position, xoffset: -10)
-            self.addLargeAsteroid(position: sprite.position, xoffset: -8)
-            self.addLargeAsteroid(position: sprite.position, xoffset: -6)
-            self.addLargeAsteroid(position: sprite.position, xoffset: -4)
-            self.addLargeAsteroid(position: sprite.position, xoffset: -2)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 0)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 2)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 4)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 6)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 8)
-            self.addLargeAsteroid(position: sprite.position, xoffset: 10)
+            
+            for _ in 0 ... 11 {
+                let randomXOffset = random(min: -120, max: 120)
+                let randomYOffset = random(min: -120, max: 120)
+                self.addLargeAsteroid(position: sprite.position, xoffset: randomXOffset, yoffset: randomYOffset)
+            }
             sprite.removeFromParent()
         }
         if(sprite.name == kLargeAsteroidName){
@@ -2065,7 +2075,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "gameMusic2", type: "wav")
                 self.setUpAliens(min: 0.2, max: 0.6)
                 self.setUpAsteroids(min: 4, max: 10)
-                self.setUpMassiveAsteroids(min: 20, max: 25)
+                self.setUpMassiveAsteroids(min: 30, max: 35)
             }
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()
@@ -2095,7 +2105,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "DOS-88 - City Stomper", type: "mp3")
                 self.setUpAliens(min: 0.1, max: 0.4)
                 self.setUpAsteroids(min: 4, max: 10)
-                self.setUpMassiveAsteroids(min: 10, max: 12)
+                self.setUpMassiveAsteroids(min: 14, max: 18)
                 self.setUpAlienCruisers(min: 5, max: 10)
             }
             run(SKAction.sequence([wait,action]))
@@ -2303,19 +2313,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             if ob1.name == kPlayerName && ob2.name == kMassiveAsteroidName {
                 explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
-                addLargeAsteroid(position: ob2.position, xoffset: -10)
-                addLargeAsteroid(position: ob2.position, xoffset: -8)
-                addLargeAsteroid(position: ob2.position, xoffset: -6)
-                addLargeAsteroid(position: ob2.position, xoffset: -4)
-                addLargeAsteroid(position: ob2.position, xoffset: -2)
-                addLargeAsteroid(position: ob2.position, xoffset: 0)
-                addLargeAsteroid(position: ob2.position, xoffset: 2)
-                addLargeAsteroid(position: ob2.position, xoffset: 4)
-                addLargeAsteroid(position: ob2.position, xoffset: 6)
-                addLargeAsteroid(position: ob2.position, xoffset: 8)
-                addLargeAsteroid(position: ob2.position, xoffset: 10)
-                ob2.removeFromParent()
-                playerTakesDamage(damage: 400, view: view!)
+                playerTakesDamage(damage: 1000, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kLargeAsteroidName {
                 explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
@@ -2368,19 +2366,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kMassiveAsteroidName {
             explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
-            addLargeAsteroid(position: ob2.position, xoffset: -10)
-            addLargeAsteroid(position: ob2.position, xoffset: -8)
-            addLargeAsteroid(position: ob2.position, xoffset: -6)
-            addLargeAsteroid(position: ob2.position, xoffset: -4)
-            addLargeAsteroid(position: ob2.position, xoffset: -2)
-            addLargeAsteroid(position: ob2.position, xoffset: 0)
-            addLargeAsteroid(position: ob2.position, xoffset: 2)
-            addLargeAsteroid(position: ob2.position, xoffset: 4)
-            addLargeAsteroid(position: ob2.position, xoffset: 6)
-            addLargeAsteroid(position: ob2.position, xoffset: 8)
-            addLargeAsteroid(position: ob2.position, xoffset: 10)
-            ob2.removeFromParent()
-            subtractHealth(sprite: ob1, damage: 400)
+            subtractHealth(sprite: ob1, damage: 1000)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kLargeAsteroidName {
             explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
@@ -2491,6 +2477,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
+        if ob1.name == kPlayerName && ob2.name == kMissileExplosionSizeUpgradeName {
+            ob2.removeFromParent()
+            playPowerUpSound()
+            if largerExplosionUpgradeNumber <= 5 {
+                largerExplosionUpgradeNumber = largerExplosionUpgradeNumber + 1
+            }
+        }
+        
+        
         if damagedByPlayerLaserArray.contains(ob1.name!) && ob2.name == kLaserName {
             subtractHealth(sprite: ob1, damage: CGFloat(laserBaseDamage * (1.0 + laserDamageUpgradeNumber * 0.2)))
             ob2.removeFromParent()
@@ -2513,7 +2508,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if damagedByPlayerMissileExplosionArray.contains(ob1.name!) && ob2.name == kMissileExplosionName && ob1.userData?.value(forKey: "invulnerable") as? Bool != true {
             ob1.userData?.setValue(true, forKey: "invulnerable")
-            subtractHealth(sprite: ob1, damage: CGFloat(missileExplosionBaseDamage * (1.0 + missileExplosionDamageUpgradeNumber * 0.2)))
+            if [kMassiveAsteroidName, kLargeAsteroidName, kMediumAsteroidName, kSmallAsteroidName].contains(ob1.name!) {
+                subtractHealth(sprite: ob1, damage: CGFloat(2.0 * missileExplosionBaseDamage * (1.0 + missileExplosionDamageUpgradeNumber * 0.2)))
+            } else {
+                subtractHealth(sprite: ob1, damage: CGFloat(missileExplosionBaseDamage * (1.0 + missileExplosionDamageUpgradeNumber * 0.2)))
+            }
         }
         
         if ob1.name == kEyeBossLaserName && ob2.name == kMissileName {
