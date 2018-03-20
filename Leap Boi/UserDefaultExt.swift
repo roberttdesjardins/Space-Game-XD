@@ -49,6 +49,21 @@ extension UserDefaults{
         return object(forKey: UserDefaultsKeys.userNumberOfShieldDurationUpgrades.rawValue) as? Int ?? Int()
     }
     
+    func setUserDoubleLaserUpgrade(doubleLaser: Bool) {
+        set(doubleLaser, forKey: UserDefaultsKeys.userDoubleLaserUpgrade.rawValue)
+    }
+    
+    func getUserDoubleLaserUpgrade() -> Bool {
+        return object(forKey: UserDefaultsKeys.userDoubleLaserUpgrade.rawValue) as? Bool ?? Bool()
+    }
+    
+    func setUserHomingMissileUpgrade(homingMissile: Bool) {
+        set(homingMissile, forKey: UserDefaultsKeys.userHomingMissileUpgrade.rawValue)
+    }
+    
+    func getUserHomingMissileUpgrade() -> Bool {
+        return object(forKey: UserDefaultsKeys.userHomingMissileUpgrade.rawValue) as? Bool ?? Bool()
+    }
 }
 
 enum UserDefaultsKeys : String {
@@ -57,4 +72,6 @@ enum UserDefaultsKeys : String {
     case userNumberOfHealthUpgrades
     case userNumberOfShieldHealthUpgrades
     case userNumberOfShieldDurationUpgrades
+    case userDoubleLaserUpgrade
+    case userHomingMissileUpgrade
 }

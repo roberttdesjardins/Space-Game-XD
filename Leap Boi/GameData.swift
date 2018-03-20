@@ -21,6 +21,8 @@ class GameData {
     var numberOfShieldHealthUpgrades = 0
     var shieldTime: TimeInterval = 0 //10
     var numberOfShieldDurationUpgrades = 0
+    var doubleLaserUpgrade = false
+    var homingMissileUpgrade = false
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
     var bgMusicPlayer: AVAudioPlayer!

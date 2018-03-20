@@ -16,7 +16,7 @@
 // Change eyeboss image..
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
 // Make better name
-// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits
+// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits, START WITH 2 LASER, START WITH 1 Homing Missile upgrade
 // inapp purchases for cosmetics
 // inapp purchases to get credits
 // Add achievements
@@ -298,6 +298,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
         let runStartSound = SKAction.run {
+            GameData.shared.bgMusicPlayer.stop()
             self.startSoundFile()
         }
         let wait = SKAction.wait(forDuration: 5.0)
@@ -309,10 +310,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupDamageArrays()
         setupScreen()
         setupBackground()
-        setupPlayer()
         setupWeapon()
+        setupPlayer()
         setupStartEnemies()
         setupHud()
+        setUpUpgrades()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
     }
@@ -550,6 +552,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         GameData.shared.maxPlayerHealth = 100 + healthPerHealthUpgrade * GameData.shared.numberOfHealthUpgrades
         GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         return player
+    }
+    
+    func setUpUpgrades() {
+        if GameData.shared.doubleLaserUpgrade {
+            twoShotUpgrade = true
+        }
+        if GameData.shared.homingMissileUpgrade && playerWeapon == kMissileName {
+            numberOfHomingMissileUpgrades = 1
+            setUpHomingMissile()
+        }
     }
 
     
@@ -1561,16 +1573,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnHealthRandom(position: position, percentChance: percentChance/4)
             spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
             if fireRateUpgradeNumber < 7 {
-                spawnFireRateRandom(position: position, percentChance: percentChance/5)
+                spawnFireRateRandom(position: position, percentChance: percentChance/4)
             }
             if numberOfHomingMissileUpgrades <= 5 {
                 spawnHomingMissileRandom(position: position, percentChance: percentChance/4)
             }
             if missileExplosionDamageUpgradeNumber <= 5 {
-                spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
+                spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/4)
             }
             if largerExplosionUpgradeNumber <= 5 {
-                spawnLargerExplosionRandom(position: position, percentChance: percentChance/5)
+                spawnLargerExplosionRandom(position: position, percentChance: percentChance/3)
             }
         }
     }
@@ -2359,7 +2371,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 explosionEffect(position: ob2.position, fileName: "AlienMissileExplosionParticle.sks", score: 0, sound: "")
                 alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
                 ob2.removeFromParent()
-                playerTakesDamage(damage: 75, view: view!)
+                playerTakesDamage(damage: 65, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kEyeBossName {
                 playerTakesDamage(damage: 80, view: view!)
@@ -2367,7 +2379,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if ob1.name == kPlayerName && ob2.name == kPlasmaName {
                 explosionEffect(position: ob2.position, fileName: "PlasmaExplosionParticle.sks", score: 0, sound: "")
                 ob2.removeFromParent()
-                playerTakesDamage(damage: 45, view: view!)
+                playerTakesDamage(damage: 35, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kBloodProjectileName {
                 explosionEffect(position: ob2.position, fileName: "BloodProjectileHitParticle.sks", score: 0, sound: "")
@@ -2412,14 +2424,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             explosionEffect(position: ob2.position, fileName: "AlienMissileExplosionParticle.sks", score: 0, sound: "")
             alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
-            subtractHealth(sprite: ob1, damage: 75)
+            subtractHealth(sprite: ob1, damage: 65)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kEyeBossName {
             subtractHealth(sprite: ob1, damage: 80)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kPlasmaName {
             ob2.removeFromParent()
-            subtractHealth(sprite: ob1, damage: 90)
+            subtractHealth(sprite: ob1, damage: 70)
             explosionEffect(position: ob2.position, fileName: "PlasmaExplosionParticle.sks", score: 0, sound: "")
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kBloodProjectileName {

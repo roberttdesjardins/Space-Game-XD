@@ -27,6 +27,8 @@ class StartScene: SKScene {
         GameData.shared.numberOfShieldDurationUpgrades = UserDefaults.standard.getUserShieldDurationUpgrades()
         GameData.shared.shieldAmount = Double(100 + 20 * GameData.shared.numberOfShieldHealthUpgrades)
         GameData.shared.shieldTime = TimeInterval(10 + 5 * GameData.shared.numberOfShieldDurationUpgrades)
+        GameData.shared.doubleLaserUpgrade = UserDefaults.standard.getUserDoubleLaserUpgrade()
+        GameData.shared.homingMissileUpgrade = UserDefaults.standard.getUserHomingMissileUpgrade()
         createBackground()
         if !GameData.shared.playingMenuMusic {
             setupMusic()

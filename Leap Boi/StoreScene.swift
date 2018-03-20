@@ -17,6 +17,8 @@ class StoreScene: SKScene {
     var healthUpgradeButton: SKSpriteNode! = nil
     var shieldHealthUpgradeButton: SKSpriteNode! = nil
     var shieldDurationUpgradeButton: SKSpriteNode! = nil
+    var doubleLaserUpgradeButton: SKSpriteNode! = nil
+    var homingMissileUpgradeButton: SKSpriteNode! = nil
     var creditsLabel: SKLabelNode! = nil
     
     override func didMove(to view: SKView) {
@@ -40,6 +42,8 @@ class StoreScene: SKScene {
         createHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createShieldHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createShieldDurationUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createDoubleLaserUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createHomingMissileUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createCreditsLabel()
     }
     
@@ -83,6 +87,22 @@ class StoreScene: SKScene {
         shieldDurationUpgradeButton.size = CGSize(width: width, height: height)
         shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height + 25)
         addChild(shieldDurationUpgradeButton)
+    }
+    
+    func createDoubleLaserUpgradeButton(width: CGFloat, height: CGFloat) {
+        doubleLaserUpgradeButton = SKSpriteNode(imageNamed: "button_double_laser")
+        doubleLaserUpgradeButton.zPosition = 2
+        doubleLaserUpgradeButton.size = CGSize(width: width, height: height)
+        doubleLaserUpgradeButton.position = shieldDurationUpgradeButton.position - CGPoint(x: 0, y: shieldDurationUpgradeButton.size.height + 25)
+        addChild(doubleLaserUpgradeButton)
+    }
+    
+    func createHomingMissileUpgradeButton(width: CGFloat, height: CGFloat) {
+        homingMissileUpgradeButton = SKSpriteNode(imageNamed: "button_homing_missile")
+        homingMissileUpgradeButton.zPosition = 2
+        homingMissileUpgradeButton.size = CGSize(width: width, height: height)
+        homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height + 25)
+        addChild(homingMissileUpgradeButton)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -167,6 +187,66 @@ class StoreScene: SKScene {
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
                     let newShieldDuration = 10 + 5 * UserDefaults.standard.getUserShieldDurationUpgrades()
                     let purchaseAlert = UIAlertController(title: "Shield duration increased to \(newShieldDuration) seconds!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
+                }
+            }))
+            self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        }
+        if doubleLaserUpgradeButton.contains(touchLocation) {
+            playButtonPress()
+            let costToUpgrade = 10000
+            let alert = UIAlertController(title: "Start with two lasers instead of one", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
+                NSLog("The \"NO\" alert occured.")
+            }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+                NSLog("The \"Yes\" alert occured.")
+                if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
+                } else if GameData.shared.doubleLaserUpgrade {
+                    let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
+                    alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else {
+                    GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
+                    GameData.shared.doubleLaserUpgrade = true
+                    UserDefaults.standard.setUserDoubleLaserUpgrade(doubleLaser: true)
+                    UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let purchaseAlert = UIAlertController(title: "You now start with two lasers!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
+                }
+            }))
+            self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        }
+        if homingMissileUpgradeButton.contains(touchLocation) {
+            playButtonPress()
+            let costToUpgrade = 10000
+            let alert = UIAlertController(title: "Start with one upgrade into homing missiles when using missiles", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
+                NSLog("The \"NO\" alert occured.")
+            }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+                NSLog("The \"Yes\" alert occured.")
+                if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
+                } else if GameData.shared.homingMissileUpgrade {
+                    let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
+                    alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else {
+                    GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
+                    GameData.shared.homingMissileUpgrade = true
+                    UserDefaults.standard.setUserHomingMissileUpgrade(homingMissile: true)
+                    UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let purchaseAlert = UIAlertController(title: "You now start with homing missiles!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
                     purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
                 }
