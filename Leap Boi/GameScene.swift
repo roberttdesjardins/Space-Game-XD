@@ -7,10 +7,8 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, change music inbetween bosses, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
-
-// Make massive asteroid slower, reduce spawn for after boss1, create new perameter for y offset
-// Make shield track better - also change image? - USE CONSTRAINTS?
+// TOP PRIORITY: In-app payments, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
+// Make upgradeTimer where increase droprate if no upgrades in x time
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
@@ -172,6 +170,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kScoreHudName = "scoreHud"
     let kHealthHudName = "healthHud"
     let kPauseHolderName = "pauseHolder"
+    let kPauseLabelName = "pauseLabel"
     let kUnpauseButtonName = "unpauseButton"
     let kMuteButtonName = "muteButton"
     let kRetryButtonName = "retryButton"
@@ -463,6 +462,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pauseHolder.size = CGSize(width: 333, height: 226.6)
         pauseHolder.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
         addChild(pauseHolder)
+        createPauseLabel()
         createUnpauseButton()
         createMuteButton()
         createRetryButton()
@@ -470,12 +470,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func removePauseNode() {
-        let nodesToRemove = [kPauseHolderName, kMenuButtonName, kUnpauseButtonName, kRetryButtonName, kMuteButtonName]
+        let nodesToRemove = [kPauseHolderName, kPauseLabelName, kMenuButtonName, kUnpauseButtonName, kRetryButtonName, kMuteButtonName]
         for child in children {
             if child.name != nil && nodesToRemove.contains(child.name!) {
                 child.removeFromParent()
             }
         }
+    }
+    
+    func createPauseLabel() {
+        let pauseLabel = SKLabelNode(fontNamed: "SquareFont")
+        pauseLabel.name = kPauseLabelName
+        pauseLabel.zPosition = 10
+        pauseLabel.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        pauseLabel.text = "Game Paused"
+        pauseLabel.fontSize = 35
+        addChild(pauseLabel)
     }
     
     func createUnpauseButton() {
@@ -581,9 +591,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addAlienLaser(alien: SKSpriteNode, offset: CGFloat) {
-        let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 12))
+        //let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 12))
+        let alienLaser = SKSpriteNode(imageNamed: "Bullet_Green_Laser")
+        alienLaser.size = CGSize(width: 16, height: 16)
         alienLaser.name = kAlienLaserName
         alienLaser.zPosition = 4
+        alienLaser.zRotation = DegreesToRadians * 180
         
         alienLaser.physicsBody = SKPhysicsBody(rectangleOf: alienLaser.size)
         alienLaser.physicsBody?.isDynamic = false
@@ -823,6 +836,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let alienMissile = SKSpriteNode(imageNamed: "alienMissile")
         alienMissile.size = CGSize(width: 11, height: 11)
         alienMissile.name = kAlienMissileName
+        alienMissile.zPosition = 5
         
         alienMissile.physicsBody = SKPhysicsBody(texture: alienMissile.texture!, size: alienMissile.size)
         alienMissile.physicsBody?.isDynamic = true
@@ -883,7 +897,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setUpEyeBossPhysicsBody(eyeBoss: eyeBoss)
             self.eyeBossFullySpawned = true
         })
-        setUpSpawnLittleEyes(min: 2, max: 4)
+        setUpSpawnLittleEyes(min: 2, max: 3)
     }
     
     // Sets up the physicsBody of eyeBoss, called after eyeBoss has moved into position
@@ -1065,7 +1079,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // fires a laser towards the player
     func littleEyeFireLaser(littleEye: SKSpriteNode) {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            let laser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 16))
+            let laser = SKSpriteNode(imageNamed: "Bullet_Green_Laser")
+            laser.size = CGSize(width: 20, height: 20)
             laser.name = kAlienLaserName
             laser.zPosition = 4
             laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
@@ -1079,7 +1094,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             
             let xAndHypotenuse = shootTowardsPlayer(player: player, sprite: littleEye)
-            laser.zRotation = faceTowards(sprite1: laser, sprite2: player)
+            laser.zRotation = faceTowards(sprite1: laser, sprite2: player) + 180 * DegreesToRadians
             let actualDuration = xAndHypotenuse[1] / 245
             let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
@@ -1549,7 +1564,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 spawnFireRateRandom(position: position, percentChance: percentChance/5)
             }
             if numberOfHomingMissileUpgrades <= 5 {
-                spawnHomingMissileRandom(position: position, percentChance: percentChance/6)
+                spawnHomingMissileRandom(position: position, percentChance: percentChance/4)
             }
             if missileExplosionDamageUpgradeNumber <= 5 {
                 spawnMissileExplosionDamageRandom(position: position, percentChance: percentChance/5)
@@ -1635,7 +1650,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         shield.physicsBody?.collisionBitMask = PhysicsCategory.None
         
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            shield.position = player.position
+            //shield.position = player.position
+            shield.constraints = [SKConstraint.distance(SKRange(upperLimit: 0), to: player)]
         }
         addChild(shield)
         
@@ -2075,7 +2091,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "gameMusic2", type: "wav")
                 self.setUpAliens(min: 0.2, max: 0.6)
                 self.setUpAsteroids(min: 4, max: 10)
-                self.setUpMassiveAsteroids(min: 30, max: 35)
+                self.setUpMassiveAsteroids(min: 30, max: 65)
             }
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()
@@ -2105,7 +2121,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "DOS-88 - City Stomper", type: "mp3")
                 self.setUpAliens(min: 0.1, max: 0.4)
                 self.setUpAsteroids(min: 4, max: 10)
-                self.setUpMassiveAsteroids(min: 14, max: 18)
+                self.setUpMassiveAsteroids(min: 28, max: 38)
                 self.setUpAlienCruisers(min: 5, max: 10)
             }
             run(SKAction.sequence([wait,action]))
@@ -2155,9 +2171,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func processUserMotion() {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
-                shield.position = player.position
-            }
+//            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+//                shield.position = player.position
+//            }
             if let data = motionManager.accelerometerData {
                 if data.acceleration.x > 0.02 {
                     //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
