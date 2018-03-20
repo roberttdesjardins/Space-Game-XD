@@ -138,7 +138,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let kPlayerName = "player"
     let kAlienName = "alien"
     let kAlienLaserName = "alienlaser"
-    let kAsteroidName = "asteroid"
+    let kMassiveAsteroidName = "massiveAsteroid"
+    let kLargeAsteroidName = "largeAsteroid"
     let kMediumAsteroidName = "mediumAsteroid"
     let kSmallAsteroidName = "smallAsteroid"
     let kAlienCruiserName = "alienCruiser"
@@ -268,7 +269,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Score for killing each enemy
     let alienKillScore = 30
-    let asteroidKillScore = 90
+    let massiveAsteroidKillScore = 1000
+    let largeAsteroidKillScore = 90
     let mediumAsteroidKillScore = 50
     let smallAsteroidKillScore = 20
     let alienCruiserKillScore = 500
@@ -322,11 +324,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupDamageArrays(){
-        damagedByPlayerLaserArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
-        damagedByPlayerMissileArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
-        damagedByPlayerMissileExplosionArray = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
+        damagedByPlayerLaserArray = [kAlienName, kMassiveAsteroidName, kLargeAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
+        damagedByPlayerMissileArray = [kAlienName, kMassiveAsteroidName, kLargeAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
+        damagedByPlayerMissileExplosionArray = [kAlienName, kMassiveAsteroidName, kLargeAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
         
-        allPossibleEnemies = [kAlienName, kAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
+        allPossibleEnemies = [kAlienName, kMassiveAsteroidName, kLargeAsteroidName, kMediumAsteroidName, kSmallAsteroidName, kAlienCruiserName, kLittleEyeName, kEyeBossName, kBoss2Name, kHeavyAlienName, kBoss3Phase1Name, kHarvesterName, kBoss3Phase2Name]
     }
     
     func setupScreen() {
@@ -631,17 +633,58 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func setUpAsteroids(min: CGFloat, max: CGFloat) {
+        let actionRun = SKAction.run {
+            self.addLargeAsteroid(position: CGPoint(x:random(min: 0, max: self.size.width), y: self.size.height * 1.2), xoffset: CGFloat(0))
+        }
+        
         run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(addBigAsteroid),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(4), max: CGFloat(12))))
+            SKAction.sequence([actionRun,
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
                 ])
         ))
     }
     
-    func addBigAsteroid() {
+    func setUpMassiveAsteroids(min: CGFloat, max: CGFloat) {
+        run(SKAction.repeatForever(
+            SKAction.sequence([
+                SKAction.run(addMassiveAsteroid),
+                SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
+                ])
+        ))
+    }
+    
+    func addMassiveAsteroid() {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
-        asteroid.name = kAsteroidName
+        asteroid.name = kMassiveAsteroidName
+        asteroid.size = CGSize(width: 320, height: 320)
+        asteroid.userData = NSMutableDictionary()
+        asteroid.userData?.setValue(false, forKey: "isDead")
+        setMassiveAsteroidHealth(asteroid: asteroid)
+        
+        asteroid.physicsBody = SKPhysicsBody(texture: asteroid.texture!, size: asteroid.size)
+        asteroid.physicsBody?.isDynamic = false
+        asteroid.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
+        asteroid.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
+        asteroid.physicsBody?.collisionBitMask = PhysicsCategory.None
+        
+        let oneRevolution:SKAction = SKAction.rotate(byAngle: CGFloat.pi * 2 * CGFloat.randomSign, duration: TimeInterval(random(min: 10, max: 12)))
+        let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
+        asteroid.run(repeatRotation)
+        
+        let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
+        asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
+        addChild(asteroid)
+        
+        let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
+        
+        let actionMove = SKAction.move(to: CGPoint(x: random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2), y: -asteroid.size.height/2), duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
+    }
+    
+    func addLargeAsteroid(position: CGPoint, xoffset: CGFloat) {
+        let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
+        asteroid.name = kLargeAsteroidName
         asteroid.size = CGSize(width: 80, height: 80)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
@@ -657,8 +700,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let repeatRotation:SKAction = SKAction.repeatForever(oneRevolution)
         asteroid.run(repeatRotation)
         
-        let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
-        asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
+        asteroid.position = position + CGPoint(x: xoffset, y: 0)
         addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
@@ -1956,9 +1998,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
             sprite.removeFromParent()
         }
-        if(sprite.name == kAsteroidName){
-            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: asteroidKillScore, sound: "Free-Explosions-023")
-            GameData.shared.playerScore = GameData.shared.playerScore + asteroidKillScore
+        if(sprite.name == kMassiveAsteroidName){
+            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: massiveAsteroidKillScore, sound: "Free-Explosions-023")
+            GameData.shared.playerScore = GameData.shared.playerScore + massiveAsteroidKillScore
+            spawnRandomPowerUp(position: sprite.position, percentChance: 45.0)
+            self.addLargeAsteroid(position: sprite.position, xoffset: -10)
+            self.addLargeAsteroid(position: sprite.position, xoffset: -8)
+            self.addLargeAsteroid(position: sprite.position, xoffset: -6)
+            self.addLargeAsteroid(position: sprite.position, xoffset: -4)
+            self.addLargeAsteroid(position: sprite.position, xoffset: -2)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 0)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 2)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 4)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 6)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 8)
+            self.addLargeAsteroid(position: sprite.position, xoffset: 10)
+            sprite.removeFromParent()
+        }
+        if(sprite.name == kLargeAsteroidName){
+            explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: largeAsteroidKillScore, sound: "Free-Explosions-023")
+            GameData.shared.playerScore = GameData.shared.playerScore + largeAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 4.0)
             self.addMediumAsteroid(position: sprite.position, xoffset: -10)
             self.addMediumAsteroid(position: sprite.position, xoffset: 10)
@@ -2006,6 +2065,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "gameMusic2", type: "wav")
                 self.setUpAliens(min: 0.2, max: 0.6)
                 self.setUpAsteroids(min: 4, max: 10)
+                self.setUpMassiveAsteroids(min: 20, max: 25)
             }
             run(SKAction.sequence([wait,action]))
             sprite.removeFromParent()
@@ -2035,6 +2095,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupMusic(music: "DOS-88 - City Stomper", type: "mp3")
                 self.setUpAliens(min: 0.1, max: 0.4)
                 self.setUpAsteroids(min: 4, max: 10)
+                self.setUpMassiveAsteroids(min: 10, max: 12)
                 self.setUpAlienCruisers(min: 5, max: 10)
             }
             run(SKAction.sequence([wait,action]))
@@ -2240,7 +2301,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 40, view: view!)
             }
-            if ob1.name == kPlayerName && ob2.name == kAsteroidName {
+            if ob1.name == kPlayerName && ob2.name == kMassiveAsteroidName {
+                explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
+                addLargeAsteroid(position: ob2.position, xoffset: -10)
+                addLargeAsteroid(position: ob2.position, xoffset: -8)
+                addLargeAsteroid(position: ob2.position, xoffset: -6)
+                addLargeAsteroid(position: ob2.position, xoffset: -4)
+                addLargeAsteroid(position: ob2.position, xoffset: -2)
+                addLargeAsteroid(position: ob2.position, xoffset: 0)
+                addLargeAsteroid(position: ob2.position, xoffset: 2)
+                addLargeAsteroid(position: ob2.position, xoffset: 4)
+                addLargeAsteroid(position: ob2.position, xoffset: 6)
+                addLargeAsteroid(position: ob2.position, xoffset: 8)
+                addLargeAsteroid(position: ob2.position, xoffset: 10)
+                ob2.removeFromParent()
+                playerTakesDamage(damage: 400, view: view!)
+            }
+            if ob1.name == kPlayerName && ob2.name == kLargeAsteroidName {
                 explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
                 addMediumAsteroid(position: ob2.position, xoffset: -10)
                 addMediumAsteroid(position: ob2.position, xoffset: 10)
@@ -2289,7 +2366,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 40)
         }
-        if ob1.name == kProtectiveShieldName && ob2.name == kAsteroidName {
+        if ob1.name == kProtectiveShieldName && ob2.name == kMassiveAsteroidName {
+            explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
+            addLargeAsteroid(position: ob2.position, xoffset: -10)
+            addLargeAsteroid(position: ob2.position, xoffset: -8)
+            addLargeAsteroid(position: ob2.position, xoffset: -6)
+            addLargeAsteroid(position: ob2.position, xoffset: -4)
+            addLargeAsteroid(position: ob2.position, xoffset: -2)
+            addLargeAsteroid(position: ob2.position, xoffset: 0)
+            addLargeAsteroid(position: ob2.position, xoffset: 2)
+            addLargeAsteroid(position: ob2.position, xoffset: 4)
+            addLargeAsteroid(position: ob2.position, xoffset: 6)
+            addLargeAsteroid(position: ob2.position, xoffset: 8)
+            addLargeAsteroid(position: ob2.position, xoffset: 10)
+            ob2.removeFromParent()
+            subtractHealth(sprite: ob1, damage: 400)
+        }
+        if ob1.name == kProtectiveShieldName && ob2.name == kLargeAsteroidName {
             explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
             addMediumAsteroid(position: ob2.position, xoffset: -10)
             addMediumAsteroid(position: ob2.position, xoffset: 10)
@@ -2463,9 +2556,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         
-        if nodeA.name == kAsteroidName {
+        if nodeA.name == kMassiveAsteroidName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
-        } else if nodeB.name == kAsteroidName {
+        } else if nodeB.name == kMassiveAsteroidName {
+            collisionBetween(ob1: nodeB, ob2: nodeA)
+        }
+        
+        if nodeA.name == kLargeAsteroidName {
+            collisionBetween(ob1: nodeA, ob2: nodeB)
+        } else if nodeB.name == kLargeAsteroidName {
             collisionBetween(ob1: nodeB, ob2: nodeA)
         }
         
