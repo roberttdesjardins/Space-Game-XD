@@ -42,10 +42,12 @@ class HighScoreScene: SKScene {
     
     func createHighScoreTable() {
         let highScoreTable = SKLabelNode(fontNamed: "SquareFont")
-        highScoreTable.fontSize = 35
+        //highScoreTable.fontSize = 35
+        highScoreTable.fontSize = size.width / 12
         highScoreTable.zPosition = 5
         highScoreTable.fontColor = SKColor.white
-        highScoreTable.numberOfLines = 11
+        highScoreTable.numberOfLines = 6
+        highScoreTable.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.center
         highScoreTable.text = "High Scores:\n"
         for highScore in GameData.shared.playerHighScore {
             highScoreTable.text?.append("\(highScore)\n")

@@ -8,25 +8,22 @@
 
 // TODO:
 // TOP PRIORITY: In-app payments, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
-// Make upgradeTimer where increase droprate if no upgrades in x time
+// Make upgradeTimer where increase droprate if no upgrades in x time?
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
-// Make upgrades "bounce up and out" when spawned
 // Change eyeboss image..
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
-// Make better name
-// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits, START WITH 2 LASER, START WITH 1 Homing Missile upgrade
+// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits
 // inapp purchases for cosmetics
 // inapp purchases to get credits
-// Add achievements
-// Spacestation boss
-// Cthulu boss- Final boss- defeating brings you to score screen- not you died though
+// Add achievements: 8 enemies killed with one explosion, achievement for beating each boss,
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?, Nuke
 // Power up icons: https://www.gamedevmarket.net/asset/asteroids-crusher-game-assets-3793/
 // Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
+// - Random boss mode?
 // Coin Chest drop which grants a lot of credits?
 // credit sprites and music creators
 // Music from https://itch.io/game-assets/tag-music
@@ -317,6 +314,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpUpgrades()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
+        self.physicsWorld.gravity = CGVector(dx: 0.0, dy: -1.8)
     }
     
     func startSoundFile() {
@@ -336,7 +334,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupScreen() {
-        scene?.scaleMode = .aspectFit
+        //scene?.scaleMode = .aspectFit
+        scene?.scaleMode = SKSceneScaleMode.resizeFill
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         //self.physicsBody!.usesPreciseCollisionDetection = true
@@ -412,6 +411,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupStartEnemies() {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
+        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
         //setUpEyeBoss()
         //setUpBoss2()
         //setUpBoss3()
@@ -1536,19 +1543,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerUp.name = name
         powerUp.size = CGSize(width: 20, height: 20)
         powerUp.physicsBody = SKPhysicsBody(rectangleOf: powerUp.size)
-        powerUp.physicsBody?.isDynamic = false
+        powerUp.physicsBody?.isDynamic = true
+        powerUp.physicsBody?.affectedByGravity = true
         powerUp.physicsBody?.categoryBitMask = PhysicsCategory.UpgradePack
         powerUp.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         powerUp.physicsBody?.collisionBitMask = PhysicsCategory.None
         powerUp.physicsBody?.usesPreciseCollisionDetection = true
         
         
-        let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+        //let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
         powerUp.position = position
-        let actionMove = SKAction.move(to: CGPoint(x: powerUp.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        //let actionMove = SKAction.move(to: CGPoint(x: powerUp.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
+        let actionWait = SKAction.wait(forDuration: 10)
         let actionMoveDone = SKAction.removeFromParent()
-        powerUp.run(SKAction.sequence([actionMove, actionMoveDone]))
+        powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
         addChild(powerUp)
+        //powerUp.physicsBody?.applyForce(CGVector(dx: 0, dy: 8.0))
+        powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: 200)
+        
     }
     
     // Spawns a random powerup- different power ups for laser and for missile, weighted drop rate

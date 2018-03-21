@@ -19,6 +19,7 @@ class StoreScene: SKScene {
     var shieldDurationUpgradeButton: SKSpriteNode! = nil
     var doubleLaserUpgradeButton: SKSpriteNode! = nil
     var homingMissileUpgradeButton: SKSpriteNode! = nil
+    var inappPurchaseButton: SKSpriteNode! = nil
     var creditsLabel: SKLabelNode! = nil
     
     override func didMove(to view: SKView) {
@@ -44,6 +45,10 @@ class StoreScene: SKScene {
         createShieldDurationUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createDoubleLaserUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createHomingMissileUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        
+        let inappPurchaseButtonWidth = size.width - backButton.size.width - 50
+        let inappPurchaseButtonHeight = inappPurchaseButtonWidth * 0.1557496361
+        createPurchaseButton(width: inappPurchaseButtonWidth, height: inappPurchaseButtonHeight)
         createCreditsLabel()
     }
     
@@ -103,6 +108,22 @@ class StoreScene: SKScene {
         homingMissileUpgradeButton.size = CGSize(width: width, height: height)
         homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height + 25)
         addChild(homingMissileUpgradeButton)
+    }
+    
+    func createMagnetUpgradeButton(width: CGFloat, height: CGFloat) {
+        // TODO: Create the button and effect. Upgrades will move towards the player
+    }
+    
+    func createPurchaseButton(width: CGFloat, height: CGFloat) {
+        inappPurchaseButton = SKSpriteNode(imageNamed: "button_purchase_credits")
+        inappPurchaseButton.zPosition = 2
+        inappPurchaseButton.size = CGSize(width: width, height: height)
+        inappPurchaseButton.position = backButton.position + CGPoint(x: 50 + inappPurchaseButton.size.width/2, y: 0)
+        addChild(inappPurchaseButton)
+    }
+    
+    func createInappPurchaseNode() {
+        // TODO: This http://blogs.quickheal.com/wp-content/uploads/2014/07/in-app-purchase.jpg
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -252,6 +273,11 @@ class StoreScene: SKScene {
                 }
             }))
             self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        }
+        
+        if inappPurchaseButton.contains(touchLocation) {
+            playButtonPress()
+            createInappPurchaseNode()
         }
     }
 }
