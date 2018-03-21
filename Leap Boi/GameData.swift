@@ -23,6 +23,8 @@ class GameData {
     var numberOfShieldDurationUpgrades = 0
     var doubleLaserUpgrade = false
     var homingMissileUpgrade = false
+    var magnetUpgrade = false
+    var startUpgradeBox = false
     var creditsEarned: Int = 0
     var totalCredits: Int = 0
     var bgMusicPlayer: AVAudioPlayer!

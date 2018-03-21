@@ -19,6 +19,8 @@ class StoreScene: SKScene {
     var shieldDurationUpgradeButton: SKSpriteNode! = nil
     var doubleLaserUpgradeButton: SKSpriteNode! = nil
     var homingMissileUpgradeButton: SKSpriteNode! = nil
+    var magnetUpgradeButton: SKSpriteNode! = nil
+    var startLootUpgradeButton: SKSpriteNode! = nil
     var inappPurchaseButton: SKSpriteNode! = nil
     var creditsLabel: SKLabelNode! = nil
     
@@ -39,17 +41,19 @@ class StoreScene: SKScene {
     func createUI() {
         let upgradeButtonWidth = size.width - 30
         let upgradeButtonHeight = upgradeButtonWidth * 0.1557496361
+        createCreditsLabel()
         createBackButton()
         createHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createShieldHealthUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createShieldDurationUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createDoubleLaserUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createHomingMissileUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createMagnetUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
+        createStartBoxUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         
         let inappPurchaseButtonWidth = size.width - backButton.size.width - 50
         let inappPurchaseButtonHeight = inappPurchaseButtonWidth * 0.1557496361
         createPurchaseButton(width: inappPurchaseButtonWidth, height: inappPurchaseButtonHeight)
-        createCreditsLabel()
     }
     
     func createBackButton() {
@@ -74,7 +78,8 @@ class StoreScene: SKScene {
         healthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_max_hp")
         healthUpgradeButton.zPosition = 2
         healthUpgradeButton.size = CGSize(width: width, height: height)
-        healthUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (5/6))
+        //healthUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (5.2/6))
+        healthUpgradeButton.position = creditsLabel.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 20)
         addChild(healthUpgradeButton)
     }
     
@@ -82,7 +87,7 @@ class StoreScene: SKScene {
         shieldHealthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_amount")
         shieldHealthUpgradeButton.zPosition = 2
         shieldHealthUpgradeButton.size = CGSize(width: width, height: height)
-        shieldHealthUpgradeButton.position = healthUpgradeButton.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 25)
+        shieldHealthUpgradeButton.position = healthUpgradeButton.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 20)
         addChild(shieldHealthUpgradeButton)
     }
     
@@ -90,7 +95,7 @@ class StoreScene: SKScene {
         shieldDurationUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_duration")
         shieldDurationUpgradeButton.zPosition = 2
         shieldDurationUpgradeButton.size = CGSize(width: width, height: height)
-        shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height + 25)
+        shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height + 20)
         addChild(shieldDurationUpgradeButton)
     }
     
@@ -98,7 +103,7 @@ class StoreScene: SKScene {
         doubleLaserUpgradeButton = SKSpriteNode(imageNamed: "button_double_laser")
         doubleLaserUpgradeButton.zPosition = 2
         doubleLaserUpgradeButton.size = CGSize(width: width, height: height)
-        doubleLaserUpgradeButton.position = shieldDurationUpgradeButton.position - CGPoint(x: 0, y: shieldDurationUpgradeButton.size.height + 25)
+        doubleLaserUpgradeButton.position = shieldDurationUpgradeButton.position - CGPoint(x: 0, y: shieldDurationUpgradeButton.size.height + 20)
         addChild(doubleLaserUpgradeButton)
     }
     
@@ -106,12 +111,25 @@ class StoreScene: SKScene {
         homingMissileUpgradeButton = SKSpriteNode(imageNamed: "button_homing_missile")
         homingMissileUpgradeButton.zPosition = 2
         homingMissileUpgradeButton.size = CGSize(width: width, height: height)
-        homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height + 25)
+        homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height + 20)
         addChild(homingMissileUpgradeButton)
     }
     
     func createMagnetUpgradeButton(width: CGFloat, height: CGFloat) {
         // TODO: Create the button and effect. Upgrades will move towards the player
+        magnetUpgradeButton = SKSpriteNode(imageNamed: "button_upgrade_magnet")
+        magnetUpgradeButton.zPosition = 2
+        magnetUpgradeButton.size = CGSize(width: width, height: height)
+        magnetUpgradeButton.position = homingMissileUpgradeButton.position - CGPoint(x: 0, y: homingMissileUpgradeButton.size.height + 20)
+        addChild(magnetUpgradeButton)
+    }
+    
+    func createStartBoxUpgradeButton(width: CGFloat, height: CGFloat) {
+        startLootUpgradeButton = SKSpriteNode(imageNamed: "button_start_loot")
+        startLootUpgradeButton.zPosition = 2
+        startLootUpgradeButton.size = CGSize(width: width, height: height)
+        startLootUpgradeButton.position = magnetUpgradeButton.position - CGPoint(x: 0, y: magnetUpgradeButton.size.height + 20)
+        addChild(startLootUpgradeButton)
     }
     
     func createPurchaseButton(width: CGFloat, height: CGFloat) {
@@ -268,6 +286,68 @@ class StoreScene: SKScene {
                     UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
                     let purchaseAlert = UIAlertController(title: "You now start with homing missiles!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
+                }
+            }))
+            self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        }
+        
+        if magnetUpgradeButton.contains(touchLocation) {
+            playButtonPress()
+            let costToUpgrade = 10000
+            let alert = UIAlertController(title: "Upgrades will gravitate towards you", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
+                NSLog("The \"NO\" alert occured.")
+            }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+                NSLog("The \"Yes\" alert occured.")
+                if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
+                } else if GameData.shared.magnetUpgrade {
+                    let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
+                    alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else {
+                    GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
+                    GameData.shared.magnetUpgrade = true
+                    UserDefaults.standard.setUserMagnetUpgrade(magnet: true)
+                    UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let purchaseAlert = UIAlertController(title: "Upgrades will now gravitate towards you!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
+                    purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
+                }
+            }))
+            self.view?.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        }
+        
+        if startLootUpgradeButton.contains(touchLocation) {
+            playButtonPress()
+            let costToUpgrade = 10000
+            let alert = UIAlertController(title: "Start each game with a random spawn of upgrades", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
+                NSLog("The \"NO\" alert occured.")
+            }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+                NSLog("The \"Yes\" alert occured.")
+                if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
+                } else if GameData.shared.startUpgradeBox {
+                    let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
+                    alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else {
+                    GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
+                    GameData.shared.startUpgradeBox = true
+                    UserDefaults.standard.setUserStartBoxUpgrade(startBox: true)
+                    UserDefaults.standard.setUserCredits(credits: GameData.shared.totalCredits)
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                    let purchaseAlert = UIAlertController(title: "You will now start each game with a random spawn of upgrades!", message: "Remaining Credit Balance: \(GameData.shared.totalCredits)", preferredStyle: .alert)
                     purchaseAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(purchaseAlert, animated: true, completion: nil)
                 }

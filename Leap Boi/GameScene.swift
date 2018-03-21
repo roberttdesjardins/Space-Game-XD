@@ -411,14 +411,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupStartEnemies() {
         setUpAliens(min: 0.2, max: 0.8)
         setUpAsteroids(min: 4, max: 12)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
-        addPowerUp(position: CGPoint(x: size.width/2, y: 200), image: "firerateupgrade", name: kFireRateUpgradeName)
         //setUpEyeBoss()
         //setUpBoss2()
         //setUpBoss3()
@@ -568,6 +560,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if GameData.shared.homingMissileUpgrade && playerWeapon == kMissileName {
             numberOfHomingMissileUpgrades = 1
             setUpHomingMissile()
+        }
+        
+        if GameData.shared.startUpgradeBox {
+            spawnRandomPowerUp(position: CGPoint(x: size.width/2, y: 200), percentChance: 200)
         }
     }
 
@@ -1559,7 +1555,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
         addChild(powerUp)
         //powerUp.physicsBody?.applyForce(CGVector(dx: 0, dy: 8.0))
-        powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: 200)
+        powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: random(min: 150, max: 250))
         
     }
     
