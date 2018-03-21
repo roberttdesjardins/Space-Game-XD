@@ -13,6 +13,7 @@ import AVFoundation
 
 class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
+    var gameNameLabel: SKLabelNode! = nil
     var startButton: SKSpriteNode! = nil
     var storeButton: SKSpriteNode! = nil
     var highScoreButton: SKSpriteNode! = nil
@@ -74,7 +75,7 @@ class StartScene: SKScene {
     }
     
     func createGameNameLabel() {
-        let gameNameLabel = SKLabelNode(fontNamed: "SquareFont")
+        gameNameLabel = SKLabelNode(fontNamed: "SquareFont")
         gameNameLabel.zPosition = 2
         gameNameLabel.fontSize = 55
         gameNameLabel.fontColor = SKColor.white
@@ -88,7 +89,8 @@ class StartScene: SKScene {
         startButton = SKSpriteNode(imageNamed: "button_play")
         startButton.zPosition = 2
         startButton.size = CGSize(width: width, height: height)
-        startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (4.0/6.0))
+        //startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (4.0/6.0))
+        startButton.position = gameNameLabel.position - CGPoint(x: 0, y: startButton.size.height + 40)
         addChild(startButton)
     }
     

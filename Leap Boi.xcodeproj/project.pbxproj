@@ -60,6 +60,7 @@
 		55B2AC7B2061BD4200D68BBF /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B2AC7A2061BD4200D68BBF /* PurchaseManager.swift */; };
 		55B2AC7E2061CE5800D68BBF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55B2AC7D2061CE5800D68BBF /* StoreKit.framework */; };
 		55B2AC802062CF8000D68BBF /* Free-Guns-Lasers-035.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55B2AC7F2062CF8000D68BBF /* Free-Guns-Lasers-035.mp3 */; };
+		55B2AC822062FED400D68BBF /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55B2AC812062FED400D68BBF /* GameKit.framework */; };
 		55C18353204C9BB300747F00 /* warningBeep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 55C18352204C9BB300747F00 /* warningBeep.wav */; };
 		55D62B132047822E0047E510 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D62B122047822E0047E510 /* GameData.swift */; };
 		55FFA83F204490E000A36E67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FFA83E204490E000A36E67 /* AppDelegate.swift */; };
@@ -123,6 +124,7 @@
 		55B2AC7A2061BD4200D68BBF /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		55B2AC7D2061CE5800D68BBF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		55B2AC7F2062CF8000D68BBF /* Free-Guns-Lasers-035.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Free-Guns-Lasers-035.mp3"; sourceTree = "<group>"; };
+		55B2AC812062FED400D68BBF /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		55C18352204C9BB300747F00 /* warningBeep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = warningBeep.wav; sourceTree = "<group>"; };
 		55D62B122047822E0047E510 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		55FFA83B204490E000A36E67 /* Leap Boi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Leap Boi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,6 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55B2AC7E2061CE5800D68BBF /* StoreKit.framework in Frameworks */,
+				55B2AC822062FED400D68BBF /* GameKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +190,7 @@
 		55B2AC7C2061CE5800D68BBF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				55B2AC812062FED400D68BBF /* GameKit.framework */,
 				55B2AC7D2061CE5800D68BBF /* StoreKit.framework */,
 			);
 			name = Frameworks;
@@ -280,6 +284,12 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.GameCenter = {
+								enabled = 1;
+							};
+							com.apple.HealthKit = {
+								enabled = 0;
+							};
 							com.apple.InAppPurchase = {
 								enabled = 1;
 							};

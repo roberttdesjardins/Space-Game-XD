@@ -7,8 +7,7 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, fix for different size devices, Make boss2 aggro very slightly further apart, make laser slightly quieter
-// Make upgradeTimer where increase droprate if no upgrades in x time?
+// TOP PRIORITY: In-app payments, fix for different size devices, Make boss2 aggro very slightly further apart, fix layout in startScene
 // Centre eyeBossLaster better..
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change look
@@ -196,8 +195,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerWeapon = ""
     // Base damage of weapons
     var laserBaseDamage = 1.0
-    var missileBaseDamage = 1.0
-    var homingMissileBaseDamage = 1.0
+    var missileBaseDamage = 2.0
+    var homingMissileBaseDamage = 2.0
     var missileExplosionBaseDamage = 6.0
     // Health and Shield upgrade values
     var healthPerHealthUpgrade = 20
@@ -543,7 +542,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.zPosition = 6
         player.name = kPlayerName
         
-        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size - CGSize(width: 5, height: 5))
+        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size - CGSize(width: 8, height: 8))
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
         player.physicsBody?.allowsRotation = false
@@ -1257,7 +1256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let aoeAttack = SKAction.run {
                     self.addBoss2AoeAttack(position: boss2.position)
                 }
-                let aoeWait = SKAction.wait(forDuration: 0.4)
+                let aoeWait = SKAction.wait(forDuration: 0.42)
                 boss2.run(SKAction.repeat(SKAction.sequence([aoeAttack, aoeWait]), count: 12))
             }
             
@@ -1571,7 +1570,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if numberOfHomingMissileUpgrades <= 5 {
                 spawnHomingMissileRandom(position: position, percentChance: percentChance/10)
             }
-            if laserDamageUpgradeNumber <= 5 {
+            if laserDamageUpgradeNumber <= 4 {
                 spawnLaserDamageRandom(position: position, percentChance: percentChance/5)
             }
         }
@@ -2553,14 +2552,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if damagedByPlayerMissileArray.contains(ob1.name!) && ob2.name == kMissileName {
-            subtractHealth(sprite: ob1, damage: 1)
+            subtractHealth(sprite: ob1, damage: CGFloat(missileBaseDamage))
             ob2.removeFromParent()
             missileExplosion(missile: ob2)
             missileExplosionEffect(position: ob2.position)
         }
         
         if damagedByPlayerMissileArray.contains(ob1.name!) && ob2.name == kHomingMissileName {
-            subtractHealth(sprite: ob1, damage: 1)
+            subtractHealth(sprite: ob1, damage: CGFloat(homingMissileBaseDamage))
             homingMissileArray.remove(at: homingMissileArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             missileExplosion(missile: ob2)

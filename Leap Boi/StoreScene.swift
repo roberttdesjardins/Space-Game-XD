@@ -241,14 +241,14 @@ class StoreScene: SKScene {
             }))
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
                 NSLog("The \"Yes\" alert occured.")
-                if GameData.shared.totalCredits < costToUpgrade {
-                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
-                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
-                } else if GameData.shared.doubleLaserUpgrade {
+                if GameData.shared.doubleLaserUpgrade {
                     let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
                     alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
                 } else {
                     GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
                     GameData.shared.doubleLaserUpgrade = true
@@ -271,14 +271,14 @@ class StoreScene: SKScene {
             }))
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
                 NSLog("The \"Yes\" alert occured.")
-                if GameData.shared.totalCredits < costToUpgrade {
-                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
-                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
-                } else if GameData.shared.homingMissileUpgrade {
+                if GameData.shared.homingMissileUpgrade {
                     let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
                     alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
                 } else {
                     GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
                     GameData.shared.homingMissileUpgrade = true
@@ -295,21 +295,21 @@ class StoreScene: SKScene {
         
         if magnetUpgradeButton.contains(touchLocation) {
             playButtonPress()
-            let costToUpgrade = 1
+            let costToUpgrade = 10000
             let alert = UIAlertController(title: "Upgrades will gravitate towards you", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
             }))
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
                 NSLog("The \"Yes\" alert occured.")
-                if GameData.shared.totalCredits < costToUpgrade {
-                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
-                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
-                } else if GameData.shared.magnetUpgrade {
+                if GameData.shared.magnetUpgrade {
                     let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
                     alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
                 } else {
                     GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
                     GameData.shared.magnetUpgrade = true
@@ -333,14 +333,15 @@ class StoreScene: SKScene {
             }))
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
                 NSLog("The \"Yes\" alert occured.")
-                if GameData.shared.totalCredits < costToUpgrade {
-                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
-                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
-                } else if GameData.shared.startUpgradeBox {
+                
+                if GameData.shared.startUpgradeBox {
                     let alreadyUpgraded = UIAlertController(title: "You have already purchased this upgrade", message: "", preferredStyle: .alert)
                     alreadyUpgraded.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.view?.window?.rootViewController?.present(alreadyUpgraded, animated: true, completion: nil)
+                } else if GameData.shared.totalCredits < costToUpgrade {
+                    let notEnoughCreditsAlert = UIAlertController(title: "Not Enough Credits", message: "Credits are earned by playing or can be purchased", preferredStyle: .alert)
+                    notEnoughCreditsAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view?.window?.rootViewController?.present(notEnoughCreditsAlert, animated: true, completion: nil)
                 } else {
                     GameData.shared.totalCredits = GameData.shared.totalCredits - costToUpgrade
                     GameData.shared.startUpgradeBox = true

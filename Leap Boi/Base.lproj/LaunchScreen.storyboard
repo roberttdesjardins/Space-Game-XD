@@ -8,11 +8,6 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <customFonts key="customFonts">
-        <array key="AvenirNext.ttc">
-            <string>AvenirNext-Regular</string>
-        </array>
-    </customFonts>
     <scenes>
         <!--View Controller-->
         <scene sceneID="EHf-IW-A2E">
@@ -22,20 +17,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Robert Desjardins Games" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="al1-9K-uak">
-                                <rect key="frame" x="62.5" y="120" width="250" height="197"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="companyLogo" translatesAutoresizingMaskIntoConstraints="NO" id="U5M-ED-q7z">
+                                <rect key="frame" x="27.5" y="173" width="320" height="320"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="250" id="DV9-6q-SbP"/>
+                                    <constraint firstAttribute="height" constant="320" id="bdM-XO-UqM"/>
+                                    <constraint firstAttribute="width" constant="320" id="ygq-93-sAZ"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="48"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
                         <constraints>
-                            <constraint firstItem="al1-9K-uak" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="48l-BM-UOS"/>
-                            <constraint firstItem="al1-9K-uak" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="100" id="BUA-Wc-MTK"/>
+                            <constraint firstItem="U5M-ED-q7z" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="anK-FN-y8Y"/>
+                            <constraint firstItem="U5M-ED-q7z" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="wja-bK-SEN"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -45,4 +38,7 @@
             <point key="canvasLocation" x="52" y="374.66266866566718"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="companyLogo" width="640" height="640"/>
+    </resources>
 </document>
