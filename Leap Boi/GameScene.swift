@@ -225,6 +225,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastFiredTime: CFTimeInterval = 0
     // Array of homingMissiles
     private var homingMissileArray: [SKSpriteNode] = []
+    // Array of upgrades
+    private var upgradeArray: [SKSpriteNode] = []
     
     
 
@@ -561,7 +563,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             numberOfHomingMissileUpgrades = 1
             setUpHomingMissile()
         }
-        
         if GameData.shared.startUpgradeBox {
             spawnRandomPowerUp(position: CGPoint(x: size.width/2, y: 200), percentChance: 200)
         }
@@ -1545,16 +1546,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerUp.physicsBody?.contactTestBitMask = PhysicsCategory.Player
         powerUp.physicsBody?.collisionBitMask = PhysicsCategory.None
         powerUp.physicsBody?.usesPreciseCollisionDetection = true
-        
-        
-        //let actualDuration = random(min: CGFloat(20.0), max: CGFloat(24.0))
+
         powerUp.position = position
-        //let actionMove = SKAction.move(to: CGPoint(x: powerUp.position.x, y: position.y - 2000), duration: TimeInterval(actualDuration))
-        let actionWait = SKAction.wait(forDuration: 10)
-        let actionMoveDone = SKAction.removeFromParent()
-        powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
+//        let actionWait = SKAction.wait(forDuration: 10)
+//        let actionMoveDone = SKAction.removeFromParent()
+//        powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
         addChild(powerUp)
-        //powerUp.physicsBody?.applyForce(CGVector(dx: 0, dy: 8.0))
+        upgradeArray.append(powerUp)
         powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: random(min: 150, max: 250))
         
     }
@@ -1693,6 +1691,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.protectiveShieldActive = false
             }
             shield.run(SKAction.sequence([actionWait, actionWaitDone, actionBool]))
+        }
+    }
+    
+    func processUpgradeMovement() {
+        for upgrade in upgradeArray {
+            if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
+                if player.position.x >= upgrade.position.x {
+                    upgrade.physicsBody?.applyForce(CGVector(dx: 0.6, dy: 0))
+                } else if player.position.x < upgrade.position.x {
+                    upgrade.physicsBody?.applyForce(CGVector(dx: -0.6, dy: 0))
+                }
+            }
+            if upgrade.position.y <= (0 - upgrade.size.height) {
+                upgradeArray.remove(at: upgradeArray.index(of: upgrade)!)
+                upgrade.removeFromParent()
+            }
         }
     }
     
@@ -2291,6 +2305,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !homingMissileArray.isEmpty {
             processHomingMissileMovement()
         }
+        if GameData.shared.magnetUpgrade && !upgradeArray.isEmpty {
+            processUpgradeMovement()
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -2450,12 +2467,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
             playPowerUpSound()
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
         if ob1.name == kPlayerName && ob2.name == kFireRateUpgradeName {
             playPowerUpSound()
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             fireRateUpgradeNumber = fireRateUpgradeNumber + 1
             setupWeapon()
@@ -2463,6 +2482,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kThreeShotUpgradeName {
             playPowerUpSound()
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             if fourShotUpgrade {
                 fiveShotUpgrade = true
@@ -2478,6 +2498,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
             playPowerUpSound()
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             if !protectiveShieldActive {
                 addProtectiveShield()
@@ -2492,11 +2513,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 numberOfHomingMissileUpgrades = numberOfHomingMissileUpgrades + 1
             }
             playPowerUpSound()
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             setUpHomingMissile()
         }
         
         if ob1.name == kPlayerName && ob2.name == kLaserDamageUpgradeName {
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             playPowerUpSound()
             if laserDamageUpgradeNumber <= 5 {
@@ -2505,6 +2528,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kMissileExplosionDamageUpgradeName {
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             playPowerUpSound()
             if missileExplosionDamageUpgradeNumber <= 5 {
@@ -2514,6 +2538,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kMissileExplosionSizeUpgradeName {
+            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
             ob2.removeFromParent()
             playPowerUpSound()
             if largerExplosionUpgradeNumber <= 5 {

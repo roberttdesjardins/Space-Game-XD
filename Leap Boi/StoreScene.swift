@@ -295,7 +295,7 @@ class StoreScene: SKScene {
         
         if magnetUpgradeButton.contains(touchLocation) {
             playButtonPress()
-            let costToUpgrade = 10000
+            let costToUpgrade = 1
             let alert = UIAlertController(title: "Upgrades will gravitate towards you", message: "Credits: \(costToUpgrade)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
                 NSLog("The \"NO\" alert occured.")
