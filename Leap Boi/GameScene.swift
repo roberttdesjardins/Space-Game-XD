@@ -7,19 +7,15 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, fix for different size devices, Make boss2 aggro very slightly further apart, fix layout in startScene
-// Centre eyeBossLaster better..
+// TOP PRIORITY: In-app payments, fix for different size devices, fix layout in startScene
 // Change player default look -> Button in the store to go to cosmetic upgrades
-// Add option on startScene to change look
-// Change eyeboss image..
+// Add option on startScene to change player look
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
-// add purchasable(with credits) weapons, upgrades, speed upgrades, bullet speed upgrades - Revive for credits
+// Revive for credits
 // inapp purchases for cosmetics
-// inapp purchases to get credits
 // Add achievements: 8 enemies killed with one explosion, achievement for beating each boss,
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?, Nuke
 // Power up icons: https://www.gamedevmarket.net/asset/asteroids-crusher-game-assets-3793/
-// Improve HUD- show upgrades
 // Make sound and animation for gaining credits, rain coins down
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // - Random boss mode?
@@ -898,11 +894,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Spawns the first boss- eyeBoss
     func spawnEyeBoss() {
         setupMusic(music: "battle", type: "wav")
-        let eyeBoss = SKSpriteNode(imageNamed: "eyeBoss1")
+        let eyeBoss = SKSpriteNode(imageNamed: "eyeEdited")
         eyeBoss.userData = NSMutableDictionary()
         eyeBoss.userData?.setValue(false, forKey: "isDead")
         setEyeBossHealth(eyeBoss: eyeBoss)
-        eyeBoss.size = CGSize(width: 110, height: 152)
+        eyeBoss.size = CGSize(width: 107, height: 152)
         eyeBoss.position = CGPoint(x: size.width/2, y: size.height + eyeBoss.size.height)
         eyeBoss.name = kEyeBossName
         eyeBoss.zPosition = 3
@@ -938,10 +934,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
             if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
-                eyeBossLaser.position.x = eyeBoss.position.x
+                eyeBossLaser.position.x = eyeBoss.position.x - 8
             }
             if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
-                eyeBossLaserCharge.position.x = eyeBoss.position.x
+                eyeBossLaserCharge.position.x = eyeBoss.position.x - 8
             }
         }
     }
@@ -972,7 +968,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         chargeLaser.name = kEyeBossLaserChargeName
         chargeLaser.size = CGSize(width: 0, height: 0)
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
-            chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2)
+            chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3)
         }
         addChild(chargeLaser)
         chargeLaser.run(SKAction.resize(toWidth: 172.8, height: 90, duration: 1.4), completion: {
@@ -993,7 +989,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy | PhysicsCategory.Shield
             eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
             if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
-                eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/2 + (eyeBossLaser.size.height/2))
+                eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3 + (eyeBossLaser.size.height/2))
             }
             chargeLaser.removeFromParent()
             self.addChild(eyeBossLaser)
@@ -1012,12 +1008,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func eyeBossChargeAttack() {
         if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
-            eyeBoss.texture = SKTexture(imageNamed: "eyeBoss2")
+            eyeBoss.texture = SKTexture(imageNamed: "eyeEdited2")
             let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 1.2)
             
             eyeBoss.run(actionMove, completion: {
                 eyeBoss.position = CGPoint(x: eyeBoss.position.x, y: self.size.height + eyeBoss.size.height)
-                eyeBoss.texture = SKTexture(imageNamed: "eyeBoss1")
+                eyeBoss.texture = SKTexture(imageNamed: "eyeEdited")
                 eyeBoss.run(SKAction.move(to: CGPoint(x: eyeBoss.position.x, y: self.size.height - eyeBoss.size.height), duration: 1.5))
             })
         }
