@@ -12,6 +12,7 @@ import CoreMotion
 
 
 class StoreScene: SKScene {
+    
     let background = SKSpriteNode(imageNamed: "starbackground")
     var backButton: SKSpriteNode! = nil
     var healthUpgradeButton: SKSpriteNode! = nil
@@ -40,7 +41,7 @@ class StoreScene: SKScene {
     }
     
     func createUI() {
-        let upgradeButtonWidth = size.width - 30
+        let upgradeButtonWidth = size.width * (7/8)
         let upgradeButtonHeight = upgradeButtonWidth * 0.1557496361
         createCreditsLabel()
         createBackButton()
@@ -52,15 +53,17 @@ class StoreScene: SKScene {
         createMagnetUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         createStartBoxUpgradeButton(width: upgradeButtonWidth, height: upgradeButtonHeight)
         
-        let inappPurchaseButtonWidth = size.width - backButton.size.width - 50
+        let inappPurchaseButtonWidth = size.width * (6.5/8) - backButton.size.width
         let inappPurchaseButtonHeight = inappPurchaseButtonWidth * 0.1557496361
         createPurchaseButton(width: inappPurchaseButtonWidth, height: inappPurchaseButtonHeight)
+        
+        setupLayout()
     }
     
     func createBackButton() {
         backButton = SKSpriteNode(imageNamed: "back")
         backButton.zPosition = 2
-        backButton.size = CGSize(width: 64, height: 64)
+        backButton.size = CGSize(width: size.width * (1/8), height: size.width * (1/8))
         backButton.position = CGPoint(x: backButton.frame.size.width / 2 + 20, y: backButton.frame.size.height / 2 + 20)
         addChild(backButton)
     }
@@ -79,8 +82,6 @@ class StoreScene: SKScene {
         healthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_max_hp")
         healthUpgradeButton.zPosition = 2
         healthUpgradeButton.size = CGSize(width: width, height: height)
-        //healthUpgradeButton.position = CGPoint(x: size.width / 2, y: size.height * (5.2/6))
-        healthUpgradeButton.position = creditsLabel.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 20)
         addChild(healthUpgradeButton)
     }
     
@@ -88,7 +89,6 @@ class StoreScene: SKScene {
         shieldHealthUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_amount")
         shieldHealthUpgradeButton.zPosition = 2
         shieldHealthUpgradeButton.size = CGSize(width: width, height: height)
-        shieldHealthUpgradeButton.position = healthUpgradeButton.position - CGPoint(x: 0, y: healthUpgradeButton.size.height + 20)
         addChild(shieldHealthUpgradeButton)
     }
     
@@ -96,7 +96,6 @@ class StoreScene: SKScene {
         shieldDurationUpgradeButton = SKSpriteNode(imageNamed: "button_increase_shield_duration")
         shieldDurationUpgradeButton.zPosition = 2
         shieldDurationUpgradeButton.size = CGSize(width: width, height: height)
-        shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height + 20)
         addChild(shieldDurationUpgradeButton)
     }
     
@@ -104,7 +103,6 @@ class StoreScene: SKScene {
         doubleLaserUpgradeButton = SKSpriteNode(imageNamed: "button_double_laser")
         doubleLaserUpgradeButton.zPosition = 2
         doubleLaserUpgradeButton.size = CGSize(width: width, height: height)
-        doubleLaserUpgradeButton.position = shieldDurationUpgradeButton.position - CGPoint(x: 0, y: shieldDurationUpgradeButton.size.height + 20)
         addChild(doubleLaserUpgradeButton)
     }
     
@@ -112,16 +110,13 @@ class StoreScene: SKScene {
         homingMissileUpgradeButton = SKSpriteNode(imageNamed: "button_homing_missile")
         homingMissileUpgradeButton.zPosition = 2
         homingMissileUpgradeButton.size = CGSize(width: width, height: height)
-        homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height + 20)
         addChild(homingMissileUpgradeButton)
     }
     
     func createMagnetUpgradeButton(width: CGFloat, height: CGFloat) {
-        // TODO: Create the button and effect. Upgrades will move towards the player
         magnetUpgradeButton = SKSpriteNode(imageNamed: "button_upgrade_magnet")
         magnetUpgradeButton.zPosition = 2
         magnetUpgradeButton.size = CGSize(width: width, height: height)
-        magnetUpgradeButton.position = homingMissileUpgradeButton.position - CGPoint(x: 0, y: homingMissileUpgradeButton.size.height + 20)
         addChild(magnetUpgradeButton)
     }
     
@@ -129,7 +124,6 @@ class StoreScene: SKScene {
         startLootUpgradeButton = SKSpriteNode(imageNamed: "button_start_loot")
         startLootUpgradeButton.zPosition = 2
         startLootUpgradeButton.size = CGSize(width: width, height: height)
-        startLootUpgradeButton.position = magnetUpgradeButton.position - CGPoint(x: 0, y: magnetUpgradeButton.size.height + 20)
         addChild(startLootUpgradeButton)
     }
     
@@ -137,7 +131,6 @@ class StoreScene: SKScene {
         inappPurchaseButton = SKSpriteNode(imageNamed: "button_purchase_credits")
         inappPurchaseButton.zPosition = 2
         inappPurchaseButton.size = CGSize(width: width, height: height)
-        inappPurchaseButton.position = backButton.position + CGPoint(x: 50 + inappPurchaseButton.size.width/2, y: 0)
         addChild(inappPurchaseButton)
     }
     
@@ -149,6 +142,18 @@ class StoreScene: SKScene {
         inAppPaymentHolder.size = CGSize(width: 333, height: 226.6)
         inAppPaymentHolder.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
         addChild(inAppPaymentHolder)
+    }
+    
+    func setupLayout() {
+        let distanceBetweenEach = size.height * (2/30)
+        healthUpgradeButton.position = creditsLabel.position - CGPoint(x: 0, y: healthUpgradeButton.size.height/2 + 40)
+        shieldHealthUpgradeButton.position = healthUpgradeButton.position - CGPoint(x: 0, y: healthUpgradeButton.size.height/2 + distanceBetweenEach)
+        shieldDurationUpgradeButton.position = shieldHealthUpgradeButton.position - CGPoint(x: 0, y: shieldHealthUpgradeButton.size.height/2 + distanceBetweenEach)
+        doubleLaserUpgradeButton.position = shieldDurationUpgradeButton.position - CGPoint(x: 0, y: shieldDurationUpgradeButton.size.height/2 + distanceBetweenEach)
+         homingMissileUpgradeButton.position = doubleLaserUpgradeButton.position - CGPoint(x: 0, y: doubleLaserUpgradeButton.size.height/2 + distanceBetweenEach)
+        magnetUpgradeButton.position = homingMissileUpgradeButton.position - CGPoint(x: 0, y: homingMissileUpgradeButton.size.height/2 + distanceBetweenEach)
+        startLootUpgradeButton.position = magnetUpgradeButton.position - CGPoint(x: 0, y: magnetUpgradeButton.size.height/2 + distanceBetweenEach)
+        inappPurchaseButton.position = CGPoint(x: size.width * (15/16) - inappPurchaseButton.size.width/2, y: inappPurchaseButton.size.height/2 + 20)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {

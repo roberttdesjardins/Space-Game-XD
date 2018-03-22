@@ -7,7 +7,7 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: Fix for different size devices, fix layout in startScene
+// TOP PRIORITY: Fix for different size devices, Change game Logo to image
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change player look
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene

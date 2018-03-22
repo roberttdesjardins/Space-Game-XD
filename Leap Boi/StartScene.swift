@@ -14,6 +14,7 @@ import AVFoundation
 class StartScene: SKScene {
     let background = SKSpriteNode(imageNamed: "starbackground")
     var gameNameLabel: SKLabelNode! = nil
+    var creditsLabel: SKLabelNode! = nil
     var startButton: SKSpriteNode! = nil
     var storeButton: SKSpriteNode! = nil
     var highScoreButton: SKSpriteNode! = nil
@@ -62,9 +63,9 @@ class StartScene: SKScene {
     }
     
     func createUI() {
-        let shortButtonWidth = size.width - 80
+        let shortButtonWidth = size.width * (9/12)
         let shortButtonHeight = shortButtonWidth * 0.2974683544
-        let mediumButtonWidth = size.width - 80
+        let mediumButtonWidth = size.width * (9/12)
         let mediumButtonHeight = mediumButtonWidth * 0.2206047032
         createGameNameLabel()
         createStartButton(width: shortButtonWidth, height: shortButtonHeight)
@@ -72,6 +73,7 @@ class StartScene: SKScene {
         createStoreButton(width: shortButtonWidth, height: shortButtonHeight)
         createHighScoreButton(width: mediumButtonWidth, height: mediumButtonHeight)
         createChooseWeaponButton(width: mediumButtonWidth, height: mediumButtonHeight)
+        setLayout()
     }
     
     func createGameNameLabel() {
@@ -80,8 +82,6 @@ class StartScene: SKScene {
         gameNameLabel.fontSize = 55
         gameNameLabel.fontColor = SKColor.white
         gameNameLabel.text = "Space Game xD"
-        gameNameLabel.position = CGPoint(x: size.width/2, y: self.size.height * (5/6))
-        
         self.addChild(gameNameLabel)
     }
     
@@ -89,19 +89,15 @@ class StartScene: SKScene {
         startButton = SKSpriteNode(imageNamed: "button_play")
         startButton.zPosition = 2
         startButton.size = CGSize(width: width, height: height)
-        //startButton.position = CGPoint(x: size.width * 0.5, y: size.height * (4.0/6.0))
-        startButton.position = gameNameLabel.position - CGPoint(x: 0, y: startButton.size.height + 40)
         addChild(startButton)
     }
     
     func createCreditsLabel() {
-        let creditsLabel = SKLabelNode(fontNamed: "SquareFont")
+        creditsLabel = SKLabelNode(fontNamed: "SquareFont")
         creditsLabel.zPosition = 2
         creditsLabel.fontSize = 35
         creditsLabel.fontColor = SKColor.white
         creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
-        creditsLabel.position = CGPoint(x: size.width/2, y: size.height * (3.0/6.0))
-        
         self.addChild(creditsLabel)
     }
     
@@ -109,7 +105,6 @@ class StartScene: SKScene {
         storeButton = SKSpriteNode(imageNamed: "button_store")
         storeButton.zPosition = 2
         storeButton.size = CGSize(width: width, height: height)
-        storeButton.position = CGPoint(x: size.width * 0.5, y: size.height * (2.0/6.0))
         addChild(storeButton)
     }
     
@@ -117,7 +112,6 @@ class StartScene: SKScene {
         highScoreButton = SKSpriteNode(imageNamed: "button_high_scores")
         highScoreButton.zPosition = 2
         highScoreButton.size = CGSize(width: width, height: height)
-        highScoreButton.position = CGPoint(x: size.width * 0.5, y: size.height * (1.0/6.0))
         addChild(highScoreButton)
     }
     
@@ -125,8 +119,18 @@ class StartScene: SKScene {
         chooseWeaponButton = SKSpriteNode(imageNamed: "button_choose_weapon")
         chooseWeaponButton.zPosition = 2
         chooseWeaponButton.size = CGSize(width: width, height: height)
-        chooseWeaponButton.position = CGPoint(x: size.width * 0.5, y: 40)
         addChild(chooseWeaponButton)
+    }
+    
+    func setLayout() {
+        let spaceBetweenEach: CGFloat = size.height * 1/20
+        creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height - 40)
+        gameNameLabel.position = creditsLabel.position - CGPoint(x: 0, y: size.height * (1/8))
+        
+        chooseWeaponButton.position = CGPoint(x: size.width * 0.5, y: chooseWeaponButton.size.height/2 + spaceBetweenEach)
+        highScoreButton.position = chooseWeaponButton.position + CGPoint(x: 0, y: chooseWeaponButton.size.height/2 + highScoreButton.size.height/2 + spaceBetweenEach)
+        storeButton.position = highScoreButton.position + CGPoint(x: 0, y: highScoreButton.size.height/2 + storeButton.size.height/2 + spaceBetweenEach)
+        startButton.position = storeButton.position + CGPoint(x: 0, y: storeButton.size.height/2 + startButton.size.height/2 + spaceBetweenEach)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
