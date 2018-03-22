@@ -7,13 +7,13 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: In-app payments, fix for different size devices, fix layout in startScene
+// TOP PRIORITY: Fix for different size devices, fix layout in startScene
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change player look
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
 // Revive for credits
 // inapp purchases for cosmetics
-// Add achievements: 8 enemies killed with one explosion, achievement for beating each boss,
+// Add achievements: 8 enemies killed with one explosion, achievement for beating each boss
 // Upgrades: Diagonal bullets, DOT fire, freeze weapon?, Nuke
 // Power up icons: https://www.gamedevmarket.net/asset/asteroids-crusher-game-assets-3793/
 // Make sound and animation for gaining credits, rain coins down
@@ -934,10 +934,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
             if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
-                eyeBossLaser.position.x = eyeBoss.position.x - 8
+                eyeBossLaser.position.x = eyeBoss.position.x - 5
             }
             if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
-                eyeBossLaserCharge.position.x = eyeBoss.position.x - 8
+                eyeBossLaserCharge.position.x = eyeBoss.position.x
             }
         }
     }

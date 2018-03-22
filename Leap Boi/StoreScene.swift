@@ -23,6 +23,7 @@ class StoreScene: SKScene {
     var startLootUpgradeButton: SKSpriteNode! = nil
     var inappPurchaseButton: SKSpriteNode! = nil
     var creditsLabel: SKLabelNode! = nil
+    var inAppPaymentHolder: SKSpriteNode! = nil
     
     override func didMove(to view: SKView) {
         scene?.scaleMode = .aspectFit
@@ -142,6 +143,12 @@ class StoreScene: SKScene {
     
     func createInappPurchaseNode() {
         // TODO: This http://blogs.quickheal.com/wp-content/uploads/2014/07/in-app-purchase.jpg
+        inAppPaymentHolder = SKSpriteNode(imageNamed: "horizontal-fullscreen-button-holder-without-buttons")
+        inAppPaymentHolder.name = "inAppPaymentHolderName"
+        inAppPaymentHolder.zPosition = 9
+        inAppPaymentHolder.size = CGSize(width: 333, height: 226.6)
+        inAppPaymentHolder.position = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        addChild(inAppPaymentHolder)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -358,7 +365,18 @@ class StoreScene: SKScene {
         
         if inappPurchaseButton.contains(touchLocation) {
             playButtonPress()
-            createInappPurchaseNode()
+            // Show a loading spinner ActivityIndicator
+            PurchaseManager.instance.purchase5000Credits(onComplete: { success in
+                // Dismiss spinner
+                if success {
+                    print("Purchase success")
+                    self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
+                } else {
+                    print("Purchase failed")
+                    // Show message about why it failed
+                }
+            })
+            //createInappPurchaseNode()
         }
     }
 }
