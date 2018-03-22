@@ -7,7 +7,7 @@
 //  Music from: 
 
 // TODO:
-// TOP PRIORITY: Fix for different size devices, Change game Logo to image
+// TOP PRIORITY: Change game Logo to image, Change speed of particles for different devices.
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change player look
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
@@ -290,6 +290,158 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     static var sharedInstance = GameScene()
     let motionManager = CMMotionManager()
     
+    // SCREEN SIZE VARIABLES
+    var moveOffScreen: CGFloat = 0
+    var moveOffScreen2: CGFloat = 0
+    var playerWidth: CGFloat = 0
+    var playerSpeed: CGFloat = 0
+    var playerPhysicsBodyWidth: CGFloat = 0
+    var alienWidth: CGFloat = 0
+    var alienHeight: CGFloat = 0
+    var alienLaserWidth: CGFloat = 0
+    var aoeLaserWidth: CGFloat = 0
+    var aoeLaserPhysicsBodyWidth: CGFloat = 0
+    var aoeLaserVelocity: CGFloat = 0
+    var massiveAsteroidWidth: CGFloat = 0
+    var largeAsteroidWidth: CGFloat = 0
+    var mediumAsteroidWidth: CGFloat = 0
+    var smallAsteroidWidth: CGFloat = 0
+    var alienCruiserWidth: CGFloat = 0
+    var alienCruiserHeight: CGFloat = 0
+    var alienCruiserSpeed: Float = 0
+    var alienCruiserMissileOffset: CGFloat = 0
+    var alienCruiserMissileWidth: CGFloat = 0
+    var alienCruiserMissileVelocity: CGFloat = 0
+    var alienCruiserMissileForceX: CGFloat = 0
+    var eyeBossWidth: CGFloat = 0
+    var eyeBossHeight: CGFloat = 0
+    var eyeBossSpeed: CGFloat = 0
+    var eyeBossLaserChargeWidth: CGFloat = 0
+    var eyeBossLaserChargeHeight: CGFloat = 0
+    var eyeBossLaserWidth: CGFloat = 0
+    var littleEyeWidth: CGFloat = 0
+    var littleEyePhysicsBodyWidth: CGFloat = 0
+    var littleEyeLaserWidth: CGFloat = 0
+    var littleEyeLaserSpeed: CGFloat = 0
+    var boss2Width: CGFloat = 0
+    var boss2Height: CGFloat = 0
+    var boss2Velocity: CGFloat = 0
+    var heavyAlienWidth: CGFloat = 0
+    var heavyAlienMissileOffset: CGFloat = 0
+    var plasmaWidth: CGFloat = 0
+    var plasmaPhysicsbodyWidth: CGFloat = 0
+    var boss3Phase1Width: CGFloat = 0
+    var boss3Phase1Height: CGFloat = 0
+    var harvesterWidth: CGFloat = 0
+    var harvesterSpeed: Float = 0
+    var bloodProjectileWidth: CGFloat = 0
+    var boss3Phase2MissileOffset: CGFloat = 0
+    var powerUpWidth: CGFloat = 0
+    var powerUpRandomDX: CGFloat = 0
+    var powerUpRandomDYmin: CGFloat = 0
+    var powerUpRandomDYmax: CGFloat = 0
+    var protectiveShieldWidth: CGFloat = 0
+    var upgradeSpeed: CGFloat = 0
+    var playerLaserOffset4: CGFloat = 0
+    var playerLaserOffset8: CGFloat = 0
+    var playerLaserOffset12: CGFloat = 0
+    var playerLaserOffset16: CGFloat = 0
+    var playerLaserWidth: CGFloat = 0
+    var playerLaserDistance: CGFloat = 0
+    var playerMissileWidth: CGFloat = 0
+    var playerMissileHeight: CGFloat = 0
+    var playerMissileExplosionWidth: CGFloat = 0
+    var missileExplosionParticleSpeed: CGFloat = 0
+    var missileExplosionParticleSpeedUpgrade: CGFloat = 0
+    var homingMissileWidth: CGFloat = 0
+    var homingMissileHeight: CGFloat = 0
+    var homingMissileInitialVelocityDX: CGFloat = 0
+    var homingMissileInitialVelocityDY: CGFloat = 0
+    var homingMissileApplyForce: CGFloat = 0
+    var scoreFontSize: CGFloat = 0
+    var largeAsteroidRandomOffset: CGFloat = 0
+    var mediumAsteroidOffset: CGFloat = 0
+    var smallAsteroidOffset: CGFloat = 0
+    var playerToEyeBoss17: CGFloat = 0
+    var playerToEyeBoss10: CGFloat = 0
+    
+    func setUpScreenSizeVariables() {
+        moveOffScreen = 1.3586956522 * size.height
+        moveOffScreen2 = (100/414) * size.height
+        playerWidth = (35/414) * size.width
+        playerSpeed = (120/414) * size.width
+        playerPhysicsBodyWidth = playerWidth - 0.0193236715 * size.width
+        alienWidth = 0.0845410628 * size.width
+        alienHeight = alienWidth * 1.1257142857
+        alienLaserWidth = 0.038647343 * size.width
+        aoeLaserWidth = 0.07729468599 * size.width
+        aoeLaserPhysicsBodyWidth = aoeLaserWidth - 0.01207729469 * size.width
+        aoeLaserVelocity = 0.4830917874 * size.width
+        massiveAsteroidWidth = 0.6763285024 * size.width
+        largeAsteroidWidth = 0.193236715 * size.width
+        mediumAsteroidWidth = 0.09661835749 * size.width
+        smallAsteroidWidth = 0.04830917874 * size.width
+        alienCruiserWidth = 0.193236715 * size.width
+        alienCruiserHeight = 0.2415458937 * size.width
+        alienCruiserSpeed = Float(0.2898550725 * size.width)
+        alienCruiserMissileOffset = 0.04830917874 * size.width
+        alienCruiserMissileWidth = 0.02657004831 * size.width
+        alienCruiserMissileVelocity = 0.4830917874 * size.width
+        alienCruiserMissileForceX = 0.0004830917874 * size.width
+        eyeBossWidth = 0.2584541063 * size.width
+        eyeBossHeight = 0.3671497585 * size.width
+        eyeBossSpeed = 0.1449275362 * size.width
+        eyeBossLaserChargeWidth = 0.4173913043 * size.width
+        eyeBossLaserChargeHeight = 0.2173913043 * size.width
+        eyeBossLaserWidth = (101/414) * size.width
+        littleEyeWidth = 0.07729468599 * size.width
+        littleEyePhysicsBodyWidth = 0.04830917874 * size.width
+        littleEyeLaserWidth = 0.04830917874 * size.width
+        littleEyeLaserSpeed = 0.5917874396 * size.width
+        boss2Width = (110/414) * size.width
+        boss2Height = (152/414) * size.width
+        boss2Velocity = (40/414) * size.width
+        heavyAlienWidth = (80/414) * size.width
+        heavyAlienMissileOffset = (18/414) * size.width
+        plasmaWidth = (64/414) * size.width
+        plasmaPhysicsbodyWidth = (44/414) * size.width
+        boss3Phase1Width = (256/414) * size.width
+        boss3Phase1Height = (320/414) * size.width
+        harvesterWidth = (64/414) * size.width
+        harvesterSpeed = Float((220/414) * size.width)
+        bloodProjectileWidth = (33.5/414) * size.width
+        boss3Phase2MissileOffset = (30/414) * size.width
+        powerUpWidth = (20/414) * size.width
+        powerUpRandomDX = (25/414) * size.width
+        powerUpRandomDYmin = (150/414) * size.width
+        powerUpRandomDYmax = (250/414) * size.width
+        protectiveShieldWidth = (40/414) * size.width
+        upgradeSpeed = (0.6/414) * size.width
+        playerLaserOffset4 = (4/414) * size.width
+        playerLaserOffset8 = (8/414) * size.width
+        playerLaserOffset12 = (12/414) * size.width
+        playerLaserOffset16 = (16/414) * size.width
+        playerLaserWidth = (15/414) * size.width
+        playerLaserDistance = (3000/414) * size.width
+        playerMissileWidth = (20/414) * size.width
+        playerMissileHeight = (30/414) * size.width
+        playerMissileExplosionWidth = (70/414) * size.width
+        missileExplosionParticleSpeed = (100/414) * size.width
+        missileExplosionParticleSpeedUpgrade = (50/414) * size.width
+        homingMissileWidth = (7/414) * size.width
+        homingMissileHeight = (20/414) * size.width
+        homingMissileInitialVelocityDX = (10/414) * size.width
+        homingMissileInitialVelocityDY = (5/414) * size.width
+        homingMissileApplyForce = (1/414) * size.width
+        scoreFontSize = (20/414) * size.width
+        largeAsteroidRandomOffset = (120/414) * size.width
+        mediumAsteroidOffset = (10/414) * size.width
+        smallAsteroidOffset = (5/414) * size.width
+        playerToEyeBoss17 = (17.5/414) * size.width
+        playerToEyeBoss10 = (10/414) * size.width
+    }
+    
+    
     func pause() {
         worldNode.isPaused = true
         physicsWorld.speed = 0
@@ -298,17 +450,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             pauseButton.removeFromParent()
         }
         createPauseNode()
+        GameScene.sharedInstance.isPaused = true
     }
     
     func resume() {
         worldNode.isPaused = false
         physicsWorld.speed = 1
         worldPaused = false
+        GameScene.sharedInstance.isPaused = false
     }
     
     // Called on Scene load
     override func didMove(to view: SKView) {
         addChild(worldNode)
+        setUpScreenSizeVariables()
         physicsWorld.contactDelegate = self
         let runStartSound = SKAction.run {
             GameData.shared.bgMusicPlayer.stop()
@@ -553,11 +708,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func makePlayer() -> SKNode {
         let player = SKSpriteNode(imageNamed: "PlayerShip_\(GameData.shared.shipColourChosen)")
-        player.size = CGSize(width: 35, height: 35)
+        player.size = CGSize(width: playerWidth, height: playerWidth)
         player.zPosition = 6
         player.name = kPlayerName
         
-        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size - CGSize(width: 8, height: 8))
+        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: CGSize(width: playerPhysicsBodyWidth, height: playerPhysicsBodyWidth))
         player.physicsBody!.isDynamic = true
         player.physicsBody!.affectedByGravity = false
         player.physicsBody?.allowsRotation = false
@@ -596,7 +751,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addAlien() {
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.name = kAlienName
-        alien.size = CGSize(width: 35, height: 39.4)
+        alien.size = CGSize(width: alienWidth, height: alienHeight)
         alien.userData = NSMutableDictionary()
         alien.userData?.setValue(false, forKey: "isDead")
         setAlienHealth(alien: alien)
@@ -621,9 +776,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func addAlienLaser(alien: SKSpriteNode, offset: CGFloat) {
-        //let alienLaser = SKSpriteNode(color: SKColor.green, size: CGSize(width: 2, height: 12))
         let alienLaser = SKSpriteNode(imageNamed: "Bullet_Green_Laser")
-        alienLaser.size = CGSize(width: 16, height: 16)
+        alienLaser.size = CGSize(width: alienLaserWidth, height: alienLaserWidth)
         alienLaser.name = kAlienLaserName
         alienLaser.zPosition = 4
         alienLaser.zRotation = DegreesToRadians * 180
@@ -636,7 +790,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
         alienLaser.position = alien.position - CGPoint(x: 0, y: alien.size.height/2 + alienLaser.size.height/2)
-        let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x + offset, y: alienLaser.position.y - 1000), duration: TimeInterval(actualDuration))
+        let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x + offset, y: alienLaser.position.y - moveOffScreen), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
         alienLaser.run(SKAction.sequence([actionMove, actionMoveDone]))
         worldNode.addChild(alienLaser)
@@ -659,18 +813,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let laser = SKSpriteNode(imageNamed: image)
         laser.name = kAlienLaserName
         laser.zPosition = 4
-        laser.size = CGSize(width: 32, height: 32)
+        laser.size = CGSize(width: aoeLaserWidth, height: aoeLaserWidth)
         laser.position = position
         laser.zRotation = rotation
         
-        laser.physicsBody = SKPhysicsBody(texture: laser.texture!, size: laser.size - CGSize(width: 5, height: 5))
+        laser.physicsBody = SKPhysicsBody(texture: laser.texture!, size: CGSize(width: aoeLaserPhysicsBodyWidth, height: aoeLaserPhysicsBodyWidth))
         laser.physicsBody?.isDynamic = true
         laser.physicsBody?.affectedByGravity = false
         laser.physicsBody?.categoryBitMask = PhysicsCategory.AlienLaser
         laser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
         laser.physicsBody?.collisionBitMask = PhysicsCategory.None
         laser.physicsBody?.usesPreciseCollisionDetection = true
-        laser.physicsBody?.velocity = CGVector(dx: 200 * cos(laser.zRotation), dy: 200 * sin(laser.zRotation))
+        laser.physicsBody?.velocity = CGVector(dx: aoeLaserVelocity * cos(laser.zRotation), dy: aoeLaserVelocity * sin(laser.zRotation))
         
         let actionWait = SKAction.wait(forDuration: 5)
         let actionWaitDone = SKAction.removeFromParent()
@@ -702,7 +856,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addMassiveAsteroid() {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
         asteroid.name = kMassiveAsteroidName
-        asteroid.size = CGSize(width: 280, height: 280)
+        asteroid.size = CGSize(width: massiveAsteroidWidth, height: massiveAsteroidWidth)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
         setMassiveAsteroidHealth(asteroid: asteroid)
@@ -731,7 +885,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addLargeAsteroid(position: CGPoint, xoffset: CGFloat, yoffset: CGFloat) {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Big")
         asteroid.name = kLargeAsteroidName
-        asteroid.size = CGSize(width: 80, height: 80)
+        asteroid.size = CGSize(width: largeAsteroidWidth, height: largeAsteroidWidth)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
         setLargeAsteroidHealth(asteroid: asteroid)
@@ -759,7 +913,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addMediumAsteroid(position: CGPoint, xoffset: CGFloat) {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Medium")
         asteroid.name = kMediumAsteroidName
-        asteroid.size = CGSize(width: 40, height: 40)
+        asteroid.size = CGSize(width: mediumAsteroidWidth, height: mediumAsteroidWidth)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
         setMediumAsteroidHealth(asteroid: asteroid)
@@ -786,7 +940,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addSmallAsteroid(position: CGPoint, xoffset: CGFloat) {
         let asteroid = SKSpriteNode(imageNamed: "Meteor_Small")
         asteroid.name = kSmallAsteroidName
-        asteroid.size = CGSize(width: 20, height: 20)
+        asteroid.size = CGSize(width: smallAsteroidWidth, height: smallAsteroidWidth)
         asteroid.userData = NSMutableDictionary()
         asteroid.userData?.setValue(false, forKey: "isDead")
         setSmallAsteroidHealth(asteroid: asteroid)
@@ -823,7 +977,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let alienCruiser = SKSpriteNode(imageNamed: "alienCruiser")
         alienCruiser.name = kAlienCruiserName
         alienCruiser.zPosition = 3
-        alienCruiser.size = CGSize(width: 80, height: 100)
+        alienCruiser.size = CGSize(width: alienCruiserWidth, height: alienCruiserHeight)
         alienCruiser.userData = NSMutableDictionary()
         alienCruiser.userData?.setValue(false, forKey: "isDead")
         setAlienCruiserHealth(alienCruiser: alienCruiser)
@@ -850,12 +1004,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
         let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
         let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 1)
-        let move = SKAction.sequence([SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiserMoving")}, SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))])
+        let move = SKAction.sequence([SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiserMoving")}, SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/alienCruiserSpeed))])
         let changeImageBack = SKAction.run {alienCruiser.texture = SKTexture(imageNamed: "alienCruiser")}
         let turn2 = SKAction.rotate(toAngle: 0, duration: 1)
         let fire = SKAction.run {
-            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: -20)
-            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: 20)
+            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: -self.alienCruiserMissileOffset)
+            self.addAlienCruiserMissile(alienCruiser: alienCruiser, offset: self.alienCruiserMissileOffset)
         }
         alienCruiser.run(SKAction.sequence([wait, turn1, move, changeImageBack, turn2, fire]), completion: { () -> Void in
             self.setUpAlienCruiserBehaviour(alienCruiser: alienCruiser)
@@ -864,7 +1018,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func addAlienCruiserMissile(alienCruiser: SKSpriteNode, offset: CGFloat) {
         let alienMissile = SKSpriteNode(imageNamed: "alienMissile")
-        alienMissile.size = CGSize(width: 11, height: 11)
+        alienMissile.size = CGSize(width: alienCruiserMissileWidth, height: alienCruiserMissileWidth)
         alienMissile.name = kAlienMissileName
         alienMissile.zPosition = 5
         
@@ -877,7 +1031,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         alienMissile.physicsBody?.usesPreciseCollisionDetection = true
 
         alienMissile.position = alienCruiser.position - CGPoint(x: -offset, y: alienCruiser.size.height/3)
-        alienMissile.physicsBody?.velocity.dy = -200
+        alienMissile.physicsBody?.velocity.dy = -alienCruiserMissileVelocity
         worldNode.addChild(alienMissile)
         alienMissileArray.append(alienMissile)
     }
@@ -886,11 +1040,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for alienMissile in alienMissileArray {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x >= alienMissile.position.x {
-                    //alienMissile.physicsBody?.velocity.dx = CGFloat(60)
-                    alienMissile.physicsBody?.applyForce(CGVector(dx: 0.2, dy: 0))
+                    alienMissile.physicsBody?.applyForce(CGVector(dx: alienCruiserMissileForceX, dy: 0))
                 } else if player.position.x < alienMissile.position.x {
-                    //alienMissile.physicsBody?.velocity.dx = CGFloat(-60)
-                    alienMissile.physicsBody?.applyForce(CGVector(dx: -0.2, dy: 0))
+                    alienMissile.physicsBody?.applyForce(CGVector(dx: -alienCruiserMissileForceX, dy: 0))
                 }
             }
             if alienMissile.position.y <= (0 - alienMissile.size.height) {
@@ -917,7 +1069,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBoss.userData = NSMutableDictionary()
         eyeBoss.userData?.setValue(false, forKey: "isDead")
         setEyeBossHealth(eyeBoss: eyeBoss)
-        eyeBoss.size = CGSize(width: 107, height: 152)
+        eyeBoss.size = CGSize(width: eyeBossWidth, height: eyeBossHeight)
         eyeBoss.position = CGPoint(x: size.width/2, y: size.height + eyeBoss.size.height)
         eyeBoss.name = kEyeBossName
         eyeBoss.zPosition = 3
@@ -945,15 +1097,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let eyeBoss = worldNode.childNode(withName: kEyeBossName) as? SKSpriteNode {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x - 5 >= eyeBoss.position.x {
-                    eyeBoss.physicsBody?.velocity.dx = CGFloat(60)
+                    eyeBoss.physicsBody?.velocity.dx = eyeBossSpeed
                 } else if player.position.x + 5 <= eyeBoss.position.x {
-                    eyeBoss.physicsBody?.velocity.dx = CGFloat(-60)
+                    eyeBoss.physicsBody?.velocity.dx = -eyeBossSpeed
                 } else {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(0)
                 }
             }
             if let eyeBossLaser = worldNode.childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
-                eyeBossLaser.position.x = eyeBoss.position.x - 5
+                eyeBossLaser.position.x = eyeBoss.position.x - 3
             }
             if let eyeBossLaserCharge = worldNode.childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
                 eyeBossLaserCharge.position.x = eyeBoss.position.x
@@ -990,7 +1142,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3)
         }
         worldNode.addChild(chargeLaser)
-        chargeLaser.run(SKAction.resize(toWidth: 172.8, height: 90, duration: 1.4), completion: {
+        chargeLaser.run(SKAction.resize(toWidth: eyeBossLaserChargeWidth, height: eyeBossLaserChargeHeight, duration: 1.4), completion: {
             let audioNode2 = SKAudioNode(fileNamed: "laserbeamsound")
             audioNode2.autoplayLooped = false
             self.worldNode.addChild(audioNode2)
@@ -998,11 +1150,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             audioNode2.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 5), SKAction.removeFromParent()]))
             
             let eyeBossLaser = SKSpriteNode(imageNamed: "teslaColor1")
-            eyeBossLaser.size = CGSize(width: 101, height: self.size.height)
+            eyeBossLaser.size = CGSize(width: self.eyeBossLaserWidth, height: self.size.height)
             eyeBossLaser.zPosition = 2
             eyeBossLaser.name = self.kEyeBossLaserName
             
-            eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size - CGSize(width: 91, height: 0))
+            eyeBossLaser.physicsBody = SKPhysicsBody(rectangleOf: eyeBossLaser.size - CGSize(width: self.eyeBossLaserWidth * 0.9, height: 0))
             eyeBossLaser.physicsBody?.isDynamic = false
             eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
             eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy | PhysicsCategory.Shield
@@ -1056,13 +1208,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addSpawnLittleEyes() {
         let littleEye = SKSpriteNode(imageNamed: "")
         littleEye.name = kLittleEyeName
-        littleEye.size = CGSize(width: 32, height: 32)
+        littleEye.size = CGSize(width: littleEyeWidth, height: littleEyeWidth)
         littleEye.zPosition = 5
         littleEye.userData = NSMutableDictionary()
         littleEye.userData?.setValue(false, forKey: "isDead")
         setLittleEyeHealth(littleEye: littleEye)
         
-        littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: littleEye.size - CGSize(width: 12, height: 12))
+        littleEye.physicsBody = SKPhysicsBody(texture: littleEye.texture!, size: CGSize(width: littleEyePhysicsBodyWidth, height: littleEyePhysicsBodyWidth))
         littleEye.physicsBody?.isDynamic = true
         littleEye.physicsBody?.affectedByGravity = false
         littleEye.physicsBody?.categoryBitMask = PhysicsCategory.Enemy
@@ -1095,7 +1247,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let playMovingGif = SKAction.run {
             self.setUpLittleEyeMovingGif(littleEye: littleEye)
         }
-        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/120))
+        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/alienCruiserSpeed))
         let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
         let fire = SKAction.run {
             self.littleEyeFireLaser(littleEye: littleEye)
@@ -1110,7 +1262,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func littleEyeFireLaser(littleEye: SKSpriteNode) {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             let laser = SKSpriteNode(imageNamed: "Bullet_Green_Laser")
-            laser.size = CGSize(width: 20, height: 20)
+            laser.size = CGSize(width: littleEyeLaserWidth, height: littleEyeLaserWidth)
             laser.name = kAlienLaserName
             laser.zPosition = 4
             laser.physicsBody = SKPhysicsBody(rectangleOf: laser.size)
@@ -1125,8 +1277,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let xAndHypotenuse = shootTowardsPlayer(player: player, sprite: littleEye)
             laser.zRotation = faceTowards(sprite1: laser, sprite2: player) + 180 * DegreesToRadians
-            let actualDuration = xAndHypotenuse[1] / 245
-            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
+            let actualDuration = xAndHypotenuse[1] / littleEyeLaserSpeed
+            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -moveOffScreen2), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             laser.run(SKAction.sequence([actionMove, actionMoveDone]))
             worldNode.addChild(laser)
@@ -1166,7 +1318,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func spawnBoss2() {
-        // TODO: Add music
         setupMusic(music: "action", type: "mp3")
         addHeavyAlien(position: CGPoint(x: size.width/4, y: size.height), initialDelay: 0)
         addHeavyAlien(position: CGPoint(x: size.width * (3/4), y: size.height), initialDelay: 0.3)
@@ -1174,7 +1325,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.userData = NSMutableDictionary()
         boss2.userData?.setValue(false, forKey: "isDead")
         setBoss2Health(boss2: boss2)
-        boss2.size = CGSize(width: 110, height: 152)
+        boss2.size = CGSize(width: boss2Width, height: boss2Height)
         boss2.position = CGPoint(x: size.width/2, y: size.height + boss2.size.height)
         boss2.name = kBoss2Name
         boss2.zPosition = 5
@@ -1199,7 +1350,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss2.physicsBody?.contactTestBitMask = PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Player | PhysicsCategory.Shield
         boss2.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss2.physicsBody?.usesPreciseCollisionDetection = true
-        boss2.physicsBody?.velocity.dx = CGFloat(40)
+        boss2.physicsBody?.velocity.dx = boss2Velocity
     }
     
     func addHeavyAlien(position: CGPoint, initialDelay: CGFloat) {
@@ -1207,14 +1358,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         heavyAlien.userData = NSMutableDictionary()
         heavyAlien.userData?.setValue(false, forKey: "isDead")
         setHeavyAlienHealth(heavyAlien: heavyAlien)
-        heavyAlien.size = CGSize(width: 80, height: 80)
+        heavyAlien.size = CGSize(width: heavyAlienWidth, height: heavyAlienWidth)
         heavyAlien.position = position + CGPoint(x: 0, y: heavyAlien.size.height/2)
         heavyAlien.name = kHeavyAlienName
         heavyAlien.zPosition = 4
         
         
         worldNode.addChild(heavyAlien)
-        heavyAlien.run(SKAction.move(to: position - CGPoint(x: 0, y: heavyAlien.size.height + 152), duration: 10.0), completion: { () -> Void in
+        heavyAlien.run(SKAction.move(to: position - CGPoint(x: 0, y: heavyAlien.size.height + boss2Height), duration: 10.0), completion: { () -> Void in
             self.setUpHeavyAlienPhysicsBody(heavyAlien: heavyAlien)
             self.setUpHeavyAlienBehaviour(heavyAlien: heavyAlien, initialDelay: initialDelay)
         })
@@ -1234,10 +1385,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let initialWait = SKAction.wait(forDuration: TimeInterval(initialDelay))
         let wait = SKAction.wait(forDuration: 0.6)
         let fireLeft = SKAction.run {
-            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: -18)
+            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: -self.heavyAlienMissileOffset)
         }
         let fireRight = SKAction.run {
-            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: 18)
+            self.addAlienCruiserMissile(alienCruiser: heavyAlien, offset: self.heavyAlienMissileOffset)
         }
         heavyAlien.run(SKAction.sequence([initialWait, SKAction.repeatForever(SKAction.sequence([wait, fireLeft, wait, fireRight]))]))
     }
@@ -1247,9 +1398,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func processBoss2Movement() {
         if let boss2 = worldNode.childNode(withName: kBoss2Name) as? SKSpriteNode {
             if boss2.position.x >= size.width - boss2.size.width {
-                boss2.physicsBody?.velocity.dx = CGFloat(-40)
+                boss2.physicsBody?.velocity.dx = -boss2Velocity
             } else if boss2.position.x <= 0 + boss2.size.width {
-                boss2.physicsBody?.velocity.dx = CGFloat(40)
+                boss2.physicsBody?.velocity.dx = boss2Velocity
             }
         }
     }
@@ -1282,8 +1433,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             let plasma = SKSpriteNode(imageNamed: "plasma")
             plasma.name = kPlasmaName
+            plasma.size = CGSize(width: plasmaWidth, height: plasmaWidth)
             plasma.zPosition = 4
-            plasma.physicsBody = SKPhysicsBody(texture: plasma.texture!, size: plasma.size - CGSize(width: 20, height: 20))
+            plasma.physicsBody = SKPhysicsBody(texture: plasma.texture!, size: CGSize(width: plasmaPhysicsbodyWidth, height: plasmaPhysicsbodyWidth))
             plasma.physicsBody?.isDynamic = false
             plasma.physicsBody?.categoryBitMask = PhysicsCategory.Plasma
             plasma.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.Shield
@@ -1300,13 +1452,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let adjacent = player.position.y - position.y
             let opposite = player.position.x - position.x
             let angle = tan(opposite/adjacent)
-            let newAdjacent = adjacent - 100
+            let newAdjacent = adjacent - moveOffScreen2
             let newOpposite = tan(angle) * newAdjacent
             let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
             let newX = position.x + newOpposite
             plasma.zRotation = faceTowards(sprite1: plasma, sprite2: player)
-            let actualDuration = newHypotenuse / 245
-            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
+            let actualDuration = newHypotenuse / littleEyeLaserSpeed
+            let actionMove = SKAction.move(to: CGPoint(x: newX, y: -moveOffScreen2), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             plasma.run(SKAction.sequence([actionMove, actionMoveDone]))
             worldNode.addChild(plasma)
@@ -1352,7 +1504,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.userData = NSMutableDictionary()
         boss3.userData?.setValue(false, forKey: "isDead")
         setBoss3Phase1Health(boss3: boss3)
-        boss3.size = CGSize(width: 256, height: 320)
+        boss3.size = CGSize(width: boss3Phase1Width, height: boss3Phase1Height)
         boss3.position = CGPoint(x: size.width/2, y: size.height + boss3.size.height)
         boss3.name = kBoss3Phase1Name
         boss3.zPosition = 3
@@ -1388,7 +1540,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addBoss3Harvester() {
         let harvester = SKSpriteNode(imageNamed: "boss3-harvester")
         harvester.name = kHarvesterName
-        harvester.size = CGSize(width: 64, height: 64)
+        harvester.size = CGSize(width: harvesterWidth, height: harvesterWidth)
         harvester.userData = NSMutableDictionary()
         harvester.userData?.setValue(false, forKey: "isDead")
         setHarvesterHealth(harvester: harvester)
@@ -1403,7 +1555,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             harvester.position = boss3.position - CGPoint(x: 0, y: boss3.size.height/4)
         }
         worldNode.addChild(harvester)
-        harvester.run(SKAction.move(to: harvester.position - CGPoint(x: 0, y: 100), duration: 1.0), completion: { () -> Void in self.setUpHarvesterBehaviour(harvester: harvester)})
+        harvester.run(SKAction.move(to: harvester.position - CGPoint(x: 0, y: moveOffScreen2), duration: 1.0), completion: { () -> Void in self.setUpHarvesterBehaviour(harvester: harvester)})
     }
     
     func setUpHarvesterBehaviour(harvester: SKSpriteNode){
@@ -1417,7 +1569,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let distanceOfLocationToMoveTo = sqrtf(powf(Float(opposite), 2.0) + powf(Float(adjacent), 2.0))
         let angleToRotateTo = angleToRotateToWhileFacingDown(adjacent: adjacent, opposite: opposite)
         let turn1 = SKAction.rotate(toAngle: angleToRotateTo, duration: 0.5)
-        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/220))
+        let move = SKAction.move(to: locationToMoveTo, duration: TimeInterval(distanceOfLocationToMoveTo/harvesterSpeed))
         let turn2 = SKAction.rotate(toAngle: 0, duration: 0.5)
         let fire = SKAction.run {
             self.addHarvesterAttack(harvester: harvester)
@@ -1430,7 +1582,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addHarvesterAttack(harvester: SKSpriteNode) {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             let bloodProjectile = SKSpriteNode(imageNamed: "evilProjectile1")
-            bloodProjectile.size = CGSize(width: 33.5, height: 33.5)
+            bloodProjectile.size = CGSize(width: bloodProjectileWidth, height: bloodProjectileWidth)
             bloodProjectile.name = kBloodProjectileName
             bloodProjectile.zPosition = 4
             bloodProjectile.physicsBody = SKPhysicsBody(texture: bloodProjectile.texture!, size: bloodProjectile.size)
@@ -1444,8 +1596,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let xAndHypotenuse = shootTowardsPlayer(player: player, sprite: harvester)
             bloodProjectile.zRotation = faceTowards(sprite1: bloodProjectile, sprite2: player)
-            let actualDuration = xAndHypotenuse[1] / 245
-            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
+            let actualDuration = xAndHypotenuse[1] / littleEyeLaserSpeed
+            let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -moveOffScreen2), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             bloodProjectile.run(SKAction.sequence([actionMove, actionMoveDone]))
             worldNode.addChild(bloodProjectile)
@@ -1464,7 +1616,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.userData = NSMutableDictionary()
         boss3.userData?.setValue(false, forKey: "isDead")
         setBoss3Phase2Health(boss3: boss3)
-        boss3.size = CGSize(width: 256, height: 320)
+        boss3.size = CGSize(width: boss3Phase1Width, height: boss3Phase1Height)
         boss3.position = CGPoint(x: size.width/2, y: size.height - boss3.size.height/2)
         boss3.name = kBoss3Phase2Name
         boss3.zPosition = 3
@@ -1539,10 +1691,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let boss3 = worldNode.childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
             let wait = SKAction.wait(forDuration: 0.1)
             let fireLeft = SKAction.run {
-                self.addAlienCruiserMissile(alienCruiser: boss3, offset: -30)
+                self.addAlienCruiserMissile(alienCruiser: boss3, offset: -self.boss3Phase2MissileOffset)
             }
             let fireRight = SKAction.run {
-                self.addAlienCruiserMissile(alienCruiser: boss3, offset: 30)
+                self.addAlienCruiserMissile(alienCruiser: boss3, offset: self.boss3Phase2MissileOffset)
             }
             boss3.run(SKAction.repeat(SKAction.sequence([wait, fireLeft, wait, fireRight]), count: 20))
         }
@@ -1552,7 +1704,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addPowerUp(position: CGPoint, image: String, name: String) {
         let powerUp = SKSpriteNode(imageNamed: image)
         powerUp.name = name
-        powerUp.size = CGSize(width: 20, height: 20)
+        powerUp.size = CGSize(width: powerUpWidth, height: powerUpWidth)
         powerUp.physicsBody = SKPhysicsBody(rectangleOf: powerUp.size)
         powerUp.physicsBody?.isDynamic = true
         powerUp.physicsBody?.affectedByGravity = true
@@ -1562,12 +1714,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerUp.physicsBody?.usesPreciseCollisionDetection = true
 
         powerUp.position = position
-//        let actionWait = SKAction.wait(forDuration: 10)
-//        let actionMoveDone = SKAction.removeFromParent()
-//        powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
         worldNode.addChild(powerUp)
         upgradeArray.append(powerUp)
-        powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: random(min: 150, max: 250))
+        powerUp.physicsBody?.velocity = CGVector(dx: random(min: -powerUpRandomDX, max: powerUpRandomDX), dy: random(min: powerUpRandomDYmin, max: powerUpRandomDYmax))
         
     }
     
@@ -1668,7 +1817,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         protectiveShieldActive = true
         let shield = SKSpriteNode(imageNamed: "shield")
         shield.name = kProtectiveShieldName
-        shield.size = CGSize(width: 40, height: 40)
+        shield.size = CGSize(width: protectiveShieldWidth, height: protectiveShieldWidth)
         shield.zPosition = 5
         shield.userData = NSMutableDictionary()
         shield.userData?.setValue(false, forKey: "isDead")
@@ -1712,9 +1861,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for upgrade in upgradeArray {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x >= upgrade.position.x {
-                    upgrade.physicsBody?.applyForce(CGVector(dx: 0.6, dy: 0))
+                    upgrade.physicsBody?.applyForce(CGVector(dx: upgradeSpeed, dy: 0))
                 } else if player.position.x < upgrade.position.x {
-                    upgrade.physicsBody?.applyForce(CGVector(dx: -0.6, dy: 0))
+                    upgrade.physicsBody?.applyForce(CGVector(dx: -upgradeSpeed, dy: 0))
                 }
             }
             if upgrade.position.y <= (0 - upgrade.size.height) {
@@ -1745,22 +1894,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
             if fiveShotUpgrade {
                 firePlayerLaser(offset: 0)
-                firePlayerLaser(offset: -8.0)
-                firePlayerLaser(offset: 8.0)
-                firePlayerLaser(offset: -16.0)
-                firePlayerLaser(offset: 16.0)
+                firePlayerLaser(offset: -playerLaserOffset8)
+                firePlayerLaser(offset: playerLaserOffset8)
+                firePlayerLaser(offset: -playerLaserOffset16)
+                firePlayerLaser(offset: playerLaserOffset16)
             } else if fourShotUpgrade {
-                firePlayerLaser(offset: -4.0)
-                firePlayerLaser(offset: 4.0)
-                firePlayerLaser(offset: -12.0)
-                firePlayerLaser(offset: 12.0)
+                firePlayerLaser(offset: -playerLaserOffset4)
+                firePlayerLaser(offset: playerLaserOffset4)
+                firePlayerLaser(offset: -playerLaserOffset12)
+                firePlayerLaser(offset: playerLaserOffset12)
             } else if threeShotUpgrade {
                 firePlayerLaser(offset: 0)
-                firePlayerLaser(offset: -8.0)
-                firePlayerLaser(offset: 8.0)
+                firePlayerLaser(offset: -playerLaserOffset8)
+                firePlayerLaser(offset: playerLaserOffset8)
             } else if twoShotUpgrade {
-                firePlayerLaser(offset: -4.0)
-                firePlayerLaser(offset: 4.0)
+                firePlayerLaser(offset: -playerLaserOffset4)
+                firePlayerLaser(offset: playerLaserOffset4)
             } else {
                 firePlayerLaser(offset: 0)
             }
@@ -1786,7 +1935,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             laser.texture = SKTexture(imageNamed: "playerLaserCyan")
         }
         
-        laser.size = CGSize(width: 15, height: 15)
+        laser.size = CGSize(width: playerLaserWidth, height: playerLaserWidth)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             laser.position = player.position + CGPoint(x: offset, y: player.size.height/2 + laser.size.height/2)
         }
@@ -1800,7 +1949,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         laser.physicsBody?.usesPreciseCollisionDetection = true
         
         worldNode.addChild(laser)
-        let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
+        let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: playerLaserDistance), duration: 2.0)
         let actionMoveDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
@@ -1813,7 +1962,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
         
         let missile = SKSpriteNode(imageNamed: "missile")
-        missile.size = CGSize(width: 20, height: 30)
+        missile.size = CGSize(width: playerMissileWidth, height: playerMissileHeight)
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             missile.position = player.position + CGPoint(x: 0, y: player.size.height/2 + missile.size.height/2)
         }
@@ -1828,7 +1977,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missile.physicsBody?.allowsRotation = false
         
         worldNode.addChild(missile)
-        let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: 3000), duration: 7.5)
+        let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: playerLaserDistance), duration: 7.5)
         let actionMoveDone = SKAction.removeFromParent()
         missile.run(SKAction.sequence([actionMove, actionMoveDone]))
     }
@@ -1841,7 +1990,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         let missileExplosion = SKSpriteNode()
         missileExplosion.alpha = 0.0
-        missileExplosion.size = CGSize(width: 70 * (1 + 0.2 * largerExplosionUpgradeNumber), height: 70 * (1 + 0.2 * largerExplosionUpgradeNumber))
+        missileExplosion.size = CGSize(width: playerMissileExplosionWidth * CGFloat(1 + 0.2 * largerExplosionUpgradeNumber), height: playerMissileExplosionWidth * CGFloat(1 + 0.2 * largerExplosionUpgradeNumber))
         missileExplosion.position = missile.position
         missileExplosion.userData = NSMutableDictionary()
 
@@ -1861,7 +2010,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
         missileExplosionEffect?.particleBirthRate = CGFloat(1000 + 200 * largerExplosionUpgradeNumber)
-        missileExplosionEffect?.particleSpeed = CGFloat(100 + (50 * largerExplosionUpgradeNumber))
+        missileExplosionEffect?.particleSpeed = CGFloat(missileExplosionParticleSpeed + (missileExplosionParticleSpeedUpgrade * CGFloat(largerExplosionUpgradeNumber)))
         missileExplosionEffect?.particlePosition = position
         missileExplosionEffect?.zPosition = 2
         worldNode.addChild(missileExplosionEffect!)
@@ -1892,7 +2041,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func addHomingMissile(direction: String) {
         let missile = SKSpriteNode(imageNamed: "homingMissile")
-        missile.size = CGSize(width: 7, height: 20)
+        missile.size = CGSize(width: homingMissileWidth, height: homingMissileHeight)
         missile.name = kHomingMissileName
         missile.zPosition = 5
         missile.userData = NSMutableDictionary()
@@ -1909,17 +2058,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if direction == "Left" {
-                missile.physicsBody?.velocity.dx = -10
-                missile.position = player.position + CGPoint(x: -20, y: 0)
+                missile.physicsBody?.velocity.dx = -homingMissileInitialVelocityDX
+                missile.position = player.position + CGPoint(x: -(homingMissileInitialVelocityDX * 2), y: 0)
             } else if direction == "Right" {
-                missile.physicsBody?.velocity.dx = 10
-                missile.position = player.position + CGPoint(x: 20, y: 0)
+                missile.physicsBody?.velocity.dx = homingMissileInitialVelocityDX
+                missile.position = player.position + CGPoint(x: (homingMissileInitialVelocityDX * 2), y: 0)
             }
         }
         setClosestNode(node: missile)
-        missile.physicsBody?.velocity.dy = 5
+        missile.physicsBody?.velocity.dy = homingMissileInitialVelocityDY
         homingMissileArray.append(missile)
-        let wait = SKAction.wait(forDuration:15.0)
+        let wait = SKAction.wait(forDuration:20.0)
         let action = SKAction.removeFromParent()
         missile.run(SKAction.sequence([wait,action]))
     }
@@ -1934,14 +2083,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     setClosestNode(node: homingMissile)
                 }
                 if homingMissile.position.x > closestEnemy.position.x {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: -1, dy: 0))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: -homingMissileApplyForce, dy: 0))
                 } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 1, dy: 0))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: homingMissileApplyForce, dy: 0))
                 }
                 if homingMissile.position.y > closestEnemy.position.y {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -1))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: -homingMissileApplyForce))
                 } else {
-                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: 1))
+                    homingMissile.physicsBody?.applyForce(CGVector(dx: 0, dy: homingMissileApplyForce))
                 }
                 let positionToRotateTo = atan2((homingMissile.physicsBody?.velocity.dy)!, (homingMissile.physicsBody?.velocity.dx)!)
                 homingMissile.zRotation = CGFloat(positionToRotateTo) - 90 * DegreesToRadians
@@ -1974,7 +2123,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let adjacent = player.position.y + player.size.height - (sprite.position.y - sprite.size.height/2)
         let opposite = player.position.x - sprite.position.x
         let angle = atan(opposite/adjacent)
-        let newAdjacent = adjacent - 100
+        let newAdjacent = adjacent - moveOffScreen2
         let newOpposite = tan(angle) * newAdjacent
         let newHypotenuse = sqrt(pow(newAdjacent, 2.0) + pow(newOpposite, 2.0))
         let newX = sprite.position.x + newOpposite
@@ -1996,7 +2145,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         explosionEffect?.run(SKAction.wait(forDuration: 1), completion: { explosionEffect?.removeFromParent() })
         if score != 0 {
             let scoreEffect = SKLabelNode(fontNamed: "Avenir")
-            scoreEffect.fontSize = 20
+            scoreEffect.fontSize = scoreFontSize
             scoreEffect.fontColor = SKColor.white
             scoreEffect.text = "+\(score)"
             scoreEffect.position = position
@@ -2083,8 +2232,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnRandomPowerUp(position: sprite.position, percentChance: 45.0)
             
             for _ in 0 ... 11 {
-                let randomXOffset = random(min: -120, max: 120)
-                let randomYOffset = random(min: -120, max: 120)
+                let randomXOffset = random(min: -largeAsteroidRandomOffset, max: largeAsteroidRandomOffset)
+                let randomYOffset = random(min: -largeAsteroidRandomOffset, max: largeAsteroidRandomOffset)
                 self.addLargeAsteroid(position: sprite.position, xoffset: randomXOffset, yoffset: randomYOffset)
             }
             sprite.removeFromParent()
@@ -2093,16 +2242,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             explosionEffect(position: sprite.position, fileName: "AsteroidExplosionParticle.sks", score: largeAsteroidKillScore, sound: "Free-Explosions-023")
             GameData.shared.playerScore = GameData.shared.playerScore + largeAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 4.0)
-            self.addMediumAsteroid(position: sprite.position, xoffset: -10)
-            self.addMediumAsteroid(position: sprite.position, xoffset: 10)
+            self.addMediumAsteroid(position: sprite.position, xoffset: -mediumAsteroidOffset)
+            self.addMediumAsteroid(position: sprite.position, xoffset: mediumAsteroidOffset)
             sprite.removeFromParent()
         }
         if(sprite.name == kMediumAsteroidName){
             explosionEffect(position: sprite.position, fileName: "AsteroidExplosionMediumParticle.sks", score: mediumAsteroidKillScore, sound: "Free-Explosions-023")
             GameData.shared.playerScore = GameData.shared.playerScore + mediumAsteroidKillScore
             spawnRandomPowerUp(position: sprite.position, percentChance: 2.0)
-            self.addSmallAsteroid(position: sprite.position, xoffset: -5)
-            self.addSmallAsteroid(position: sprite.position, xoffset: 5)
+            self.addSmallAsteroid(position: sprite.position, xoffset: -smallAsteroidOffset)
+            self.addSmallAsteroid(position: sprite.position, xoffset: smallAsteroidOffset)
             sprite.removeFromParent()
         }
         if(sprite.name == kSmallAsteroidName){
@@ -2156,7 +2305,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             boss2Defeated = true
             print("Boss2 defeated at: \(self.timeBoss2Defeated)")
             let tempSprite = SKSpriteNode()
-            tempSprite.size = CGSize(width: 110, height: 152)
+            tempSprite.size = CGSize(width: boss2Width, height: boss2Height)
             tempSprite.position = sprite.position
             tempSprite.zPosition = 3
             worldNode.addChild(tempSprite)
@@ -2219,21 +2368,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func processUserMotion() {
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-//            if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
-//                shield.position = player.position
-//            }
             if let data = motionManager.accelerometerData {
                 if data.acceleration.x > 0.02 {
-                    //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
-                    //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * 1.25)))
                     // Disabled Acceleration
-                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
+                    player.physicsBody?.velocity.dx = CGFloat(Double(playerSpeed) * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
                 }
                 if data.acceleration.x < -0.02 {
-                    //player.physicsBody!.applyForce(CGVector(dx: 30 * CGFloat(data.acceleration.x), dy: 0))
-                    //player.physicsBody?.velocity.dx = CGFloat(120 * ((data.acceleration.x * 10) * (data.acceleration.x * -1.25)))
                     // Disabled Acceleration
-                    player.physicsBody?.velocity.dx = CGFloat(120 * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
+                    player.physicsBody?.velocity.dx = CGFloat(Double(playerSpeed) * (data.acceleration.x * 10)) * CGFloat(playerMovingDirection)
                 }
                 if data.acceleration.x < 0.02 && data.acceleration.x > -0.02 {
                     player.physicsBody?.velocity.dx = 0.0
@@ -2291,7 +2433,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             if let eyeBossLaser = worldNode.childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
                 if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
-                    if player.position.x + 17.5 > eyeBossLaser.position.x - 10 && player.position.x - 17.5 < eyeBossLaser.position.x + 10 {
+                    if player.position.x + playerToEyeBoss17 > eyeBossLaser.position.x - playerToEyeBoss10 && player.position.x - playerToEyeBoss17 < eyeBossLaser.position.x + playerToEyeBoss10 {
                         playerTakesDamage(damage: 12, view: view!)
                     }
                 }
@@ -2387,15 +2529,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             if ob1.name == kPlayerName && ob2.name == kLargeAsteroidName {
                 explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
-                addMediumAsteroid(position: ob2.position, xoffset: -10)
-                addMediumAsteroid(position: ob2.position, xoffset: 10)
+                addMediumAsteroid(position: ob2.position, xoffset: -mediumAsteroidOffset)
+                addMediumAsteroid(position: ob2.position, xoffset: mediumAsteroidOffset)
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 90, view: view!)
             }
             if ob1.name == kPlayerName && ob2.name == kMediumAsteroidName {
                 explosionEffect(position: ob2.position, fileName: "AsteroidExplosionMediumParticle.sks", score: 0, sound: "")
-                addSmallAsteroid(position: ob2.position, xoffset: -5)
-                addSmallAsteroid(position: ob2.position, xoffset: 5)
+                addSmallAsteroid(position: ob2.position, xoffset: -smallAsteroidOffset)
+                addSmallAsteroid(position: ob2.position, xoffset: smallAsteroidOffset)
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 45, view: view!)
             }
@@ -2440,15 +2582,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kLargeAsteroidName {
             explosionEffect(position: ob2.position, fileName: "AsteroidExplosionParticle.sks", score: 0, sound: "")
-            addMediumAsteroid(position: ob2.position, xoffset: -10)
-            addMediumAsteroid(position: ob2.position, xoffset: 10)
+            addMediumAsteroid(position: ob2.position, xoffset: -mediumAsteroidOffset)
+            addMediumAsteroid(position: ob2.position, xoffset: mediumAsteroidOffset)
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 90)
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kMediumAsteroidName {
             explosionEffect(position: ob2.position, fileName: "AsteroidExplosionMediumParticle.sks", score: 0, sound: "")
-            addSmallAsteroid(position: ob2.position, xoffset: -5)
-            addSmallAsteroid(position: ob2.position, xoffset: 5)
+            addSmallAsteroid(position: ob2.position, xoffset: -smallAsteroidOffset)
+            addSmallAsteroid(position: ob2.position, xoffset: smallAsteroidOffset)
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 45)
         }
