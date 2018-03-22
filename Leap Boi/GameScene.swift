@@ -124,6 +124,8 @@ struct BaseFireRate {
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    let worldNode = SKNode()
+    var worldPaused = false
     
     var playerAlive = false
     let kPlayerName = "player"
@@ -288,8 +290,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     static var sharedInstance = GameScene()
     let motionManager = CMMotionManager()
     
+    func pause() {
+        worldNode.isPaused = true
+        physicsWorld.speed = 0
+        worldPaused = true
+        if pauseButton != nil {
+            pauseButton.removeFromParent()
+        }
+        createPauseNode()
+    }
+    
+    func resume() {
+        worldNode.isPaused = false
+        physicsWorld.speed = 1
+        worldPaused = false
+    }
+    
     // Called on Scene load
     override func didMove(to view: SKView) {
+        addChild(worldNode)
         physicsWorld.contactDelegate = self
         let runStartSound = SKAction.run {
             GameData.shared.bgMusicPlayer.stop()
@@ -591,7 +610,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let actualX = random(min: alien.size.width/2, max: size.width - alien.size.width/2)
         alien.position = CGPoint(x: actualX, y: size.height + alien.size.height/2)
-        addChild(alien)
+        worldNode.addChild(alien)
         
         let actualDuration = random(min: CGFloat(7.0), max: CGFloat(10.0))
         
@@ -620,7 +639,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMove = SKAction.move(to: CGPoint(x: alienLaser.position.x + offset, y: alienLaser.position.y - 1000), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
         alienLaser.run(SKAction.sequence([actionMove, actionMoveDone]))
-        addChild(alienLaser)
+        worldNode.addChild(alienLaser)
     }
     
     func setUpAlienLaser(alien: SKSpriteNode) {
@@ -656,7 +675,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionWait = SKAction.wait(forDuration: 5)
         let actionWaitDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionWait, actionWaitDone]))
-        addChild(laser)
+        worldNode.addChild(laser)
     }
 
     func setUpAsteroids(min: CGFloat, max: CGFloat) {
@@ -700,7 +719,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let actualX = random(min: asteroid.size.width/2, max: size.width - asteroid.size.width/2)
         asteroid.position = CGPoint(x: actualX, y: size.height + asteroid.size.height/2)
-        addChild(asteroid)
+        worldNode.addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(20.0), max: CGFloat(25.0))
         
@@ -728,7 +747,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.run(repeatRotation)
         
         asteroid.position = position + CGPoint(x: xoffset, y: yoffset)
-        addChild(asteroid)
+        worldNode.addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
         
@@ -755,7 +774,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.run(repeatRotation)
 
         asteroid.position = position + CGPoint(x: xoffset, y: 0)
-        addChild(asteroid)
+        worldNode.addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
         
@@ -782,7 +801,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroid.run(repeatRotation)
         
         asteroid.position = position + CGPoint(x: xoffset, y: 0)
-        addChild(asteroid)
+        worldNode.addChild(asteroid)
         
         let actualDuration = random(min: CGFloat(12.0), max: CGFloat(15.0))
         
@@ -817,7 +836,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let actualX = random(min: alienCruiser.size.width/2, max: size.width - alienCruiser.size.width/2)
         alienCruiser.position = CGPoint(x: actualX, y: size.height + alienCruiser.size.height/2)
-        addChild(alienCruiser)
+        worldNode.addChild(alienCruiser)
         setUpAlienCruiserBehaviour(alienCruiser: alienCruiser)
     }
     
@@ -859,7 +878,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         alienMissile.position = alienCruiser.position - CGPoint(x: -offset, y: alienCruiser.size.height/3)
         alienMissile.physicsBody?.velocity.dy = -200
-        addChild(alienMissile)
+        worldNode.addChild(alienMissile)
         alienMissileArray.append(alienMissile)
     }
     
@@ -903,7 +922,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eyeBoss.name = kEyeBossName
         eyeBoss.zPosition = 3
         
-        addChild(eyeBoss)
+        worldNode.addChild(eyeBoss)
         eyeBoss.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - eyeBoss.size.height), duration: 10.0), completion: { () -> Void in
             self.setUpEyeBossPhysicsBody(eyeBoss: eyeBoss)
             self.eyeBossFullySpawned = true
@@ -923,7 +942,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func processEyeBossMovement(forUpdate currentTime: CFTimeInterval) {
-        if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
+        if let eyeBoss = worldNode.childNode(withName: kEyeBossName) as? SKSpriteNode {
             if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                 if player.position.x - 5 >= eyeBoss.position.x {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(60)
@@ -933,10 +952,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     eyeBoss.physicsBody?.velocity.dx = CGFloat(0)
                 }
             }
-            if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
+            if let eyeBossLaser = worldNode.childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
                 eyeBossLaser.position.x = eyeBoss.position.x - 5
             }
-            if let eyeBossLaserCharge = childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
+            if let eyeBossLaserCharge = worldNode.childNode(withName: kEyeBossLaserChargeName) as? SKSpriteNode {
                 eyeBossLaserCharge.position.x = eyeBoss.position.x
             }
         }
@@ -967,14 +986,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         chargeLaser.zPosition = 2
         chargeLaser.name = kEyeBossLaserChargeName
         chargeLaser.size = CGSize(width: 0, height: 0)
-        if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
+        if let eyeBoss = worldNode.childNode(withName: kEyeBossName) as? SKSpriteNode {
             chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3)
         }
-        addChild(chargeLaser)
+        worldNode.addChild(chargeLaser)
         chargeLaser.run(SKAction.resize(toWidth: 172.8, height: 90, duration: 1.4), completion: {
             let audioNode2 = SKAudioNode(fileNamed: "laserbeamsound")
             audioNode2.autoplayLooped = false
-            self.addChild(audioNode2)
+            self.worldNode.addChild(audioNode2)
             let playAction = SKAction.play()
             audioNode2.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 5), SKAction.removeFromParent()]))
             
@@ -988,11 +1007,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             eyeBossLaser.physicsBody?.categoryBitMask = PhysicsCategory.EyeBossLaserAttack
             eyeBossLaser.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.Enemy | PhysicsCategory.Shield
             eyeBossLaser.physicsBody?.collisionBitMask = PhysicsCategory.None
-            if let eyeBoss = self.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
+            if let eyeBoss = self.worldNode.childNode(withName: self.kEyeBossName) as? SKSpriteNode {
                 eyeBossLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3 + (eyeBossLaser.size.height/2))
             }
             chargeLaser.removeFromParent()
-            self.addChild(eyeBossLaser)
+            self.worldNode.addChild(eyeBossLaser)
             
             var gifLaser: [SKTexture] = []
             for i in 1...12 {
@@ -1007,7 +1026,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func eyeBossChargeAttack() {
-        if let eyeBoss = childNode(withName: kEyeBossName) as? SKSpriteNode {
+        if let eyeBoss = worldNode.childNode(withName: kEyeBossName) as? SKSpriteNode {
             eyeBoss.texture = SKTexture(imageNamed: "eyeEdited2")
             let actionMove = SKAction.move(to: eyeBoss.position - CGPoint(x: 0, y: size.height + eyeBoss.size.height), duration: 1.2)
             
@@ -1052,7 +1071,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let actualX = random(min: littleEye.size.width/2, max: size.width - littleEye.size.width/2)
         littleEye.position = CGPoint(x: actualX, y: size.height + littleEye.size.height/2)
-        addChild(littleEye)
+        worldNode.addChild(littleEye)
         setUpLittleEyeBehaviour(littleEye: littleEye)
     }
     
@@ -1110,7 +1129,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             laser.run(SKAction.sequence([actionMove, actionMoveDone]))
-            addChild(laser)
+            worldNode.addChild(laser)
         }
     }
     
@@ -1165,7 +1184,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         
-        addChild(boss2)
+        worldNode.addChild(boss2)
         boss2.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss2.size.height/2 - 20), duration: 10.0), completion: { () -> Void in
             self.setUpBoss2PhysicsBody(boss2: boss2)
             self.boss2FullySpawned = true
@@ -1194,7 +1213,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         heavyAlien.zPosition = 4
         
         
-        addChild(heavyAlien)
+        worldNode.addChild(heavyAlien)
         heavyAlien.run(SKAction.move(to: position - CGPoint(x: 0, y: heavyAlien.size.height + 152), duration: 10.0), completion: { () -> Void in
             self.setUpHeavyAlienPhysicsBody(heavyAlien: heavyAlien)
             self.setUpHeavyAlienBehaviour(heavyAlien: heavyAlien, initialDelay: initialDelay)
@@ -1226,7 +1245,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Move boss2 back and forth
     func processBoss2Movement() {
-        if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
+        if let boss2 = worldNode.childNode(withName: kBoss2Name) as? SKSpriteNode {
             if boss2.position.x >= size.width - boss2.size.width {
                 boss2.physicsBody?.velocity.dx = CGFloat(-40)
             } else if boss2.position.x <= 0 + boss2.size.width {
@@ -1237,7 +1256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // shoots a volley of plasma attacks, aggros if both heavyAliens are dead
     func boss2Attack() {
-        if let boss2 = childNode(withName: kBoss2Name) as? SKSpriteNode {
+        if let boss2 = worldNode.childNode(withName: kBoss2Name) as? SKSpriteNode {
             let wait = SKAction.wait(forDuration: 0.2)
             let leftAttack = SKAction.run {
                 self.addBoss2PlasmaAttack(position: boss2.position - CGPoint(x: boss2.size.width/6, y: boss2.size.height/2), rotation: boss2.zRotation)
@@ -1290,7 +1309,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let actionMove = SKAction.move(to: CGPoint(x: newX, y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             plasma.run(SKAction.sequence([actionMove, actionMoveDone]))
-            addChild(plasma)
+            worldNode.addChild(plasma)
         }
     }
     
@@ -1308,7 +1327,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let audioNode1 = SKAudioNode(fileNamed: "boss2explosion")
         audioNode1.autoplayLooped = true
-        self.addChild(audioNode1)
+        self.worldNode.addChild(audioNode1)
         let playAction = SKAction.play()
         audioNode1.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 4.1), SKAction.removeFromParent()]))
         boss2.run(SKAction.repeat(SKAction.animate(with: gifExplosion, timePerFrame: 0.04), count: 10), completion: {
@@ -1338,7 +1357,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.name = kBoss3Phase1Name
         boss3.zPosition = 3
         
-        addChild(boss3)
+        worldNode.addChild(boss3)
         boss3.run(SKAction.move(to: CGPoint(x: size.width/2, y: size.height - boss3.size.height/2), duration: 10.0), completion: { () -> Void in
             self.setUpBoss3PhysicsBody(boss3: boss3)
             self.boss3FullySpawned = true
@@ -1380,10 +1399,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         harvester.physicsBody?.contactTestBitMask = PhysicsCategory.Player | PhysicsCategory.PlayerProjectile | PhysicsCategory.MissileExplosion | PhysicsCategory.Shield
         harvester.physicsBody?.collisionBitMask = PhysicsCategory.None
         harvester.zPosition = 1
-        if let boss3 = childNode(withName: kBoss3Phase1Name) as? SKSpriteNode {
+        if let boss3 = worldNode.childNode(withName: kBoss3Phase1Name) as? SKSpriteNode {
             harvester.position = boss3.position - CGPoint(x: 0, y: boss3.size.height/4)
         }
-        addChild(harvester)
+        worldNode.addChild(harvester)
         harvester.run(SKAction.move(to: harvester.position - CGPoint(x: 0, y: 100), duration: 1.0), completion: { () -> Void in self.setUpHarvesterBehaviour(harvester: harvester)})
     }
     
@@ -1429,7 +1448,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let actionMove = SKAction.move(to: CGPoint(x: xAndHypotenuse[0], y: -100), duration: TimeInterval(actualDuration))
             let actionMoveDone = SKAction.removeFromParent()
             bloodProjectile.run(SKAction.sequence([actionMove, actionMoveDone]))
-            addChild(bloodProjectile)
+            worldNode.addChild(bloodProjectile)
             
             
             var gifBlood: [SKTexture] = []
@@ -1459,7 +1478,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         boss3.physicsBody?.collisionBitMask = PhysicsCategory.None
         boss3.physicsBody?.usesPreciseCollisionDetection = true
         
-        addChild(boss3)
+        worldNode.addChild(boss3)
     }
     
     func processBoss3Phase2Movement() {
@@ -1480,10 +1499,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func boss3ReverseControls() {
-        if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
+        if let boss3 = worldNode.childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
             let audioNode = SKAudioNode(fileNamed: "laserchargesound")
             audioNode.autoplayLooped = false
-            self.addChild(audioNode)
+            self.worldNode.addChild(audioNode)
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             
@@ -1500,7 +1519,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func boss3Attack2() {
-        if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
+        if let boss3 = worldNode.childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
             let waitWithinVolley = SKAction.wait(forDuration: 0.2)
             let attackVolleyAttack = SKAction.run {
                 // TODO: Play shooting sound- shotgun type sound?
@@ -1517,7 +1536,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func boss3Attack3() {
-        if let boss3 = childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
+        if let boss3 = worldNode.childNode(withName: kBoss3Phase2Name) as? SKSpriteNode {
             let wait = SKAction.wait(forDuration: 0.1)
             let fireLeft = SKAction.run {
                 self.addAlienCruiserMissile(alienCruiser: boss3, offset: -30)
@@ -1546,7 +1565,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        let actionWait = SKAction.wait(forDuration: 10)
 //        let actionMoveDone = SKAction.removeFromParent()
 //        powerUp.run(SKAction.sequence([actionWait, actionMoveDone]))
-        addChild(powerUp)
+        worldNode.addChild(powerUp)
         upgradeArray.append(powerUp)
         powerUp.physicsBody?.velocity = CGVector(dx: random(min: -25, max: 25), dy: random(min: 150, max: 250))
         
@@ -1666,7 +1685,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //shield.position = player.position
             shield.constraints = [SKConstraint.distance(SKRange(upperLimit: 0), to: player)]
         }
-        addChild(shield)
+        worldNode.addChild(shield)
         
         let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
         let actionWaitDone = SKAction.removeFromParent()
@@ -1677,7 +1696,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func updateProtectiveShield() {
-        if let shield = childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
+        if let shield = worldNode.childNode(withName: kProtectiveShieldName) as? SKSpriteNode {
             setShieldHealth(shield: shield)
             shield.removeAllActions()
             let actionWait = SKAction.wait(forDuration: GameData.shared.shieldTime)
@@ -1708,7 +1727,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func playPowerUpSound() {
         let audioNode = SKAudioNode(fileNamed: "Free-Power-Ups-Items-098")
         audioNode.autoplayLooped = false
-        self.addChild(audioNode)
+        self.worldNode.addChild(audioNode)
         let playAction = SKAction.play()
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
     }
@@ -1721,7 +1740,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(playerWeapon == kLaserName){
             let audioNode = SKAudioNode(fileNamed: "Free-Guns-Lasers-035")
             audioNode.autoplayLooped = false
-            self.addChild(audioNode)
+            self.worldNode.addChild(audioNode)
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 1), SKAction.removeFromParent()]))
             if fiveShotUpgrade {
@@ -1780,7 +1799,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         laser.physicsBody?.collisionBitMask = PhysicsCategory.None
         laser.physicsBody?.usesPreciseCollisionDetection = true
         
-        addChild(laser)
+        worldNode.addChild(laser)
         let actionMove = SKAction.move(to: laser.position + CGPoint(x: 0, y: 3000), duration: 2.0)
         let actionMoveDone = SKAction.removeFromParent()
         laser.run(SKAction.sequence([actionMove, actionMoveDone]))
@@ -1789,7 +1808,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func firePlayerMissile() {
         let audioNode = SKAudioNode(fileNamed: "missile")
         audioNode.autoplayLooped = false
-        self.addChild(audioNode)
+        self.worldNode.addChild(audioNode)
         let playAction = SKAction.play()
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 3), SKAction.removeFromParent()]))
         
@@ -1808,7 +1827,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missile.physicsBody?.usesPreciseCollisionDetection = true
         missile.physicsBody?.allowsRotation = false
         
-        addChild(missile)
+        worldNode.addChild(missile)
         let actionMove = SKAction.move(to: missile.position + CGPoint(x: 0, y: 3000), duration: 7.5)
         let actionMoveDone = SKAction.removeFromParent()
         missile.run(SKAction.sequence([actionMove, actionMoveDone]))
@@ -1817,7 +1836,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func missileExplosion(missile: SKNode) {
         let audioNode = SKAudioNode(fileNamed: "Free-Explosions-046")
         audioNode.autoplayLooped = false
-        self.addChild(audioNode)
+        self.worldNode.addChild(audioNode)
         let playAction = SKAction.play()
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         let missileExplosion = SKSpriteNode()
@@ -1835,17 +1854,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missile.physicsBody?.usesPreciseCollisionDetection = true
         missileExplosion.physicsBody?.allowsRotation = false
 
-        addChild(missileExplosion)
+        worldNode.addChild(missileExplosion)
         missileExplosion.run(SKAction.wait(forDuration: 0.0005), completion: { missileExplosion.removeFromParent() })
     }
     
     func missileExplosionEffect(position: CGPoint) {
         let missileExplosionEffect = SKEmitterNode(fileNamed: "MissileExplosionParticle.sks")
         missileExplosionEffect?.particleBirthRate = CGFloat(1000 + 200 * largerExplosionUpgradeNumber)
-        missileExplosionEffect?.particleSpeed = CGFloat(100 * largerExplosionUpgradeNumber)
+        missileExplosionEffect?.particleSpeed = CGFloat(100 + (50 * largerExplosionUpgradeNumber))
         missileExplosionEffect?.particlePosition = position
         missileExplosionEffect?.zPosition = 2
-        addChild(missileExplosionEffect!)
+        worldNode.addChild(missileExplosionEffect!)
         missileExplosionEffect?.run(SKAction.wait(forDuration: 2), completion: { missileExplosionEffect?.removeFromParent() })
     }
     
@@ -1854,7 +1873,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let wait = SKAction.wait(forDuration: 5.0/Double(numberOfHomingMissileUpgrades))
         let audioNode = SKAudioNode(fileNamed: "missile")
         audioNode.autoplayLooped = false
-        self.addChild(audioNode)
+        self.worldNode.addChild(audioNode)
         let playAction = SKAction.play()
         let playSound = SKAction.run {
             audioNode.run(playAction)
@@ -1886,7 +1905,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missile.physicsBody?.usesPreciseCollisionDetection = true
         missile.physicsBody?.allowsRotation = false
         
-        addChild(missile)
+        worldNode.addChild(missile)
         
         if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
             if direction == "Left" {
@@ -1934,7 +1953,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setClosestNode(node: SKSpriteNode) {
         var closestNode: CGFloat = 0
-        for child in children {
+        for child in worldNode.children {
             if child.name != nil && allPossibleEnemies.contains(child.name!) {
                 let tempDistance = calculateDistanceBetween(node1: node, node2: child as! SKSpriteNode)
                 if tempDistance > closestNode {
@@ -1967,13 +1986,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if sound != "" {
             let audioNode = SKAudioNode(fileNamed: sound)
             audioNode.autoplayLooped = false
-            self.addChild(audioNode)
+            self.worldNode.addChild(audioNode)
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         }
         let explosionEffect = SKEmitterNode(fileNamed: fileName)
         explosionEffect?.particlePosition = position
-        addChild(explosionEffect!)
+        worldNode.addChild(explosionEffect!)
         explosionEffect?.run(SKAction.wait(forDuration: 1), completion: { explosionEffect?.removeFromParent() })
         if score != 0 {
             let scoreEffect = SKLabelNode(fontNamed: "Avenir")
@@ -1982,7 +2001,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             scoreEffect.text = "+\(score)"
             scoreEffect.position = position
             scoreEffect.zPosition = 5
-            addChild(scoreEffect)
+            worldNode.addChild(scoreEffect)
             scoreEffect.run(SKAction.wait(forDuration: 1), completion: { scoreEffect.removeFromParent() })
         }
     }
@@ -2001,7 +2020,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         playerTempInvulnerable = true
         let audioNode = SKAudioNode(fileNamed: "playerHit")
         audioNode.autoplayLooped = false
-        self.addChild(audioNode)
+        self.worldNode.addChild(audioNode)
         let playAction = SKAction.play()
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
         // If the player has 0 or less health, go to GameOverScene
@@ -2012,7 +2031,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 missileExplosionEffect(position: player.position)
                 let audioNode = SKAudioNode(fileNamed: "explosion")
                 audioNode.autoplayLooped = false
-                self.addChild(audioNode)
+                self.worldNode.addChild(audioNode)
                 let playAction = SKAction.play()
                 audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             }
@@ -2045,7 +2064,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(sprite.name == kProtectiveShieldName) {
             let audioNode = SKAudioNode(fileNamed: "Free-Power-Ups-Items-078")
             audioNode.autoplayLooped = false
-            self.addChild(audioNode)
+            self.worldNode.addChild(audioNode)
             let playAction = SKAction.play()
             audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
             protectiveShieldActive = false
@@ -2099,10 +2118,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.removeFromParent()
         }
         if(sprite.name == kEyeBossName){
-            if let laserBeam = childNode(withName: kEyeBossLaserName) {
+            if let laserBeam = worldNode.childNode(withName: kEyeBossLaserName) {
                 laserBeam.removeFromParent()
             }
-            if let laserCharge = childNode(withName: kEyeBossLaserChargeName) {
+            if let laserCharge = worldNode.childNode(withName: kEyeBossLaserChargeName) {
                 laserCharge.removeFromParent()
             }
             explosionEffect(position: sprite.position, fileName: "EyeBossExplosionParticle.sks", score: eyeBossKillScore, sound: "pop")
@@ -2140,7 +2159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             tempSprite.size = CGSize(width: 110, height: 152)
             tempSprite.position = sprite.position
             tempSprite.zPosition = 3
-            addChild(tempSprite)
+            worldNode.addChild(tempSprite)
             sprite.removeFromParent()
             spawnRandomPowerUp(position: tempSprite.position, percentChance: 200.0)
             setUpBoss2Explosion(boss2: tempSprite)
@@ -2224,6 +2243,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
+        if worldPaused {
+            worldNode.isPaused = true
+            physicsWorld.speed = 0
+            return
+        }
         timeCounter = timeCounter + 1
         updateBackground()
         processUserMotion()
@@ -2237,7 +2261,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         // Sets all nodes damaged by explosion to be able to be damaged again.
         if !damagedByPlayerMissileExplosionArray.isEmpty {
-            for child in self.children {
+            for child in self.worldNode.children {
                 if child.name != nil && damagedByPlayerMissileExplosionArray.contains(child.name!){
                     child.userData?.setValue(false, forKey: "invulnerable")
                 }
@@ -2265,7 +2289,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 timeEyeBossAttack = currentTime
                 processEyeBossAttacks(attackChosen: Int(arc4random_uniform(2) + 1))
             }
-            if let eyeBossLaser = childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
+            if let eyeBossLaser = worldNode.childNode(withName: kEyeBossLaserName) as? SKSpriteNode {
                 if let player = childNode(withName: kPlayerName) as? SKSpriteNode {
                     if player.position.x + 17.5 > eyeBossLaser.position.x - 10 && player.position.x - 17.5 < eyeBossLaser.position.x + 10 {
                         playerTakesDamage(damage: 12, view: view!)
@@ -2315,15 +2339,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touchLocation = touch!.location(in: self)
         if pauseButton.contains(touchLocation) {
             playButtonPress()
-            pauseButton.removeFromParent()
-            createPauseNode()
-            GameScene.sharedInstance.isPaused = true
+            pause()
         }
         if unpauseButton != nil && unpauseButton.contains(touchLocation) {
             playButtonPress()
             removePauseNode()
             createPauseButton()
-            GameScene.sharedInstance.isPaused = false
+            resume()
         }
         
         if muteButton != nil && muteButton.contains(touchLocation) {

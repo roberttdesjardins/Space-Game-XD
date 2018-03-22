@@ -365,9 +365,9 @@ class StoreScene: SKScene {
         
         if inappPurchaseButton.contains(touchLocation) {
             playButtonPress()
-            // Show a loading spinner ActivityIndicator
+            // TODO: Show a loading spinner ActivityIndicator
             PurchaseManager.instance.purchase5000Credits(onComplete: { success in
-                // Dismiss spinner
+                // TODO: Dismiss spinner
                 if success {
                     print("Purchase success")
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
