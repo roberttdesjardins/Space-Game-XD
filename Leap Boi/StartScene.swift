@@ -124,7 +124,12 @@ class StartScene: SKScene {
     
     func setLayout() {
         let spaceBetweenEach: CGFloat = size.height * 1/20
-        creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height - 40)
+        
+        if UIScreen.main.nativeBounds.height == 2436.0 {
+            creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height * (9/10))
+        } else {
+            creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height - 40)
+        }
         gameNameLabel.position = creditsLabel.position - CGPoint(x: 0, y: size.height * (1/8))
         
         chooseWeaponButton.position = CGPoint(x: size.width * 0.5, y: chooseWeaponButton.size.height/2 + spaceBetweenEach)

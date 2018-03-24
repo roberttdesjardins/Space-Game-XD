@@ -20,8 +20,11 @@
 // Make bosses spawn randomly? When you kill enough get to fight final boss
 // - Random boss mode?
 // Coin Chest drop which grants a lot of credits?
-// credit sprites and music creators
-// Music from https://itch.io/game-assets/tag-music
+// Gumichan01, MetaShinryu, Surt, and Daniel Cook for boss2 enemy sprite
+// Eyeball from Forest Monsters by Calciumtrice, usable under Creative Commons Attribution 3.0 license.
+// Shield and bullet icon made by Freepik from www.flaticon.com
+// DOS-88 - City Stomper and Race to Mars
+
 
 
 import SpriteKit
@@ -505,7 +508,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupScreen() {
-        //scene?.scaleMode = .aspectFit
         scene?.scaleMode = SKSceneScaleMode.resizeFill
         backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
@@ -519,11 +521,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background1.anchorPoint = CGPoint(x: 0, y: 0)
         background1.position = CGPoint(x: 0, y: 0)
         background1.zPosition = -15
+        background1.size.width = size.width
         self.addChild(background1)
         
         background2.anchorPoint = CGPoint(x: 0, y: 0)
         background2.position = CGPoint(x: 0, y: background1.size.height - 1)
         background2.zPosition = -15
+        background2.size.width = size.width
         self.addChild(background2)
     }
     
@@ -569,7 +573,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupWeapon() {
         switch GameData.shared.weaponChosen {
         case "laser":
-            fireRate = BaseFireRate.Laser * pow(0.9, min(Double(fireRateUpgradeNumber), 7))
+            fireRate = BaseFireRate.Laser * pow(0.9, min(Double(fireRateUpgradeNumber), 10))
             playerWeapon = kLaserName
         case "missile":
             fireRate = BaseFireRate.Missile * pow(0.9, min(Double(fireRateUpgradeNumber), 7))
@@ -595,10 +599,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.fontSize = 15
         scoreLabel.fontColor = SKColor.white
         scoreLabel.text = String("Score: \(GameData.shared.playerScore)")
-        scoreLabel.position = CGPoint(
-            x: 0,
-            y: size.height - scoreLabel.frame.size.height
-        )
+        
+        if UIScreen.main.nativeBounds.height == 2436.0 {
+            scoreLabel.position = CGPoint(x: 0, y: size.height - (scoreLabel.frame.size.height + 22))
+        } else {
+            scoreLabel.position = CGPoint(x: 0, y: size.height - scoreLabel.frame.size.height)
+        }
+        
         scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         scoreLabel.zPosition = 20
         addChild(scoreLabel)
@@ -608,10 +615,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         healthLabel.fontSize = 15
         healthLabel.fontColor = SKColor.green
         healthLabel.text = String("Health: \(GameData.shared.playerHealth)%")
-        healthLabel.position = CGPoint(
-            x: 0,
-            y: size.height - (20 + healthLabel.frame.size.height/2)
-        )
+        healthLabel.position = scoreLabel.position - CGPoint(x: 0, y: healthLabel.frame.size.height)
         healthLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         healthLabel.zPosition = 20
         addChild(healthLabel)
@@ -740,7 +744,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Basic Enemies
     func setUpAliens(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addAlien),
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
@@ -837,7 +841,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.addLargeAsteroid(position: CGPoint(x:random(min: 0, max: self.size.width), y: self.size.height * 1.2), xoffset: 0, yoffset: 0)
         }
         
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([actionRun,
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
                 ])
@@ -845,7 +849,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpMassiveAsteroids(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max)))),
                 SKAction.run(addMassiveAsteroid)
@@ -965,7 +969,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpAlienCruisers(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addAlienCruiser),
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
@@ -1197,7 +1201,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // adds little eyeballs only while eyeBoss is active
     func setUpSpawnLittleEyes(min: CGFloat, max: CGFloat) {
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addSpawnLittleEyes),
                 SKAction.wait(forDuration: Double(random(min: CGFloat(min), max: CGFloat(max))))
@@ -1529,7 +1533,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpBoss3HarvesterSpawn() {
-        run(SKAction.repeatForever(
+        worldNode.run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(addBoss3Harvester),
                 SKAction.wait(forDuration: Double(random(min: CGFloat(3), max: CGFloat(4))))
@@ -1725,8 +1729,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if playerWeapon == kLaserName {
             spawnHealthRandom(position: position, percentChance: percentChance/4)
             spawnProtectiveShieldRandom(position: position, percentChance: percentChance/3)
-            if fireRateUpgradeNumber < 7 {
-                spawnFireRateRandom(position: position, percentChance: percentChance/6)
+            if fireRateUpgradeNumber < 10 {
+                spawnFireRateRandom(position: position, percentChance: percentChance/4)
             }
             if !fiveShotUpgrade {
                 spawnThreeShotRandom(position: position, percentChance: percentChance/5)
@@ -1766,7 +1770,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func spawnFireRateRandom(position: CGPoint, percentChance: CGFloat) {
         let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
         if(randomNum <= percentChance){
-            addPowerUp(position: position, image: "firerateupgrade", name: kFireRateUpgradeName)
+            addPowerUp(position: position, image: "Powerup_Yellow_Glow", name: kFireRateUpgradeName)
         }
     }
     
@@ -1808,7 +1812,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func spawnLargerExplosionRandom(position: CGPoint, percentChance: CGFloat) {
         let randomNum = random(min: CGFloat(0.0), max: CGFloat(100.0))
         if(randomNum <= percentChance){
-            addPowerUp(position: position, image: "Powerup_Yellow_Glow", name: kMissileExplosionSizeUpgradeName)
+            addPowerUp(position: position, image: "Powerup_Green_Glow", name: kMissileExplosionSizeUpgradeName)
         }
     }
     
@@ -1880,7 +1884,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let playAction = SKAction.play()
         audioNode.run(SKAction.sequence([playAction, SKAction.wait(forDuration: 2), SKAction.removeFromParent()]))
     }
-    
     
     
     
@@ -2157,7 +2160,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func stopSpawns() {
-        removeAllActions()
+        //removeAllActions()
+        worldNode.removeAllActions()
     }
     
     

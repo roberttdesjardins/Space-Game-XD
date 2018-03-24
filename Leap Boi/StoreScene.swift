@@ -74,7 +74,12 @@ class StoreScene: SKScene {
         creditsLabel.fontSize = 25
         creditsLabel.fontColor = SKColor.white
         creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
-        creditsLabel.position = CGPoint(x: size.width/2, y: size.height - 40)
+        
+        if UIScreen.main.nativeBounds.height == 2436.0 {
+            creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height * (9/10))
+        } else {
+            creditsLabel.position = CGPoint(x: size.width * 0.5, y: size.height - 40)
+        }
         self.addChild(creditsLabel)
     }
     
