@@ -383,7 +383,7 @@ class StoreScene: SKScene {
                     self.creditsLabel.text = "Credits: \(GameData.shared.totalCredits)"
                 } else {
                     print("Purchase failed")
-                    // Show message about why it failed
+                    // TODO: Show message about why it failed
                 }
             })
             //createInappPurchaseNode()

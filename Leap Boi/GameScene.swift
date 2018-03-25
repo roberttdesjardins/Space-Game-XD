@@ -4,10 +4,9 @@
 //
 //  Created by Robert Desjardins on 2018-02-26.
 //  Copyright © 2018 Robert Desjardins. All rights reserved.
-//  Music from: 
 
 // TODO:
-// TOP PRIORITY: Change game Logo to image, Change speed of particles for different devices.
+// TOP PRIORITY: Change game Logo to image, change how counter works; currently if game is lagging it goes slower, add unique boss upgrades/entierly new weapons , gamecenter leaderboards
 // Change player default look -> Button in the store to go to cosmetic upgrades
 // Add option on startScene to change player look
 // Add stats like "Damage" "Fire Rate" etc under each weapon on WeaponScene
@@ -1143,7 +1142,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         chargeLaser.name = kEyeBossLaserChargeName
         chargeLaser.size = CGSize(width: 0, height: 0)
         if let eyeBoss = worldNode.childNode(withName: kEyeBossName) as? SKSpriteNode {
-            chargeLaser.position = eyeBoss.position - CGPoint(x: 0, y: eyeBoss.size.height/3)
+            chargeLaser.position = eyeBoss.position - CGPoint(x: -3, y: eyeBoss.size.height/3)
         }
         worldNode.addChild(chargeLaser)
         chargeLaser.run(SKAction.resize(toWidth: eyeBossLaserChargeWidth, height: eyeBossLaserChargeHeight, duration: 1.4), completion: {
@@ -2760,7 +2759,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         guard let nodeA = contact.bodyA.node else { return }
         guard let nodeB = contact.bodyB.node else { return }
-        
+
         if nodeA.name == kPlayerName {
             collisionBetween(ob1: nodeA, ob2: nodeB)
         } else if nodeB.name == kPlayerName {

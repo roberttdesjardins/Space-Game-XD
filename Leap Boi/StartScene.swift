@@ -79,7 +79,7 @@ class StartScene: SKScene {
     func createGameNameLabel() {
         gameNameLabel = SKLabelNode(fontNamed: "SquareFont")
         gameNameLabel.zPosition = 2
-        gameNameLabel.fontSize = 55
+        gameNameLabel.fontSize = (55/414) * size.width
         gameNameLabel.fontColor = SKColor.white
         gameNameLabel.text = "Space Game xD"
         self.addChild(gameNameLabel)

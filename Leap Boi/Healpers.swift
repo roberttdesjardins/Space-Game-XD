@@ -110,8 +110,8 @@ func gameSceneLoad(view: UIView) {
     let skView = view as! SKView
     skView.ignoresSiblingOrder = true
     scene.scaleMode = .resizeFill
-    skView.showsFPS = true
-    skView.showsNodeCount = true
+    skView.showsFPS = false
+    skView.showsNodeCount = false
     skView.presentScene(scene, transition: SKTransition.doorsCloseHorizontal(withDuration: 1.0))
 }
 
