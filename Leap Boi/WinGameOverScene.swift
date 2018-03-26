@@ -16,7 +16,7 @@ class WinGameOverScene: SKScene {
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
-        GameData.shared.creditsEarned = GameData.shared.creditsEarned + Int(round(Double(GameData.shared.playerScore/250)))
+        GameData.shared.creditsEarned = GameData.shared.creditsEarned + Int(round(Double(GameData.shared.playerScore/25)))
         setupMusic()
         createYouWinLabel()
         createScoreLabel()

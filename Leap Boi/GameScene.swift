@@ -487,6 +487,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setUpUpgrades()
         motionManager.startAccelerometerUpdates()
         GameScene.sharedInstance = self
+        // TODO: Change for different screen sizes
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: -1.8)
     }
     
@@ -1532,12 +1533,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setUpBoss3HarvesterSpawn() {
-        worldNode.run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(addBoss3Harvester),
-                SKAction.wait(forDuration: Double(random(min: CGFloat(3), max: CGFloat(4))))
-                ])
-        ))
+        worldNode.run(SKAction.repeatForever(SKAction.sequence([
+            SKAction.run(boss3HarvesterBurst),
+            SKAction.wait(forDuration: 12.0)
+            ])))
+    }
+    
+    func boss3HarvesterBurst() {
+        worldNode.run(SKAction.repeat(SKAction.sequence([
+            SKAction.run(addBoss3Harvester),
+            SKAction.wait(forDuration: 1.0)
+            ]), count: 7))
     }
     
     func addBoss3Harvester() {
