@@ -2077,8 +2077,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         missile.physicsBody?.velocity.dy = homingMissileInitialVelocityDY
         homingMissileArray.append(missile)
         let wait = SKAction.wait(forDuration:20.0)
+        let removeFromArray = SKAction.run {
+            if let index = self.homingMissileArray.index(of: missile) {
+                self.homingMissileArray.remove(at: index)
+            }
+        }
         let action = SKAction.removeFromParent()
-        missile.run(SKAction.sequence([wait,action]))
+        missile.run(SKAction.sequence([wait, removeFromArray, action]))
     }
     
     // Might have a runtime of... something like O(n^3) if I constantly find what is the closest enemy node and change force applied towards that node at every update for every homing missile.
@@ -2478,6 +2483,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if GameData.shared.magnetUpgrade && !upgradeArray.isEmpty {
             processUpgradeMovement()
         }
+        
+        print("Number of elements in UpgradeArray: \(upgradeArray.count)")
+        print("Number of elements in MissileArray: \(homingMissileArray.count)")
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -2562,7 +2570,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             if ob1.name == kPlayerName && ob2.name == kAlienMissileName {
                 explosionEffect(position: ob2.position, fileName: "AlienMissileExplosionParticle.sks", score: 0, sound: "")
-                alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
+                if let index = alienMissileArray.index(of: ob2 as! SKSpriteNode) {
+                    alienMissileArray.remove(at: index)
+                }
                 ob2.removeFromParent()
                 playerTakesDamage(damage: 65, view: view!)
             }
@@ -2615,7 +2625,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if ob1.name == kProtectiveShieldName && ob2.name == kAlienMissileName {
             explosionEffect(position: ob2.position, fileName: "AlienMissileExplosionParticle.sks", score: 0, sound: "")
-            alienMissileArray.remove(at: alienMissileArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = alienMissileArray.index(of: ob2 as! SKSpriteNode) {
+                alienMissileArray.remove(at: index)
+            }
             ob2.removeFromParent()
             subtractHealth(sprite: ob1, damage: 65)
         }
@@ -2635,14 +2647,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kHealthPackName {
             playPowerUpSound()
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             GameData.shared.playerHealth = GameData.shared.maxPlayerHealth
         }
         
         if ob1.name == kPlayerName && ob2.name == kFireRateUpgradeName {
             playPowerUpSound()
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             fireRateUpgradeNumber = fireRateUpgradeNumber + 1
             setupWeapon()
@@ -2650,7 +2666,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kThreeShotUpgradeName {
             playPowerUpSound()
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             if fourShotUpgrade {
                 fiveShotUpgrade = true
@@ -2666,7 +2684,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ob1.name == kPlayerName && ob2.name == kProtectiveShieldUpgradeName {
             playPowerUpSound()
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             if !protectiveShieldActive {
                 addProtectiveShield()
@@ -2681,13 +2701,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 numberOfHomingMissileUpgrades = numberOfHomingMissileUpgrades + 1
             }
             playPowerUpSound()
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             setUpHomingMissile()
         }
         
         if ob1.name == kPlayerName && ob2.name == kLaserDamageUpgradeName {
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             playPowerUpSound()
             if laserDamageUpgradeNumber <= 5 {
@@ -2696,7 +2720,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kMissileExplosionDamageUpgradeName {
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             playPowerUpSound()
             if missileExplosionDamageUpgradeNumber <= 5 {
@@ -2706,7 +2732,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ob1.name == kPlayerName && ob2.name == kMissileExplosionSizeUpgradeName {
-            upgradeArray.remove(at: upgradeArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = upgradeArray.index(of: ob2 as! SKSpriteNode) {
+                upgradeArray.remove(at: index)
+            }
             ob2.removeFromParent()
             playPowerUpSound()
             if largerExplosionUpgradeNumber <= 5 {
@@ -2729,7 +2757,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if damagedByPlayerMissileArray.contains(ob1.name!) && ob2.name == kHomingMissileName {
             subtractHealth(sprite: ob1, damage: CGFloat(homingMissileBaseDamage))
-            homingMissileArray.remove(at: homingMissileArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = homingMissileArray.index(of: ob2 as! SKSpriteNode) {
+                homingMissileArray.remove(at: index)
+            }
             ob2.removeFromParent()
             missileExplosion(missile: ob2)
             missileExplosionEffect(position: ob2.position)
@@ -2750,7 +2780,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             missileExplosionEffect(position: ob2.position)
         }
         if ob1.name == kEyeBossLaserName && ob2.name == kHomingMissileName {
-            homingMissileArray.remove(at: homingMissileArray.index(of: ob2 as! SKSpriteNode)!)
+            if let index = homingMissileArray.index(of: ob2 as! SKSpriteNode) {
+                homingMissileArray.remove(at: index)
+            }
             ob2.removeFromParent()
             missileExplosion(missile: ob2)
             missileExplosionEffect(position: ob2.position)
